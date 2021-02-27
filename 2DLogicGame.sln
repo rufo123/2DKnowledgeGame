@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31005.135
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "2DLogicGame", "2DLogicGame\2DLogicGame.csproj", "{D360E8D4-5428-4BB6-960C-7FA37A19F84E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D360E8D4-5428-4BB6-960C-7FA37A19F84E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D360E8D4-5428-4BB6-960C-7FA37A19F84E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D360E8D4-5428-4BB6-960C-7FA37A19F84E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D360E8D4-5428-4BB6-960C-7FA37A19F84E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {384ED757-DCD4-4D57-A326-5F26816B6C76}
+	EndGlobalSection
+EndGlobal
