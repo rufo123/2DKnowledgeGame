@@ -105,6 +105,8 @@ namespace _2DLogicGame
                 Exit();
             }
 
+            
+
            
 
             if (aMenu.TaskToExecute != MenuTasksToBeExecuted.None) {
@@ -135,6 +137,19 @@ namespace _2DLogicGame
 
                 aMenu.TaskToExecute = MenuTasksToBeExecuted.None;
             }
+
+
+            if (this.CheckKeyPressedOnce(Keys.A))
+            {
+                if (aClientClass != null) {
+
+                    bool tst = aClientClass.SendChatMessage("Testerino Sprava");
+
+                    Debug.WriteLine("Bolo stlacene A - hodnota: " + tst);
+
+                }
+            }
+
 
             PreviousPressedKey = CurrentPressedKey;
             CurrentPressedKey = Keyboard.GetState();

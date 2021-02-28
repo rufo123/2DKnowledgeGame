@@ -5,5 +5,6 @@ using System.Text;
 public enum PacketMessageType { 
     Connect = 0,
     Send = 1,
-    Disconnect = 2
+    Disconnect = 2,
+    ChatMessage = 3
 }

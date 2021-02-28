@@ -10,19 +10,36 @@ namespace _2DLogicGame
 
 
 
+
     class Client
     {
+
+
 
         private NetClient aClient;
         private string aIP = "127.0.0.1";
         private int aPort = 28741;
         private string aNickName;
+        /// <summary>
+        /// Maximalna Dlzka Chatovej Spravy - Default 20
+        /// </summary>
+        private int aMaxChatMessageLength = 20;
 
         /// <summary>
         /// Atribut, ktory reprezentuje ci je Klient pripojeny k serveru alebo nie
         /// </summary>
         private bool aConnected;
 
+        /// <summary>
+        /// Dictionary obsahujúca Hráčov, ku ktorým sa bude pristupovať pomocou Remote Unique Identifikator - Typ PlayerServer
+        /// Dictionary - ma O(1) Access narozdiel O(n) v Liste, preto som nezvolil List
+        /// </summary>
+        private Dictionary<long, ClientSide.PlayerClientData> aDictionaryPlayerData;
+
+        /// <summary>
+        /// Atribut Reprezentuje aky Maximalny pocet Hracov je Povoleny na Serveri - Default 2
+        /// </summary>
+        private int aMaxPlayers = 2;
 
         private LogicGame aLogicGame;
 
@@ -54,6 +71,8 @@ namespace _2DLogicGame
             aClient.Connect(host: aIP, port: aPort, hailMessage: tmpOutgoingMessage); //Pripojime klienta na zadaneho hosta, port a spravu, ktoru chceme odoslat spolu s inicializaciou
 
 
+            aDictionaryPlayerData = new Dictionary<long, ClientSide.PlayerClientData>(aMaxPlayers);
+
 
             if (aClient.ConnectionStatus == NetConnectionStatus.Connected)
             {
@@ -67,11 +86,11 @@ namespace _2DLogicGame
 
 
 
-         /*   Thread thread;
-            thread = new Thread(new ThreadStart(ReadMessages));
-            thread.Start();
+            /*   Thread thread;
+               thread = new Thread(new ThreadStart(ReadMessages));
+               thread.Start();
 
-            thread.Join(); */
+               thread.Join(); */
 
 
 
@@ -120,6 +139,31 @@ namespace _2DLogicGame
                     case NetIncomingMessageType.ConnectionApproval:
                         break;
                     case NetIncomingMessageType.Data:
+
+                        tmpReceivedByte = tmpIncommingMessage.ReadByte(); //Zainicializujeme lokalnu premennu typu byte - reprezentujucu prijaty byte
+
+                        if (tmpReceivedByte == (byte)PacketMessageType.ChatMessage)
+                        { 
+                            Debug.WriteLine("Klient - Prijal potvrdenie o odoslanej sprave!");
+
+                            Debug.WriteLine(tmpIncommingMessage.ReadVariableInt64());
+
+                            Debug.WriteLine(tmpIncommingMessage.ReadVariableInt32());
+
+                            Debug.WriteLine(tmpIncommingMessage.ReadString());
+                        }
+
+                        if (tmpReceivedByte == (byte)PacketMessageType.Connect) {
+
+                            int tmpID = tmpIncommingMessage.ReadVariableInt32();
+
+                            string tmpNickname = tmpIncommingMessage.ReadString();
+
+                            long tmpRUID = tmpIncommingMessage.ReadVariableInt64();
+
+                            this.AddPlayer(tmpID, tmpNickname, tmpRUID);
+                        }
+
                         break;
                     case NetIncomingMessageType.Receipt:
                         break;
@@ -146,6 +190,56 @@ namespace _2DLogicGame
 
             Shutdown(); //Mozno dobre ako destruktor...
 
+        }
+
+        /// <summary>
+        /// Metoda, ktora sluzi na odosielanie chatovej spravy
+        /// </summary>
+        /// <param name="parMessage">Parameter Sprava - Typu String</param>
+        /// <returns></returns>
+        public bool SendChatMessage(string parMessage)
+        {
+
+            if (parMessage.Length <= aMaxChatMessageLength)
+            {
+                NetOutgoingMessage tmpOutgoingMessage = aClient.CreateMessage();
+                tmpOutgoingMessage.Write((byte)PacketMessageType.ChatMessage);
+                tmpOutgoingMessage.Write(parMessage);
+
+                aClient.SendMessage(tmpOutgoingMessage, NetDeliveryMethod.ReliableOrdered);
+
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
+        }
+
+        public bool AddPlayer(int parPlayerID, string parPlayerNickname, long parRemoteUniqueIdentifier) {
+
+            if (aDictionaryPlayerData.Count < 2)
+            {
+
+                aDictionaryPlayerData.Add(parRemoteUniqueIdentifier, new ClientSide.PlayerClientData(parPlayerID, parPlayerNickname, parRemoteUniqueIdentifier));
+
+                Debug.WriteLine("Klient - Data o Hracovi: " + parPlayerNickname + " boli pridane!");
+
+                return true;
+            }
+            else {
+
+                Debug.WriteLine("Klient - Data o Hracovi: " + parPlayerNickname + " neboli pridane - Toto by sa nemalo stat!!!");
+
+                return false;
+            }
+
+        }
+
+        public bool RemovePlayer(long parRemoteUniqueIdentifier) {
+
+            return aDictionaryPlayerData.Remove(parRemoteUniqueIdentifier);
         }
 
 
