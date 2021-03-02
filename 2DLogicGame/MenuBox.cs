@@ -23,6 +23,8 @@ namespace _2DLogicGame
         private Color aColorSelectedItem; //Farba Celeho Menu Boxu - Color
         private double aBoxTextSize; //Velkost Menu Boxu - Double
 
+        private float aMenuItemSize;
+
         KeyboardState aPreviousKeyPressed;
 
         private double aTimeSinceLastKeyPress = 0;
@@ -52,6 +54,7 @@ namespace _2DLogicGame
 
         public override void Draw(GameTime gameTime)
         {
+
             aLogicGame.SpriteBatch.Begin();
 
             for (int i = 0; i < aBoxItems.Count; i++)
@@ -62,14 +65,14 @@ namespace _2DLogicGame
                 {
                     tmpColor = aColorSelectedItem;
                 }
+
                 aLogicGame.SpriteBatch.DrawString(aLogicGame.Font, aBoxItems[i].MenuText, aBoxItems[i].MenuPosition, tmpColor);
-
-
 
 
             }
 
             aLogicGame.SpriteBatch.End();
+
 
             base.Draw(gameTime);
         }
@@ -129,7 +132,7 @@ namespace _2DLogicGame
 
             float tmpNewPositionY = aBoxPosition.Y + aBoxItems.Count * (float)aBoxTextSize; //Novu poziciu Y vypocitame pomocou, starej pozicie Y + Pocet Akt. Menu Itemov + Velkost Textu
             Vector2 tmpPosition = new Vector2(aBoxPosition.X, tmpNewPositionY);
-            MenuItem tmpNewMenuItem = new MenuItem(parMenuItemText, tmpPosition, parAction);
+            MenuItem tmpNewMenuItem = new MenuItem(parMenuItemText, tmpPosition, parAction, aBoxTextSize);
             aBoxItems.Add(tmpNewMenuItem);
 
             SelectedItem = tmpNewMenuItem;
