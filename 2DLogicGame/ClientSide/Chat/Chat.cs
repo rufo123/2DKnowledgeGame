@@ -23,6 +23,11 @@ namespace _2DLogicGame.ClientSide.Chat
         private ChatInputBox aChatInputBox;
 
         /// <summary>
+        /// Reprezentuje Chat Receive Box - Typ ChatReceiveBox
+        /// </summary>
+        private ChatReceiveBox aChatReceiveBox;
+
+        /// <summary>
         /// Queue, ktora reprezentuje Spravy, ktore cakaju na odoslanie - Kazdy tick sa odosle jedna
         /// </summary>
         private Queue<string> aMessagesToBeSent;
@@ -34,12 +39,12 @@ namespace _2DLogicGame.ClientSide.Chat
 
         public bool IsMessageWaitingToBeSent { get => isMessageWaitingToBeSent;  }
 
-        public Chat(LogicGame parGame, ChatInputBox parChatInputBox) : base(parGame)
+        public Chat(LogicGame parGame, ChatInputBox parChatInputBox, ChatReceiveBox parChatReceiveBox) : base(parGame)
         {
             aMessagesToBeSent = new Queue<string>(2);
-
             aLogicGame = parGame;
             aChatInputBox = parChatInputBox;
+            aChatReceiveBox = parChatReceiveBox;
         }
 
         public override void Draw(GameTime gameTime)
@@ -81,19 +86,27 @@ namespace _2DLogicGame.ClientSide.Chat
             base.UnloadContent();
         }
 
-        public void StoreAllMessages()
+        public void StoreAllMessages(string parSenderName, string parMessage)
         {
-
+            aChatReceiveBox.StoreMessage(parSenderName + ": " + parMessage);
         }
 
+        /// <summary>
+        /// Metoda, sluziaca na Uskladnenie spravy pred odoslanim
+        /// </summary>
+        /// <param name="parMessage">Parameter sprava - typ string</param>
         public void StoreMessageToSend(string parMessage)
         {
-            aMessagesToBeSent.Enqueue(parMessage);
-            isMessageWaitingToBeSent = true;
+            aMessagesToBeSent.Enqueue(parMessage); //Ulozime spravu do Queue - Front
+            isMessageWaitingToBeSent = true; //Nastavime pomocnu premennu - sprava je pripravena na odoslanie - resp. Front nie je prazdny 
 
             aChatInputBox.DeleteMessage(); //Na konci zmazeme uz odoslanu spravu
         }
 
+        /// <summary>
+        /// Metoda, ktora sluzi na odovzdanie spravy
+        /// </summary>
+        /// <returns></returns>
         public string ReadAndTakeMessage()
         {
             if (aMessagesToBeSent.Count == 1) //Ak je tam len jedna sprava, zoberieme ju a zaroven nastavime ze uz ziadne nacakaju

@@ -35,7 +35,6 @@ namespace _2DLogicGame.ClientSide.Chat
         /// </summary>
         private Rectangle aChatInputRectangle;
 
-
         /// <summary>
         /// Hodnota Boolean, ktora oznacuje ci je Input Otvoreny alebo Nie
         /// </summary>
@@ -58,15 +57,49 @@ namespace _2DLogicGame.ClientSide.Chat
         /// </summary>
         private bool isMessageReadyToBeStored = false;
 
+        /// <summary>
+        /// Vyska okna Input Boxu - Typ Int
+        /// </summary>
         private int aWindowHeight;
+
+        /// <summary>
+        /// Sirka okna Input Boxu - Typ Int
+        /// </summary>
         private int aWindowWidth;
 
+        /// <summary>
+        /// Maximalna dlzka spravy, defaultne 50 - Typ Int
+        /// </summary>
+        private int aMessageMaxLength = 50;
 
-
-
+        /// <summary>
+        /// Getter - MessageToSend
+        /// </summary>
         public string MessageToSend { get => aMessageToSend; }
+
+        /// <summary>
+        /// Reprezentuje Scale Fontu - Typ Float
+        /// </summary>
+        private float aFontScale = 0.5F;
+
+        private const float aFontEnlargingConstant = 0.025F;
+
+        private float aDefaultFontScale;
+
+
+        /// <summary>
+        /// Getter a Setter - Boolean - Je Sprava Uz Uskladnena? 
+        /// </summary>
         public bool IsMessageReadyToBeStored { get => isMessageReadyToBeStored; set => isMessageReadyToBeStored = value; }
 
+        /// <summary>
+        /// Konštruktor ChatInputBoxu - Vytvori ChatInputBox
+        /// </summary>
+        /// <param name="parGame">Parameter Hra - Typ 2DLogicGame</param>
+        /// <param name="parGameWindow">Parameter Okno Hry - Typ GameWindow</param>
+        /// <param name="parWidth">Parameter Specifikujuci Sirku Boxu - Typ Int</param>
+        /// <param name="parHeight">Paramter Specifikujuci Vysku Boxu - Typ Int</param>
+        /// <param name="parPosVector">Parameter Specifikujuci Poziciu Boxu - Typ Vector2</param>
         public ChatInputBox(LogicGame parGame, GameWindow parGameWindow, int parWidth, int parHeight, Vector2 parPosVector) : base(parGame)
         {
             aLogicGame = parGame;
@@ -76,21 +109,43 @@ namespace _2DLogicGame.ClientSide.Chat
             aChatInputRectangle = new Rectangle((int)parPosVector.X, (int)parPosVector.Y, parWidth, parHeight);
             aWindowHeight = parHeight;
             aWindowWidth = parWidth;
+            aDefaultFontScale = aFontScale;
 
         }
 
+        /// <summary>
+        /// Vykresli Chat Input Box a String Obsahujuci Text, Ktory uzivatel prave pise
+        /// </summary>
+        /// <param name="gameTime">Parameter GameTime - Cas</param>
         public override void Draw(GameTime gameTime)
         {
             if (isInputOpen)
             {
                 aLogicGame.SpriteBatch.Begin();
-                aLogicGame.SpriteBatch.Draw(aChatInputTexture2D, aChatInputRectangle, Color.White);
+                aLogicGame.SpriteBatch.Draw(aChatInputTexture2D, aChatInputRectangle, Color.White); //Vykrasli ChatInputBox pomocou Textury, Rectangle a farby - Color.White zachovava povodne farby
 
-                Vector2 tmpVectorChat = aPositionVector + new Vector2(36, aWindowHeight/2 - 36);
 
-                aLogicGame.SpriteBatch.DrawString(aLogicGame.Font, aMessageToSend, tmpVectorChat, Color.White, 0f, Vector2.Zero, 0.3f, SpriteEffects.None, 0f);
+                float tmpNextStringSize = (aLogicGame.Font.MeasureString(aMessageToSend).X * aFontScale) + aLogicGame.Font.LineSpacing; //Reprezentuje buducu moznu velkost Stringu s ohladom na Skalovanie
+                float tmpPreviousStringSize = ((aLogicGame.Font.MeasureString(aMessageToSend).X * (aFontScale + aFontEnlargingConstant)) + aLogicGame.Font.LineSpacing); //Reprezentuje predoslu velkost Stringu s ohladom na Skalovanie
+
+                if (tmpNextStringSize > aWindowWidth) //Ak je buduca Velkost Stringu väcsia ako momentalna sirka Input Boxu
+                {
+                    aFontScale = aFontScale - aFontEnlargingConstant;
+                }
+                else if (aFontScale != aDefaultFontScale && tmpPreviousStringSize < aWindowWidth)
+                {
+                    if (aFontScale < aDefaultFontScale)
+                    {
+                        aFontScale = aFontScale + aFontEnlargingConstant;
+                    }
+                }
+
+                Vector2 tmpStringSizeVector = aLogicGame.Font.MeasureString(aMessageToSend) * aFontScale;
+
+                Vector2 tmpVectorChat = aPositionVector + new Vector2(aWindowWidth / 2 - (int)tmpStringSizeVector.X / 2, aWindowHeight / 2 - (aLogicGame.Font.LineSpacing * aFontScale)/2); //Pomocny Pozicny Vektor pre Text Input Boxu
+
+                aLogicGame.SpriteBatch.DrawString(aLogicGame.Font, aMessageToSend, tmpVectorChat, Color.White, 0f, Vector2.Zero, aFontScale, SpriteEffects.None, 0f); //Vykresli String
                 aLogicGame.SpriteBatch.End();
-
 
             }
             base.Draw(gameTime);
@@ -98,133 +153,118 @@ namespace _2DLogicGame.ClientSide.Chat
 
         public override void Initialize()
         {
-
-
-
             base.Initialize();
         }
 
+        /// <summary>
+        /// Update - Najprv kontroluje ci bolo tlacitko pre pisanie sprav stalcene prave jeden krat a uz nebol otvoreny Input Box
+        /// Ak je Input uz Otvoreny, porovnavame este ci je este stale drzane predosle tlacitko, ak ako nastavime jemu korespondujuci character na '0' a Window.TexInputu priradime nas Handle
+        /// V opacnom pripade, odoberieme nas Handle od Window.TextInputu
+        /// </summary>
+        /// <param name="gameTime"></param>
         public override void Update(GameTime gameTime)
         {
-            if (aLogicGame.CheckKeyPressedOnce(aLogicGame.ChatWriteMessageKey) && isInputOpen == false)
+            if (aLogicGame.CheckKeyPressedOnce(aLogicGame.ChatWriteMessageKey) && isInputOpen == false) //Neotvoreny Input Box
             {
                 isInputOpen = !isInputOpen; //Prakticky to robi to, ze sa hodnota boolean zmeni na opacnu hodnotu... Usetrime riadky kodu
-
             }
 
-            if (isInputOpen)
+            if (isInputOpen) //Otvoreny Input
             {
                 if (Keyboard.GetState().IsKeyDown(aPreviousKeyPressed) == false)
                 {
                     aPreviousCharacterPressed = '0';
                 }
                 aLogicGame.Window.TextInput += TextInputHandle;
-
-
             }
-            else
+            else //Opacny Pripad
             {
-
                 aLogicGame.Window.TextInput -= TextInputHandle;
             }
-
-
             base.Update(gameTime);
         }
 
+        /// <summary>
+        /// Nacitava Texturu Pozadia pre Chat Input
+        /// </summary>
         protected override void LoadContent()
         {
-
-
             aChatInputTexture2D = aLogicGame.Content.Load<Texture2D>("Sprites\\Backgrounds\\chatInputBackground");
-
             base.LoadContent();
         }
 
-
+        /// <summary>
+        /// Handle sluziaci na Text Input - Parametre vyplyvaju z Window.TextInputu...
+        /// </summary>
+        /// <param name="parSender">Parameter - Objekt odosielatel</param>
+        /// <param name="parArgs">Parameter - Argumenty - Typ TextInputEventArgs</param>
         public void TextInputHandle(object parSender, TextInputEventArgs parArgs)
         {
-
-
             Keys tmpKeyPressed = parArgs.Key;
             char tmpCharacter = parArgs.Character;
 
-
-            if (isInputOpen && tmpCharacter != aPreviousCharacterPressed)
+            if (isInputOpen && tmpCharacter != aPreviousCharacterPressed) // Ak je Input Otvoreny a Predosly a Aktualny Character Nie je Rovnaky - Prejdeme takto duplikacii vstupu
             {
-
-                if (tmpKeyPressed == Keys.Back) {
-                    this.TructMessage();
-                    Debug.WriteLine(aMessageToSend);
+                if (tmpKeyPressed == Keys.Back)
+                { //Ak je momentalne stlacene tlacitko rovne - BACKSPACU
+                    this.TructMessage(); //Odstranime posledny charakter zo momentalne pisanej spravy
+                    Debug.WriteLine(aMessageToSend); //Debug - Sprava do konzole
                 }
-
-
-                if (aLogicGame.Font.Characters.Contains(tmpCharacter))
+                if (aLogicGame.Font.Characters.Contains(tmpCharacter)) //Overime si ci Font Hry obsahuje charakter, ktory sa snazime napisat
                 {
-
-                    this.AppendMessage(tmpCharacter);
-                    Debug.WriteLine(aMessageToSend);
+                    this.AppendMessage(tmpCharacter); //Ak ano, priradime charakter ku sprave
+                    Debug.WriteLine(aMessageToSend); //Debug - Sprava do konzole
 
                 }
-
-                if (tmpKeyPressed == Keys.Enter) //Ak odosleme spravu
+                if (tmpKeyPressed == Keys.Enter) //Ak je momentalne stlacene tlacitko rovne - ENTERU - Spravu sa snazi pouzivatel odoslat
                 {
-                    Debug.WriteLine("Chat Window Closed");
-                    isInputOpen = false;
-                    IsMessageReadyToBeStored = true;
+                    Debug.WriteLine("Chat Window Closed"); //Debug - Sprava do konzole, ze Chat je zatvoreny
+                    isInputOpen = false; //Nastavime premennu, ktora symbolizuje ci je Input Otvoreny na - FALSE
+                    IsMessageReadyToBeStored = true; //Nastavime premennu, ktora symbolizuje ci je Sprava Pripravena Na Ulozene (Pred odoslanim) na - TRUE
                 }
-
-
-
-
             }
 
-            aPreviousCharacterPressed = tmpCharacter;
-            aPreviousKeyPressed = tmpKeyPressed;
-
-
-
-
-
-
-
+            aPreviousCharacterPressed = tmpCharacter; //Ulozime si tlacitko, ktore bolo stlacene
+            aPreviousKeyPressed = tmpKeyPressed; //Ulozime si charakter, ktory bol stlaceny
         }
 
+        /// <summary>
+        /// Metoda, ktora sluzi na pridavanie znaku do Stringu reprezentujuceho Spravu
+        /// </summary>
+        /// <param name="parCharacterToAppend">Parameter Charakter na pridanie do Stringu - Typ Char</param>
         public void AppendMessage(char parCharacterToAppend)
         {
-            if (aMessageToSend != null)
+            if (aMessageToSend != null) //Ak string spravy nie je prazdny - Pre bezpecnost
             {
-                if (aMessageToSend.Length < 50)
+                if (aMessageToSend.Length < aMessageMaxLength) //Ak je dlzka spravy mensia ako specifikovane maximum
                 {
-                    this.aMessageToSend += parCharacterToAppend;
+                    this.aMessageToSend += parCharacterToAppend; //Pridame do spravy Charakter
                 }
-
             }
             else
             {
-
-                this.aMessageToSend += parCharacterToAppend;
+                this.aMessageToSend += parCharacterToAppend; //Ak je sprava null - neexistuje, pridame tam prvy charakter
             }
         }
 
-        public void TructMessage() {
-
-            if (aMessageToSend.Length > 0) {
-
-               this.aMessageToSend = this.aMessageToSend.Remove(aMessageToSend.Length - 1);
+        /// <summary>
+        /// Metoda, ktora odstranuje posledny charakter zo spravy
+        /// </summary>
+        public void TructMessage()
+        {
+            if (aMessageToSend.Length > 0) //Ak sprava obsahuje nejaky charakter
+            {
+                this.aMessageToSend = this.aMessageToSend.Remove(aMessageToSend.Length - 1); //Spravu odstranime tak, ze pouzijeme Metodu Remove, ktora odstranuje vsetky charaktery od nami specifikovaneho - Doprava
             }
-
         }
 
+        /// <summary>
+        /// Metoda, sluziaca na odstranenie spravy
+        /// </summary>
         public void DeleteMessage()
         {
-            IsMessageReadyToBeStored = false;
-            aMessageToSend = "";
+            IsMessageReadyToBeStored = false; //Nastavime premennu IsMessageReadyTobeStored na - FALSE
+            aMessageToSend = ""; //Nastavime string reprezentujuci spravu na - "" - "Ako keby" ju zmazeme
         }
-
-
-
-
-
     }
 }

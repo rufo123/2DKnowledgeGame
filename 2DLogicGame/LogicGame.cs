@@ -48,6 +48,15 @@ namespace _2DLogicGame
 
         private int aRenderTargetHeight = 1080;
 
+        private int aBackBufferWidth = 1280; //1280
+
+        private int aBackBufferHeight = 720; //720
+
+
+
+
+        private float aScale = 1F;
+
         // Gettery a Settery
 
         public SpriteBatch SpriteBatch { get => _spriteBatch; set => _spriteBatch = value; } //Getter Setter SpriteBatch
@@ -61,8 +70,11 @@ namespace _2DLogicGame
         public Keys ChatWriteMessageKey { get => aChatWriteMessageKey; set => aChatWriteMessageKey = value; }
         public RenderTarget2D RenderTarget { get => aRenderTarget; }
         public GraphicsDeviceManager Graphics { get => _graphics; set => _graphics = value; }
+        public float Scale { get => aScale;  }
 
+       // public int RenderTargetWidth { get => aRenderTargetWidth;  }
 
+       // public int RenderTargetHeight { get => aRenderTargetHeight; }
         //Keys
 
         private Keys aUpKey = Keys.W;
@@ -92,31 +104,39 @@ namespace _2DLogicGame
             aMenu = new Menu(this, aMenuBox);
 
             aMainMenu = new ComponentCollection(this, aMenu, aMenuBox);
-            
+
+
+            ClientSide.Chat.ChatReceiveBox chatReceive = new ClientSide.Chat.ChatReceiveBox(this, Window, 593, 800, Vector2.Zero + new Vector2(10,10));
             ClientSide.Chat.ChatInputBox chatInput = new ClientSide.Chat.ChatInputBox(this, Window, 1000, 246, new Vector2((aRenderTargetWidth-1000)/2, aRenderTargetHeight-246));
-            aChat = new ClientSide.Chat.Chat(this, chatInput);
+            aChat = new ClientSide.Chat.Chat(this, chatInput, chatReceive);
 
-            aPlayingScreen = new ComponentCollection(this, aChat, chatInput);
+            aPlayingScreen = new ComponentCollection(this, aChat, chatInput, chatReceive);
 
-       
+            
 
             base.Initialize();
 
-            Graphics.PreferredBackBufferWidth = 1280;
-            Graphics.PreferredBackBufferHeight = 720;
+            Graphics.PreferredBackBufferWidth = aBackBufferWidth;
+            Graphics.PreferredBackBufferHeight = aBackBufferHeight;
             Graphics.ApplyChanges();
 
+             aScale = 1F / (1080F / _graphics.GraphicsDevice.Viewport.Height);
         }
         
         protected override void LoadContent()
         {
 
-            aRenderTarget = new RenderTarget2D(this.GraphicsDevice, aRenderTargetWidth, aRenderTargetHeight);
-            SpriteBatch = new SpriteBatch(GraphicsDevice);
             Font = Content.Load<SpriteFont>("Fonts\\StickRegular12");
+
+
+            aRenderTarget = new RenderTarget2D(this.GraphicsDevice, aRenderTargetWidth, aRenderTargetHeight);
+           
+            SpriteBatch = new SpriteBatch(GraphicsDevice);
+  
             bck = Content.Load<Texture2D>("Sprites\\Backgrounds\\menuBackground");
 
             aMainMenu.SetVisibility(true);
+
             
             // TODO: use this.Content to load your game content here
         }
@@ -124,7 +144,6 @@ namespace _2DLogicGame
         protected override void Update(GameTime gameTime)
         {
 
-            
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             {
                 Debug.WriteLine("END");
@@ -141,7 +160,7 @@ namespace _2DLogicGame
                     case GameState.Playing:
                         SwitchScene(aMainMenu, aPlayingScreen);
                         aServerClass = new Server("Test", this);
-                        aClientClass = new Client("Test", this);
+                        aClientClass = new Client("Test", this, aChat);
 
                         aServerReadThread = new Thread(new ThreadStart(aServerClass.ReadMessages));
                         aServerReadThread.Start();
@@ -167,7 +186,6 @@ namespace _2DLogicGame
             {
                 if (aClientClass != null)
                 {
-
                     string tst = aChat.ReadAndTakeMessage();
 
                     aClientClass.SendChatMessage(tst);
@@ -178,13 +196,6 @@ namespace _2DLogicGame
 
             PreviousPressedKey = CurrentPressedKey;
             CurrentPressedKey = Keyboard.GetState();
-
-
-
-
-
-
-
 
             // TODO: Add your update logic here
 
@@ -198,7 +209,6 @@ namespace _2DLogicGame
 
             if (aServerClass != null && aClientClass != null)
             {
-
                 if (aServerClass.Started == true && aClientClass.Connected == true)
                 {
                     GraphicsDevice.Clear(Color.LimeGreen);
@@ -207,7 +217,6 @@ namespace _2DLogicGame
                 {
                     GraphicsDevice.Clear(Color.Red);
                 }
-
             }
             else
             {
@@ -220,10 +229,8 @@ namespace _2DLogicGame
 
             this.GraphicsDevice.SetRenderTarget(null);
 
-            float tmpScale = 1F / (1080F / _graphics.GraphicsDevice.Viewport.Height);
-
             SpriteBatch.Begin();
-            SpriteBatch.Draw(aRenderTarget, Vector2.Zero, null, Color.White, 0f, Vector2.Zero, tmpScale, SpriteEffects.None, 0f);
+            SpriteBatch.Draw(aRenderTarget, Vector2.Zero, null, Color.White, 0f, Vector2.Zero, aScale, SpriteEffects.None, 0f);
             SpriteBatch.End();
         }
 
@@ -270,12 +277,11 @@ namespace _2DLogicGame
             if (aServerClass != null)
             {
                 aServerReadThread.Join();
-                aClientReadThread.Join();
             }
 
             if (aClientClass != null)
             {
-
+                aClientReadThread.Join();
             }
 
             base.OnExiting(sender, args);

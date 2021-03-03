@@ -195,7 +195,7 @@ namespace _2DLogicGame
             NetOutgoingMessage tmpOutgoingMessage = aServer.CreateMessage();
             tmpOutgoingMessage.Write((byte)PacketMessageType.ChatMessage); //Vratime spat spravu, ktoru server odoslal
             tmpOutgoingMessage.WriteVariableInt64(parRemoteUniqueIdentifier);
-            tmpOutgoingMessage.WriteVariableInt32(aDictionaryPlayerData[parRemoteUniqueIdentifier].PlayerID);
+            //tmpOutgoingMessage.WriteVariableInt32(aDictionaryPlayerData[parRemoteUniqueIdentifier].PlayerID);
             tmpOutgoingMessage.Write(parMessage); //Hodnota boolean o tom, ze pripojenie prebehlo uspesne
 
             aServer.SendToAll(tmpOutgoingMessage, NetDeliveryMethod.ReliableOrdered);

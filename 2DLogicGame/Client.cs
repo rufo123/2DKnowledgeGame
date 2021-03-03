@@ -14,8 +14,6 @@ namespace _2DLogicGame
     class Client
     {
 
-
-
         private NetClient aClient;
         private string aIP = "127.0.0.1";
         private int aPort = 28741;
@@ -23,7 +21,7 @@ namespace _2DLogicGame
         /// <summary>
         /// Maximalna Dlzka Chatovej Spravy - Default 20
         /// </summary>
-        private int aMaxChatMessageLength = 20;
+        private int aMaxChatMessageLength = 50;
 
         /// <summary>
         /// Atribut, ktory reprezentuje ci je Klient pripojeny k serveru alebo nie
@@ -43,13 +41,17 @@ namespace _2DLogicGame
 
         private LogicGame aLogicGame;
 
+        private ClientSide.Chat.Chat aChatManager;
+
 
         public bool Connected { get => aConnected; set => aConnected = value; }
 
-        public Client(string parAppName, LogicGame parGame, string parNickName = "Player")
+        public Client(string parAppName, LogicGame parGame, ClientSide.Chat.Chat parChatManager,  string parNickName = "Player" )
         {
 
             aLogicGame = parGame;
+
+            aChatManager = parChatManager;
 
             aNickName = parNickName; //Inicializujeme NickName, default - "Player"
 
@@ -146,11 +148,18 @@ namespace _2DLogicGame
                         { 
                             Debug.WriteLine("Klient - Prijal potvrdenie o odoslanej sprave!");
 
-                            Debug.WriteLine(tmpIncommingMessage.ReadVariableInt64());
 
-                            Debug.WriteLine(tmpIncommingMessage.ReadVariableInt32());
 
-                            Debug.WriteLine(tmpIncommingMessage.ReadString());
+
+                            // Debug.WriteLine(tmpIncommingMessage.ReadVariableInt32());
+
+                            long tmpRUID = tmpIncommingMessage.ReadVariableInt64();
+                            string tmpNickname = aDictionaryPlayerData[tmpRUID].PlayerNickName;
+                            string tmpMessage = tmpIncommingMessage.ReadString();
+
+
+                            HandleChatMessage(tmpNickname, tmpMessage);
+
                         }
 
                         if (tmpReceivedByte == (byte)PacketMessageType.Connect) {
@@ -216,6 +225,23 @@ namespace _2DLogicGame
             }
 
         }
+
+        public bool HandleChatMessage(string parSenderName, string parMessage) {
+
+            if (aChatManager != null)
+            {
+                aChatManager.StoreAllMessages(parSenderName, parMessage);
+                return true;
+            }
+            else {
+                return false;
+            }
+
+            
+        
+        }
+
+  
 
         public bool AddPlayer(int parPlayerID, string parPlayerNickname, long parRemoteUniqueIdentifier) {
 

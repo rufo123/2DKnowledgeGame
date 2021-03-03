@@ -34,5 +34,6 @@ namespace _2DLogicGame.ClientSide
         }
         public long RemoteUniqueIdentifier { get => aRemoteUniqueIdentifier; }
         public int PlayerID { get => aPlayerID; }
+        public string PlayerNickName { get => aPlayerNickName; set => aPlayerNickName = value; }
     }
 }
