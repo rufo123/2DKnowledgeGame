@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Lidgren.Network;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -34,5 +35,20 @@ namespace _2DLogicGame.ServerSide
         public long RemoteUniqueIdentifier { get => aRemoteUniqueIdentifier; }
         public int PlayerID { get => aPlayerID; }
         public string PlayerNickName { get => aPlayerNickName; }
+
+        public NetOutgoingMessage PrepareIdentificationData(NetOutgoingMessage parMessage, long parRUIDToIgnore = 0) {
+
+            if (aRemoteUniqueIdentifier != parRUIDToIgnore)
+            {
+
+                parMessage.WriteVariableInt32(aPlayerID);
+                parMessage.Write(aPlayerNickName);
+                parMessage.WriteVariableInt64(aRemoteUniqueIdentifier);
+
+            }
+           
+
+            return parMessage; 
+        }
     }
 }

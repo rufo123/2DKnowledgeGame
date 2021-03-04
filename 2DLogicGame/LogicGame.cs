@@ -96,10 +96,10 @@ namespace _2DLogicGame
             // TODO: Add your initialization logic here
 
             aMenuBox = new MenuBox(this, new Vector2(1100, 200), Color.FloralWhite, Color.Black, 120);
-            aMenuBox.AddItem("Play", MenuItemAction.Start);
+            aMenuBox.AddItem("Host", MenuItemAction.Start_Host);
+            aMenuBox.AddItem("Play", MenuItemAction.Start_Play);
             aMenuBox.AddItem("Options", MenuItemAction.Options);
             aMenuBox.AddItem("Stats", MenuItemAction.Stats);
-            aMenuBox.AddItem("Credits", MenuItemAction.Credits);
             aMenuBox.AddItem("Exit", MenuItemAction.Exit);
             aMenu = new Menu(this, aMenuBox);
 
@@ -127,7 +127,6 @@ namespace _2DLogicGame
         {
 
             Font = Content.Load<SpriteFont>("Fonts\\StickRegular12");
-
 
             aRenderTarget = new RenderTarget2D(this.GraphicsDevice, aRenderTargetWidth, aRenderTargetHeight);
            
@@ -158,15 +157,30 @@ namespace _2DLogicGame
                     case GameState.MainMenu:
                         break;
                     case GameState.Playing:
-                        SwitchScene(aMainMenu, aPlayingScreen);
-                        aServerClass = new Server("Test", this);
-                        aClientClass = new Client("Test", this, aChat);
 
-                        aServerReadThread = new Thread(new ThreadStart(aServerClass.ReadMessages));
-                        aServerReadThread.Start();
+                        if (aMenu.TaskToExecute == MenuTasksToBeExecuted.Host_Start)
+                        {
+                            SwitchScene(aMainMenu, aPlayingScreen);
+                            aServerClass = new Server("Test", this);
+                            aClientClass = new Client("Test", this, aChat);
 
-                        aClientReadThread = new Thread(new ThreadStart(aClientClass.ReadMessages));
-                        aClientReadThread.Start();
+                            aServerReadThread = new Thread(new ThreadStart(aServerClass.ReadMessages));
+                            aServerReadThread.Start();
+
+                            aClientReadThread = new Thread(new ThreadStart(aClientClass.ReadMessages));
+                            aClientReadThread.Start();
+                        }
+                        else if (aMenu.TaskToExecute == MenuTasksToBeExecuted.Play_Start) {
+
+                            SwitchScene(aMainMenu, aPlayingScreen);
+
+                            string userName = Console.ReadLine();
+
+                            aClientClass = new Client("Test", this, aChat, "Tester");
+
+                            aClientReadThread = new Thread(new ThreadStart(aClientClass.ReadMessages));
+                            aClientReadThread.Start();
+                        }
 
                         break;
                     case GameState.Paused:
@@ -217,7 +231,21 @@ namespace _2DLogicGame
                 {
                     GraphicsDevice.Clear(Color.Red);
                 }
+            } else if (aClientClass != null) {
+
+                if (aClientClass.Connected == true)
+                {
+
+                    GraphicsDevice.Clear(Color.Green);
+                }
+                else {
+
+                    GraphicsDevice.Clear(Color.Orange);
+                }
+
+
             }
+     
             else
             {
                 GraphicsDevice.Clear(Color.DarkGray);

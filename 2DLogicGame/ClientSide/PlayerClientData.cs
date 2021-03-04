@@ -26,12 +26,24 @@ namespace _2DLogicGame.ClientSide
         /// </summary>
         private long aRemoteUniqueIdentifier;
 
-        public PlayerClientData(int parPlayerID, string parPlayerNickName, long parRemoteUniqueIdentifier)
+        /// <summary>
+        /// Hodnota boolean, ci ide o Data o mne ako klientovi
+        /// </summary>
+        private bool aIsMe;
+
+        public PlayerClientData(int parPlayerID, string parPlayerNickName, long parRemoteUniqueIdentifier, bool parIsMe = false)
         {
             aPlayerID = parPlayerID; //Priradime ID Hraca
             aPlayerNickName = parPlayerNickName; //Priradime Prezyvku Hraca
             aRemoteUniqueIdentifier = parRemoteUniqueIdentifier; //Priradime Unikatny Identifikator
+            aIsMe = parIsMe; //Atribut ci sa jedna o mna - Klienta
         }
+        
+        /// <summary>
+        /// Nastavi, ze sa jedna o "moje" data
+        /// </summary>
+        /// <returns></returns>
+  
         public long RemoteUniqueIdentifier { get => aRemoteUniqueIdentifier; }
         public int PlayerID { get => aPlayerID; }
         public string PlayerNickName { get => aPlayerNickName; set => aPlayerNickName = value; }

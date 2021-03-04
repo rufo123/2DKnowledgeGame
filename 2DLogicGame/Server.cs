@@ -103,10 +103,38 @@ namespace _2DLogicGame
                     case NetIncomingMessageType.StatusChanged:
                         Debug.WriteLine("Status - " + tmpIncommingMessage.SenderConnection.RemoteUniqueIdentifier + " Status: " + tmpIncommingMessage.SenderConnection.Status);
 
-                        if (tmpIncommingMessage.SenderConnection.Status == NetConnectionStatus.Connected) {
+                        switch (tmpIncommingMessage.SenderConnection.Status)
+                        {
+                            case NetConnectionStatus.None:
+                                break;
+                            case NetConnectionStatus.InitiatedConnect:
+                                break;
+                            case NetConnectionStatus.ReceivedInitiation:
+                                break;
+                            case NetConnectionStatus.RespondedAwaitingApproval:
+                                break;
+                            case NetConnectionStatus.RespondedConnect:
+                                break;
+                            case NetConnectionStatus.Connected:
+                                SendClientPlayerData(tmpIncommingMessage.SenderConnection.RemoteUniqueIdentifier);
+                                break;
+                            case NetConnectionStatus.Disconnecting:
+                                break;
+                            case NetConnectionStatus.Disconnected:
 
-                            SendClientPlayerData(tmpIncommingMessage.SenderConnection.RemoteUniqueIdentifier);
-
+                                string tmpReason = tmpIncommingMessage.ReadString();
+                                if (string.IsNullOrEmpty(tmpReason))
+                                {
+                                    Debug.WriteLine("DSDASDADAS ---" + tmpReason);
+                                }
+                                else {
+                                    Debug.WriteLine("dSDAdsdadasda ---- " + tmpReason);
+                                    DisconnectClient(tmpIncommingMessage);
+                                }
+                                
+                                break;
+                            default:
+                                break;
                         }
 
                         break;
@@ -154,6 +182,30 @@ namespace _2DLogicGame
                             string tmpChatMessage = tmpIncommingMessage.ReadString();
 
                             SendChatMessageToClients(tmpIncommingMessage.SenderConnection.RemoteUniqueIdentifier, tmpChatMessage);
+
+                        }
+                        else if (tmpReceivedByte == (byte)PacketMessageType.RequestConnClientsData)
+                        {
+
+                            Debug.WriteLine("Server - Zaregistroval ziadost o odoslani dat o Klientoch");
+
+                            NetOutgoingMessage tmpClientInfoMessage = aServer.CreateMessage();
+
+                            tmpClientInfoMessage.Write((byte)PacketMessageType.RequestConnClientsData); //Zapiseme ze ide o odpoved na Request
+
+                            foreach (KeyValuePair<long, ServerSide.PlayerServerData> dictItem in aDictionaryPlayerData) //Prejdeme vsetky data v Dictionary
+                            {
+                                tmpClientInfoMessage = dictItem.Value.PrepareIdentificationData(tmpClientInfoMessage, tmpIncommingMessage.SenderConnection.RemoteUniqueIdentifier); //Odovzdame vsetky data o Hracoch, okrem ziadatela
+                            }
+
+                            if (tmpClientInfoMessage.LengthBits <= 8)
+                            {
+
+                                tmpClientInfoMessage.WriteVariableInt32(-1);
+                            }
+
+                            aServer.SendMessage(tmpClientInfoMessage, tmpIncommingMessage.SenderConnection, NetDeliveryMethod.ReliableOrdered);
+
 
                         }
 
@@ -236,7 +288,7 @@ namespace _2DLogicGame
 
             NetOutgoingMessage tmpOutgoingMessage = aServer.CreateMessage();
             tmpOutgoingMessage.Write((byte)PacketMessageType.Connect); //Identifikator o tom, ze ide o Spravu ohladom Pripojenia
-            
+
             tmpOutgoingMessage.WriteVariableInt32(aDictionaryPlayerData[parRemoteUniqueIdentifier].PlayerID); //Player ID
             tmpOutgoingMessage.Write(aDictionaryPlayerData[parRemoteUniqueIdentifier].PlayerNickName); //Player Nickname
             tmpOutgoingMessage.WriteVariableInt64(parRemoteUniqueIdentifier); //Remote Unique Identifcator
@@ -253,6 +305,26 @@ namespace _2DLogicGame
         public bool RemovePlayer(long parRemoveUniqueIdentifier)
         {
             return aDictionaryPlayerData.Remove(parRemoveUniqueIdentifier);
+        }
+
+        public bool DisconnectClient(NetIncomingMessage parMessage)
+        {
+
+
+                long tmpRemoteUniqueIdentifier = parMessage.SenderConnection.RemoteUniqueIdentifier;
+                aDictionaryPlayerData.Remove(tmpRemoteUniqueIdentifier);
+
+                // parMessage.SenderConnection.Disconnect("Disconnect Requested");
+
+                NetOutgoingMessage tmpOutgoingMessage = aServer.CreateMessage();
+                tmpOutgoingMessage.Write((byte)PacketMessageType.Disconnect);
+                
+                tmpOutgoingMessage.WriteVariableInt64(tmpRemoteUniqueIdentifier);
+
+                aServer.SendToAll(tmpOutgoingMessage, NetDeliveryMethod.ReliableOrdered);
+
+           
+            return true;
         }
 
         public void Shutdown()

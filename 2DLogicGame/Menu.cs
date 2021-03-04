@@ -13,6 +13,7 @@ namespace _2DLogicGame
     /// </summary>
     public enum MenuTasksToBeExecuted { 
         None,
+        Host_Start,
         Play_Start,
         Exit,
         Enroll_Credits,
@@ -73,21 +74,22 @@ namespace _2DLogicGame
 
                 switch (this.aMenuBox.SelectedItem.Action)
                 {
-                    case MenuItemAction.Start:
-                        Debug.WriteLine("Start");
+                    case MenuItemAction.Start_Host:
+                        Debug.WriteLine("Host");
+                        aLogicGame.GameState = GameState.Playing;
+                        this.TaskToExecute = MenuTasksToBeExecuted.Host_Start;
+                        break;
+                    case MenuItemAction.Start_Play:
+                        Debug.WriteLine("Play");
                         aLogicGame.GameState = GameState.Playing;
                         this.TaskToExecute = MenuTasksToBeExecuted.Play_Start;
                         break;
                     case MenuItemAction.Options:
                         Debug.WriteLine("Options");
-                        this.TaskToExecute = MenuTasksToBeExecuted.Change_Options;
+                        this.TaskToExecute = MenuTasksToBeExecuted.Show_Stats;
                         break;
                     case MenuItemAction.Stats:
                         Debug.WriteLine("Stats");
-                        this.TaskToExecute = MenuTasksToBeExecuted.Show_Stats;
-                        break;
-                    case MenuItemAction.Credits:
-                        Debug.WriteLine("Credits");
                         this.TaskToExecute = MenuTasksToBeExecuted.Enroll_Credits;
                         break;
                     case MenuItemAction.Exit:

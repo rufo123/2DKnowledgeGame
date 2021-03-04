@@ -7,7 +7,12 @@ using System.Text;
 namespace _2DLogicGame.ClientSide.Chat
 {
 
-
+    public enum ChatColors { 
+    White = 0,
+    Red = 1,
+    Green = 2,
+    Purple = 3
+    }
 
     class Chat : Microsoft.Xna.Framework.DrawableGameComponent
     {
@@ -86,9 +91,9 @@ namespace _2DLogicGame.ClientSide.Chat
             base.UnloadContent();
         }
 
-        public void StoreAllMessages(string parSenderName, string parMessage)
+        public void StoreAllMessages(string parSenderName, string parMessage, ChatColors parMessageColor = 0)
         {
-            aChatReceiveBox.StoreMessage(parSenderName + ": " + parMessage);
+            aChatReceiveBox.StoreMessage(parSenderName + ": " + parMessage + (int)parMessageColor);
         }
 
         /// <summary>

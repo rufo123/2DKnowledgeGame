@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "2DLogicGame": {
+      "commandName": "Project"
+    },
+    "2DLogicGame - 2 Player": {
+      "commandName": "Executable"
+    }
+  }
+}

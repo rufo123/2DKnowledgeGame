@@ -6,5 +6,11 @@ public enum PacketMessageType {
     Connect = 0,
     Send = 1,
     Disconnect = 2,
-    ChatMessage = 3
+    ChatMessage = 3,
+    RequestConnClientsData = 4
+}
+
+public enum PacketInfoRequestType { 
+    Init_Connect = 0,
+    Request = 1
 }

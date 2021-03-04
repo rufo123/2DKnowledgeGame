@@ -7,7 +7,8 @@ namespace _2DLogicGame
 {
 
     public enum MenuItemAction { 
-    Start,
+    Start_Host,
+    Start_Play,
     Options,
     Stats,
     Credits,

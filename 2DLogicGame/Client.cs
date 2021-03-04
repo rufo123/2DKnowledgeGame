@@ -39,6 +39,11 @@ namespace _2DLogicGame
         /// </summary>
         private int aMaxPlayers = 2;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje identifikator mna - Hraca - Typ Long
+        /// </summary>
+        private long aMyIdentifier;
+
         private LogicGame aLogicGame;
 
         private ClientSide.Chat.Chat aChatManager;
@@ -46,7 +51,7 @@ namespace _2DLogicGame
 
         public bool Connected { get => aConnected; set => aConnected = value; }
 
-        public Client(string parAppName, LogicGame parGame, ClientSide.Chat.Chat parChatManager,  string parNickName = "Player" )
+        public Client(string parAppName, LogicGame parGame, ClientSide.Chat.Chat parChatManager, string parNickName = "Player")
         {
 
             aLogicGame = parGame;
@@ -106,10 +111,7 @@ namespace _2DLogicGame
             while (aLogicGame.GameState != GameState.Exit)
             {
 
-
                 // aClient.MessageReceivedEvent.WaitOne();
-
-
                 NetIncomingMessage tmpIncommingMessage;
 
                 tmpIncommingMessage = aClient.ReadMessage();
@@ -132,7 +134,9 @@ namespace _2DLogicGame
                         if (tmpReceivedByte == (byte)NetConnectionStatus.Connected)
                         {
                             aConnected = true;
+
                             Debug.WriteLine("Klient - Klient sa uspesne pripojil!");
+                            RequestConnectedClients();
                         }
 
                         break;
@@ -145,11 +149,8 @@ namespace _2DLogicGame
                         tmpReceivedByte = tmpIncommingMessage.ReadByte(); //Zainicializujeme lokalnu premennu typu byte - reprezentujucu prijaty byte
 
                         if (tmpReceivedByte == (byte)PacketMessageType.ChatMessage)
-                        { 
+                        {
                             Debug.WriteLine("Klient - Prijal potvrdenie o odoslanej sprave!");
-
-
-
 
                             // Debug.WriteLine(tmpIncommingMessage.ReadVariableInt32());
 
@@ -162,15 +163,27 @@ namespace _2DLogicGame
 
                         }
 
-                        if (tmpReceivedByte == (byte)PacketMessageType.Connect) {
+                        if (tmpReceivedByte == (byte)PacketMessageType.Connect)
+                        {
 
-                            int tmpID = tmpIncommingMessage.ReadVariableInt32();
+                            this.AddPlayer(tmpIncommingMessage, PacketInfoRequestType.Init_Connect);
+                        }
 
-                            string tmpNickname = tmpIncommingMessage.ReadString();
+                        if (tmpReceivedByte == (byte)PacketMessageType.RequestConnClientsData) //Ak Server odpovedal na ziadosť o RequestConnClientsData
+                        {
 
-                            long tmpRUID = tmpIncommingMessage.ReadVariableInt64();
+                            while (this.AddPlayer(tmpIncommingMessage, PacketInfoRequestType.Request))
+                            {
 
-                            this.AddPlayer(tmpID, tmpNickname, tmpRUID);
+                            }
+                        }
+
+                        if (tmpReceivedByte == (byte)PacketMessageType.Disconnect) {
+
+                            long tmpRID = tmpIncommingMessage.ReadVariableInt64();
+                            Debug.WriteLine("Typ" + tmpReceivedByte);
+                            Debug.WriteLine("Pokus o Remove" + tmpRID);
+                            RemovePlayer(tmpRID); 
                         }
 
                         break;
@@ -226,51 +239,101 @@ namespace _2DLogicGame
 
         }
 
-        public bool HandleChatMessage(string parSenderName, string parMessage) {
-
+        public bool HandleChatMessage(string parSenderName, string parMessage, ClientSide.Chat.ChatColors parMessageColor = 0)
+        {
             if (aChatManager != null)
             {
-                aChatManager.StoreAllMessages(parSenderName, parMessage);
+                aChatManager.StoreAllMessages(parSenderName, parMessage, parMessageColor);
                 return true;
             }
-            else {
+            else
+            {
                 return false;
             }
 
-            
-        
         }
 
-  
+        /// <summary>
+        /// Metoda, ktorou si Klient vyziada odoslanie informacii o uz pripojenych pouzivateloch
+        /// </summary>
+        public void RequestConnectedClients()
+        {
+            NetOutgoingMessage tmpOutgoingMessage = aClient.CreateMessage();
+            tmpOutgoingMessage.Write((byte)PacketMessageType.RequestConnClientsData);
+            aClient.SendMessage(tmpOutgoingMessage, NetDeliveryMethod.ReliableOrdered);
+        }
 
-        public bool AddPlayer(int parPlayerID, string parPlayerNickname, long parRemoteUniqueIdentifier) {
+        public bool AddPlayer(NetIncomingMessage parIncommingMessage, PacketInfoRequestType parRequestType)
+        { 
+            int tmpID = parIncommingMessage.ReadVariableInt32();
 
+            string tmpNickname = parIncommingMessage.ReadString();
+
+            long tmpRUID = parIncommingMessage.ReadVariableInt64();
             if (aDictionaryPlayerData.Count < 2)
             {
+                if (parRequestType == PacketInfoRequestType.Init_Connect) //Ak ide o prvotne spojenie, teda o moje pripojenie
+                {
+                    if (aDictionaryPlayerData.Count <= 0)
+                    {
+                        aDictionaryPlayerData.Add(tmpRUID, new ClientSide.PlayerClientData(tmpID, tmpNickname, tmpRUID, true));
+                    }
+                    else {
+                        aDictionaryPlayerData.Add(tmpRUID, new ClientSide.PlayerClientData(tmpID, tmpNickname, tmpRUID));
+                    }
+                    
+                    HandleChatMessage(tmpNickname, "Connected", ClientSide.Chat.ChatColors.Purple);
+                    Debug.WriteLine("Klient - Connect - Data o Hracovi: " + tmpNickname + " boli pridane!");
 
-                aDictionaryPlayerData.Add(parRemoteUniqueIdentifier, new ClientSide.PlayerClientData(parPlayerID, parPlayerNickname, parRemoteUniqueIdentifier));
-
-                Debug.WriteLine("Klient - Data o Hracovi: " + parPlayerNickname + " boli pridane!");
-
-                return true;
+                    return true;
+                }
+                else if (parRequestType == PacketInfoRequestType.Request) //Ak ide o Request Udajov o Inych Hracoch
+                {
+                    if (tmpID != -1)
+                    {
+                        aDictionaryPlayerData.Add(tmpRUID, new ClientSide.PlayerClientData(tmpID, tmpNickname, tmpRUID));
+                        HandleChatMessage(tmpNickname, "Is Already Here", ClientSide.Chat.ChatColors.Purple);
+                        Debug.WriteLine("Klient - Request - Data o Hracovi: " + tmpNickname + " boli pridane!");
+                        return true;
+                    }
+                    else if (tmpID == 0 && string.IsNullOrEmpty(tmpNickname) && tmpRUID == 0)
+                    {
+                        Debug.WriteLine("Klient - Detekovany Koniec / Prazdna Sprava");
+                        return false;
+                    }
+                    else
+                    {
+                        Debug.WriteLine("Klient - Request - Ziadne data neboli pridane! - Na Serveri ste len vy!");
+                        return false;
+                    }
+                }
+                else
+                {
+                    Debug.WriteLine("Klient - Request - Data neboli pridane - BAD REQUEST - Toto by nemalio nastat!!!");
+                    return false;
+                }
             }
-            else {
-
-                Debug.WriteLine("Klient - Data o Hracovi: " + parPlayerNickname + " neboli pridane - Toto by sa nemalo stat!!!");
-
+            else if (tmpID == 0 && string.IsNullOrEmpty(tmpNickname) && tmpRUID == 0)
+            {
+                Debug.WriteLine("Klient - Detekovany Koniec / Prazdna Sprava");
                 return false;
             }
-
+            else
+            {
+                Debug.WriteLine("Klient - Request - Data o Hracovi: " + tmpNickname + " neboli pridane - toto by sa nemalo stat!!");
+                return false;
+            }
         }
 
-        public bool RemovePlayer(long parRemoteUniqueIdentifier) {
-
+        public bool RemovePlayer(long parRemoteUniqueIdentifier)
+        {
+            HandleChatMessage(aDictionaryPlayerData[parRemoteUniqueIdentifier].PlayerNickName, "Disconnected", ClientSide.Chat.ChatColors.Red);
             return aDictionaryPlayerData.Remove(parRemoteUniqueIdentifier);
         }
 
-
         public void Shutdown()
         {
+
             aClient.Disconnect("Connection Dropped");
             aClient.Shutdown("Shutting Down Client");
 
