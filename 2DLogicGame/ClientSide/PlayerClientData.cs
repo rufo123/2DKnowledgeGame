@@ -31,6 +31,13 @@ namespace _2DLogicGame.ClientSide
         /// </summary>
         private bool aIsMe;
 
+        /// <summary>
+        /// Konstruktor - Inicializuje zakladne atributy
+        /// </summary>
+        /// <param name="parPlayerID">Parameter reprezentujuci ID Hraca - Typ int</param>
+        /// <param name="parPlayerNickName">Parameter reprezentujuci Prezyvku Hraca - Typ string</param>
+        /// <param name="parRemoteUniqueIdentifier">Parameter reprezentujuci Remote Unique Identifier Hraca - Typ long</param>
+        /// <param name="parIsMe">Parameter reprezentujuci ci ide o mna, teda toho hraca, ktory hra na tomto pocitaci... - Typ boolean</param>
         public PlayerClientData(int parPlayerID, string parPlayerNickName, long parRemoteUniqueIdentifier, bool parIsMe = false)
         {
             aPlayerID = parPlayerID; //Priradime ID Hraca
@@ -38,12 +45,7 @@ namespace _2DLogicGame.ClientSide
             aRemoteUniqueIdentifier = parRemoteUniqueIdentifier; //Priradime Unikatny Identifikator
             aIsMe = parIsMe; //Atribut ci sa jedna o mna - Klienta
         }
-        
-        /// <summary>
-        /// Nastavi, ze sa jedna o "moje" data
-        /// </summary>
-        /// <returns></returns>
-  
+       
         public long RemoteUniqueIdentifier { get => aRemoteUniqueIdentifier; }
         public int PlayerID { get => aPlayerID; }
         public string PlayerNickName { get => aPlayerNickName; set => aPlayerNickName = value; }

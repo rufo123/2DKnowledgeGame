@@ -158,12 +158,12 @@ namespace _2DLogicGame.ClientSide.Chat
         /// <param name="parFontScale">Parameter Skala Fontu - Typ float</param>
         /// <param name="parReceiveBoxWidth">Parameter Sirka Boxu - Typ int</param>
         /// <param name="parMessage">Parameter Reprezentujuci Spravu - Typ String</param>
-        public void ParseMessageIntoRows(SpriteFont parFont, float parFontScale, int parReceiveBoxWidth, string parMessage)
+        public void ParseMessageIntoRows(SpriteFont parFont, float parFontScale, int parReceiveBoxWidth, string parMessage, int parMessageColor)
         {
             Vector2 tmpStringSizeVector = aLogicGame.Font.MeasureString(parMessage) * parFontScale; //Vektor, ktory reprezentuje velkost celeho stringu pocitajuc uz so skalou
             if (tmpStringSizeVector.X <= parReceiveBoxWidth) //Ak je sirka stringu mensia rovna ako sirka boxu
             {
-                aMessageStorage.Add(parMessage); //Proste pridame spravu do Uloziska
+                aMessageStorage.Add(parMessage + parMessageColor); //Proste pridame spravu do Uloziska
             }
             else
             {
@@ -178,13 +178,13 @@ namespace _2DLogicGame.ClientSide.Chat
                     if (tmpNewMessageWidth + aLogicGame.Font.LineSpacing * parFontScale > parReceiveBoxWidth)
                     { //Ak je Sirka novej spravy + "Spacing Pismen, vynasobeny skalou" vacsi ako sirka boxu
 
-                        aMessageStorage.Add(tmpNewMessage.ToString()); //Pridame takto nasu, vynatu spravu do uloziska
+                        aMessageStorage.Add(tmpNewMessage.ToString() + parMessageColor); //Pridame takto nasu, vynatu spravu do uloziska
                         tmpNewMessage.Clear(); //A Stringuilder si vynulujeme, aby sme mohli podobne dokoncit aj zbytok stringu
 
                     }
 
                 }
-                aMessageStorage.Add(tmpNewMessage.ToString()); //Pokial by sa stalo, ze uz rozdelujeme druhu cast stringu, ale tento uz nie je vacsi ako sirka boxu, mozeme ho v klude ulozit do uloziska
+                aMessageStorage.Add(tmpNewMessage.ToString() + parMessageColor); //Pokial by sa stalo, ze uz rozdelujeme druhu cast stringu, ale tento uz nie je vacsi ako sirka boxu, mozeme ho v klude ulozit do uloziska
             }
         }
 
@@ -258,9 +258,9 @@ namespace _2DLogicGame.ClientSide.Chat
         /// Metoda - Ukladajuca Spravy - Zabezpecuje aj Rozdelenie velkych sprav do mensich stringov, ktore sa adekvatne zmestia do riadkov Receive Boxu
         /// </summary>
         /// <param name="parMessage"></param>
-        public void StoreMessage(string parMessage) 
+        public void StoreMessage(string parMessage, int parMessageColor) 
         {
-            ParseMessageIntoRows(aLogicGame.Font, aMessagesScale, aWindowWidth, parMessage); //Parsovanie celej spravy do riadkov
+            ParseMessageIntoRows(aLogicGame.Font, aMessagesScale, aWindowWidth, parMessage, parMessageColor); //Parsovanie celej spravy do riadkov
         }
 
         public Color ConvertEnumColor(ChatColors parColor) {

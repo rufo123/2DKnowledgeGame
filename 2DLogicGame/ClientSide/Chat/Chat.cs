@@ -93,7 +93,7 @@ namespace _2DLogicGame.ClientSide.Chat
 
         public void StoreAllMessages(string parSenderName, string parMessage, ChatColors parMessageColor = 0)
         {
-            aChatReceiveBox.StoreMessage(parSenderName + ": " + parMessage + (int)parMessageColor);
+            aChatReceiveBox.StoreMessage(parSenderName + ": " + parMessage , (int)parMessageColor);
         }
 
         /// <summary>

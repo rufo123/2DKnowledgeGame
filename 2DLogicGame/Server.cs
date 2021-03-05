@@ -306,10 +306,14 @@ namespace _2DLogicGame
         {
             return aDictionaryPlayerData.Remove(parRemoveUniqueIdentifier);
         }
-
+        
+        /// <summary>
+        /// Metoda, ktora odpoji klienta - vymaze ho z uloziska, a odosle informaciu ostatnym o jeho odpojeni
+        /// </summary>
+        /// <param name="parMessage">Parameter reprezentujuci prichodziu spravu - Typ NetIncommingMessage</param>
+        /// <returns></returns>
         public bool DisconnectClient(NetIncomingMessage parMessage)
         {
-
 
                 long tmpRemoteUniqueIdentifier = parMessage.SenderConnection.RemoteUniqueIdentifier;
                 aDictionaryPlayerData.Remove(tmpRemoteUniqueIdentifier);
@@ -327,6 +331,9 @@ namespace _2DLogicGame
             return true;
         }
 
+        /// <summary>
+        /// Metoda, ktora ma za nasledok vypnutie serveru
+        /// </summary>
         public void Shutdown()
         {
             aServer.Shutdown("Shutting down Server");

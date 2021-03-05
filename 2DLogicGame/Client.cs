@@ -89,28 +89,13 @@ namespace _2DLogicGame
             {
                 aConnected = false;
             }
-
-
-
-
-            /*   Thread thread;
-               thread = new Thread(new ThreadStart(ReadMessages));
-               thread.Start();
-
-               thread.Join(); */
-
-
-
         }
 
 
         public void ReadMessages()
         {
-
-
             while (aLogicGame.GameState != GameState.Exit)
             {
-
                 // aClient.MessageReceivedEvent.WaitOne();
                 NetIncomingMessage tmpIncommingMessage;
 
@@ -239,6 +224,13 @@ namespace _2DLogicGame
 
         }
 
+        /// <summary>
+        /// Metoda, ktora spravuje Chat spravy - Odosle Chat Managerovi informaciu o tom aby ulozil spravu
+        /// </summary>
+        /// <param name="parSenderName">Parameter reprezentujuci meno odosielatela spravy - Typ string</param>
+        /// <param name="parMessage">Parameter reprezentujuci spravu - Typ string</param>
+        /// <param name="parMessageColor">Parameter reprezentujuci farbu spravy - Typ - Enum - ChatColors</param>
+        /// <returns></returns>
         public bool HandleChatMessage(string parSenderName, string parMessage, ClientSide.Chat.ChatColors parMessageColor = 0)
         {
             if (aChatManager != null)
@@ -263,6 +255,12 @@ namespace _2DLogicGame
             aClient.SendMessage(tmpOutgoingMessage, NetDeliveryMethod.ReliableOrdered);
         }
 
+        /// <summary>
+        /// Metoda, pomocou, ktorej sa pridava hrac do uloziska - Dictionary
+        /// </summary>
+        /// <param name="parIncommingMessage">Parameter reprezentujuci prichadzajucu spravu - Typ NetIncommingMessage</param>
+        /// <param name="parRequestType">Parameter reprezentujuci o aky typ requestu ide - Connect, alebo Request informacii o ostatnym pouzivateloch - Typ - Enum - PacketInfoRequestType</param>
+        /// <returns></returns>
         public bool AddPlayer(NetIncomingMessage parIncommingMessage, PacketInfoRequestType parRequestType)
         { 
             int tmpID = parIncommingMessage.ReadVariableInt32();
@@ -270,38 +268,39 @@ namespace _2DLogicGame
             string tmpNickname = parIncommingMessage.ReadString();
 
             long tmpRUID = parIncommingMessage.ReadVariableInt64();
-            if (aDictionaryPlayerData.Count < 2)
+
+            if (aDictionaryPlayerData.Count < 2) //Zabezpecime, aby pridalo do uloziska najviac 2 hracov, kedze hra je prave pre 2
             {
-                if (parRequestType == PacketInfoRequestType.Init_Connect) //Ak ide o prvotne spojenie, teda o moje pripojenie
+                if (parRequestType == PacketInfoRequestType.Init_Connect) //Ak ide o pripojenie hraca do hry
                 {
-                    if (aDictionaryPlayerData.Count <= 0)
+                    if (aDictionaryPlayerData.Count <= 0) //Ak este ziaden hrac nie je ulozeny v databaze, vieme ze ide o mna
                     {
-                        aDictionaryPlayerData.Add(tmpRUID, new ClientSide.PlayerClientData(tmpID, tmpNickname, tmpRUID, true));
+                        aDictionaryPlayerData.Add(tmpRUID, new ClientSide.PlayerClientData(tmpID, tmpNickname, tmpRUID, true)); //Pridame nove data o hracovi do uloziska, na zaklade Remote UID a pri udajoch o hracovi zadame, ze ide o nas
                     }
                     else {
-                        aDictionaryPlayerData.Add(tmpRUID, new ClientSide.PlayerClientData(tmpID, tmpNickname, tmpRUID));
+                        aDictionaryPlayerData.Add(tmpRUID, new ClientSide.PlayerClientData(tmpID, tmpNickname, tmpRUID)); //Pridame nove data o hracovi do uloziska
                     }
                     
-                    HandleChatMessage(tmpNickname, "Connected", ClientSide.Chat.ChatColors.Purple);
+                    HandleChatMessage(tmpNickname, "Connected", ClientSide.Chat.ChatColors.Purple); //Odosleme spravu o tom, ze sa nejaky hrac pripojil
                     Debug.WriteLine("Klient - Connect - Data o Hracovi: " + tmpNickname + " boli pridane!");
 
                     return true;
                 }
-                else if (parRequestType == PacketInfoRequestType.Request) //Ak ide o Request Udajov o Inych Hracoch
+                else if (parRequestType == PacketInfoRequestType.Request) //Ak ide o Request Udajov o Inych Hracoch, teda ja som sa pripojil a chcem vediet, kto uz je pripojeny
                 {
-                    if (tmpID != -1)
+                    if (tmpID != -1) //Ak sa nejedna o prazdnu spravu
                     {
-                        aDictionaryPlayerData.Add(tmpRUID, new ClientSide.PlayerClientData(tmpID, tmpNickname, tmpRUID));
-                        HandleChatMessage(tmpNickname, "Is Already Here", ClientSide.Chat.ChatColors.Purple);
+                        aDictionaryPlayerData.Add(tmpRUID, new ClientSide.PlayerClientData(tmpID, tmpNickname, tmpRUID)); //Pridame hraca do uloziska
+                        HandleChatMessage(tmpNickname, "Is Already Here", ClientSide.Chat.ChatColors.Purple); //Odosleme spravu o tom, kto uz bol pripojeny - predomnou
                         Debug.WriteLine("Klient - Request - Data o Hracovi: " + tmpNickname + " boli pridane!");
                         return true;
                     }
-                    else if (tmpID == 0 && string.IsNullOrEmpty(tmpNickname) && tmpRUID == 0)
+                    else if (tmpID == 0 && string.IsNullOrEmpty(tmpNickname) && tmpRUID == 0) //Ak bol detegovany koniec spravy
                     {
                         Debug.WriteLine("Klient - Detekovany Koniec / Prazdna Sprava");
                         return false;
                     }
-                    else
+                    else //Ak nam prisla "prazdna" sprava
                     {
                         Debug.WriteLine("Klient - Request - Ziadne data neboli pridane! - Na Serveri ste len vy!");
                         return false;
@@ -313,24 +312,32 @@ namespace _2DLogicGame
                     return false;
                 }
             }
-            else if (tmpID == 0 && string.IsNullOrEmpty(tmpNickname) && tmpRUID == 0)
+            else if (tmpID == 0 && string.IsNullOrEmpty(tmpNickname) && tmpRUID == 0) //Ak bol detegovany koniec spravy
             {
                 Debug.WriteLine("Klient - Detekovany Koniec / Prazdna Sprava");
                 return false;
             }
-            else
+            else // Pokial doslo k chybe
             {
                 Debug.WriteLine("Klient - Request - Data o Hracovi: " + tmpNickname + " neboli pridane - toto by sa nemalo stat!!");
                 return false;
             }
         }
 
+        /// <summary>
+        /// Metoda, ktora odstrani hraca z uloziska
+        /// </summary>
+        /// <param name="parRemoteUniqueIdentifier">Parameter reprezentujuci Remote Unique Idenfifier hraca - Typ Long</param>
+        /// <returns>Vrati hodnotu true/false na zaklade uspechu/neuspechu operacie</returns>
         public bool RemovePlayer(long parRemoteUniqueIdentifier)
         {
             HandleChatMessage(aDictionaryPlayerData[parRemoteUniqueIdentifier].PlayerNickName, "Disconnected", ClientSide.Chat.ChatColors.Red);
             return aDictionaryPlayerData.Remove(parRemoteUniqueIdentifier);
         }
 
+        /// <summary>
+        /// Metoda, ktora ma za nasledok "vypnutie klienta"
+        /// </summary>
         public void Shutdown()
         {
 

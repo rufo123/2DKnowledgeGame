@@ -24,6 +24,12 @@ namespace _2DLogicGame.ServerSide
         /// </summary>
         private long aRemoteUniqueIdentifier;
 
+        /// <summary>
+        /// Konstruktor - Inicializuje zakladne atributy
+        /// </summary>
+        /// <param name="parPlayerID">Parameter - ID Hraca - Typ int</param>
+        /// <param name="parPlayerNickName">Parameter - Prezyvka Hraca - Typ string</param>
+        /// <param name="parRemoteUniqueIdentifier">Parameter - Remote Unique Identifier Hraca - Typ long</param>
         public PlayerServerData(int parPlayerID, string parPlayerNickName, long parRemoteUniqueIdentifier)
         {
             aPlayerID = parPlayerID; //Priradime ID Hraca
@@ -36,6 +42,12 @@ namespace _2DLogicGame.ServerSide
         public int PlayerID { get => aPlayerID; }
         public string PlayerNickName { get => aPlayerNickName; }
 
+        /// <summary>
+        /// Metoda, ktora pripravi indetifikacne data hracov na odoslanie, ignorujuc data o hracovi, ktore tieto data pozaduje
+        /// </summary>
+        /// <param name="parMessage">Parameter reprezentujuci prichodziu spravu - Typ NetOutgoingMessage</param>
+        /// <param name="parRUIDToIgnore">Parameter reprezentujuci RUID, ktore ma byt ignorovane - Typ long</param>
+        /// <returns></returns>
         public NetOutgoingMessage PrepareIdentificationData(NetOutgoingMessage parMessage, long parRUIDToIgnore = 0) {
 
             if (aRemoteUniqueIdentifier != parRUIDToIgnore)
