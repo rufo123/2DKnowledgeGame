@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using _2DLogicGame.GraphicObjects;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
@@ -109,8 +110,9 @@ namespace _2DLogicGame
             ClientSide.Chat.ChatReceiveBox chatReceive = new ClientSide.Chat.ChatReceiveBox(this, Window, 593, 800, Vector2.Zero + new Vector2(10,10));
             ClientSide.Chat.ChatInputBox chatInput = new ClientSide.Chat.ChatInputBox(this, Window, 1000, 246, new Vector2((aRenderTargetWidth-1000)/2, aRenderTargetHeight-246));
             aChat = new ClientSide.Chat.Chat(this, chatInput, chatReceive);
+            Player tmpPlayer = new Player(0, this, new Vector2(50, 100), new Vector2(100, 128), Color.White);
 
-            aPlayingScreen = new ComponentCollection(this, aChat, chatInput, chatReceive);
+            aPlayingScreen = new ComponentCollection(this, aChat, chatInput, chatReceive, tmpPlayer);
 
             
 
