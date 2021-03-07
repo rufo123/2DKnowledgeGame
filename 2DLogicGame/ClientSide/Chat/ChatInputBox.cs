@@ -106,7 +106,7 @@ namespace _2DLogicGame.ClientSide.Chat
             aGameWindow = parGameWindow;
             aPositionVector = parPosVector;
             aChatInputTexture2D = new Texture2D(aLogicGame.GraphicsDevice, parWidth, parHeight); //Inicializujeme si Texture2D ako Pozadie Inputu
-            aChatInputRectangle = new Rectangle((int)parPosVector.X, (int)parPosVector.Y, parWidth, parHeight);
+            aChatInputRectangle = new Rectangle(0, 0, parWidth, parHeight);
             aWindowHeight = parHeight;
             aWindowWidth = parWidth;
             aDefaultFontScale = aFontScale;
@@ -121,8 +121,8 @@ namespace _2DLogicGame.ClientSide.Chat
         {
             if (isInputOpen)
             {
-                aLogicGame.SpriteBatch.Begin();
-                aLogicGame.SpriteBatch.Draw(aChatInputTexture2D, aChatInputRectangle, Color.White); //Vykrasli ChatInputBox pomocou Textury, Rectangle a farby - Color.White zachovava povodne farby
+                // aLogicGame.SpriteBatch.Begin();
+                aLogicGame.SpriteBatch.Draw(aChatInputTexture2D, aPositionVector ,aChatInputRectangle, Color.White, 0F, Vector2.Zero, 1F,  SpriteEffects.None, 0.1F); //Vykrasli ChatInputBox pomocou Textury, Rectangle a farby - Color.White zachovava povodne farby
 
 
                 float tmpNextStringSize = (aLogicGame.Font.MeasureString(aMessageToSend).X * aFontScale) + aLogicGame.Font.LineSpacing; //Reprezentuje buducu moznu velkost Stringu s ohladom na Skalovanie
@@ -144,8 +144,8 @@ namespace _2DLogicGame.ClientSide.Chat
 
                 Vector2 tmpVectorChat = aPositionVector + new Vector2(aWindowWidth / 2 - (int)tmpStringSizeVector.X / 2, aWindowHeight / 2 - (aLogicGame.Font.LineSpacing * aFontScale)/2); //Pomocny Pozicny Vektor pre Text Input Boxu
 
-                aLogicGame.SpriteBatch.DrawString(aLogicGame.Font, aMessageToSend, tmpVectorChat, Color.White, 0f, Vector2.Zero, aFontScale, SpriteEffects.None, 0f); //Vykresli String
-                aLogicGame.SpriteBatch.End();
+                aLogicGame.SpriteBatch.DrawString(aLogicGame.Font, aMessageToSend, tmpVectorChat, Color.White, 0f, Vector2.Zero, aFontScale, SpriteEffects.None, 0F); //Vykresli String
+                //aLogicGame.SpriteBatch.End();
 
             }
             base.Draw(gameTime);

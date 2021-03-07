@@ -9,6 +9,9 @@ namespace _2DLogicGame
 
     public class ComponentCollection
     {
+
+        private LogicGame aGame;
+
         private List<DrawableGameComponent> aComponentList;
         /// <summary>
         /// Konstruktor, ktory vytvara kolekciu Componentov, hlavne kvoli sudrznosti Komponentov, ktora sa vykresluju naraz, napr obsah Menu
@@ -17,6 +20,8 @@ namespace _2DLogicGame
         /// <param name="parComponent">Variabilny pocet Argumentov typu GameComponent</param>
         public ComponentCollection(LogicGame parGame, params DrawableGameComponent[] parComponent)
         {
+            aGame = parGame;
+
             aComponentList = new List<DrawableGameComponent>();
 
             int tmpNumberOfComponents = parComponent.Length;
@@ -30,6 +35,13 @@ namespace _2DLogicGame
             }
 
             this.SetVisibility(false);
+        }
+
+        public void AddComponent(DrawableGameComponent parComponent) {
+            if (aComponentList != null) {
+                aComponentList.Add(parComponent);
+                aGame.Components.Add(parComponent);
+            }
         }
 
         public void SetVisibility(bool parVisible)

@@ -6,12 +6,25 @@ using System.Text;
 
 namespace _2DLogicGame.GraphicObjects
 {
+
+    
+
     class Player : Entity
     {
-        public Player(int parPlayerID, LogicGame parGame, Vector2 parPosition, Vector2 parSize, Color parColor, Direction parDirection = Direction.UP, float parSpeed = 1) : base(parGame, parPosition, parSize, parColor, parDirection, parSpeed)
+        /// <summary>
+        /// Atribut, ktory reprezentuje, ci je Hrac ovladany mnou, alebo sa jedna o spoluhraca
+        /// </summary>
+        private bool isControlledByMe;
+
+        public Player(int parPlayerID, LogicGame parGame, Vector2 parPosition, Vector2 parSize,  Direction parDirection = Direction.UP, float parSpeed = 200) : base(parGame, parPosition, parSize, parDirection, parSpeed)
         {
-            SetImage("Sprites\\Entities\\postava");
+            SetImage("Sprites\\Entities\\postavaFrames");
+            
         }
 
+        public override void Draw(GameTime gameTime)
+        {
+            base.Draw(gameTime);
+        }
     }
 }

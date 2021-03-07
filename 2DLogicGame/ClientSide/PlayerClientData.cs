@@ -1,13 +1,15 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Generic;
 using System.Text;
+using static _2DLogicGame.GraphicObjects.Entity;
 
 namespace _2DLogicGame.ClientSide
 {
-  
 
 
-    class PlayerClientData
+
+    class PlayerClientData : GraphicObjects.Entity
     {
 
         /// <summary>
@@ -29,7 +31,9 @@ namespace _2DLogicGame.ClientSide
         /// <summary>
         /// Hodnota boolean, ci ide o Data o mne ako klientovi
         /// </summary>
-        private bool aIsMe;
+        private bool aIsControlledByClient;
+
+
 
         /// <summary>
         /// Konstruktor - Inicializuje zakladne atributy
@@ -38,14 +42,31 @@ namespace _2DLogicGame.ClientSide
         /// <param name="parPlayerNickName">Parameter reprezentujuci Prezyvku Hraca - Typ string</param>
         /// <param name="parRemoteUniqueIdentifier">Parameter reprezentujuci Remote Unique Identifier Hraca - Typ long</param>
         /// <param name="parIsMe">Parameter reprezentujuci ci ide o mna, teda toho hraca, ktory hra na tomto pocitaci... - Typ boolean</param>
-        public PlayerClientData(int parPlayerID, string parPlayerNickName, long parRemoteUniqueIdentifier, bool parIsMe = false)
+        public PlayerClientData(int parPlayerID, string parPlayerNickName, long parRemoteUniqueIdentifier, LogicGame parGame, Vector2 parPosition, Vector2 parSize, Direction parDirection = Direction.UP, float parSpeed = 200, bool parIsMe = false) : base(parGame, parPosition, parSize, parDirection, parSpeed)
         {
             aPlayerID = parPlayerID; //Priradime ID Hraca
             aPlayerNickName = parPlayerNickName; //Priradime Prezyvku Hraca
             aRemoteUniqueIdentifier = parRemoteUniqueIdentifier; //Priradime Unikatny Identifikator
-            aIsMe = parIsMe; //Atribut ci sa jedna o mna - Klienta
+            aIsControlledByClient = parIsMe; //Atribut ci sa jedna o mna - Klienta
+            SetImage("Sprites\\Entities\\postavaFrames");
+
+            switch (parPlayerID)
+            {
+                case 1:
+                    Color = Color.White;
+                    break;
+                case 2:
+                    Color = Color.Silver;
+                    break;
+                default:
+                    Color = Color.Black;
+                    break;
+            }
+
+            EntityScale = 2F;
+
         }
-       
+
         public long RemoteUniqueIdentifier { get => aRemoteUniqueIdentifier; }
         public int PlayerID { get => aPlayerID; }
         public string PlayerNickName { get => aPlayerNickName; set => aPlayerNickName = value; }

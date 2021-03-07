@@ -91,6 +91,7 @@ namespace _2DLogicGame
 
                 if (tmpIncommingMessage == null)
                 {
+                    Thread.Sleep(100);
                     continue;
                 }
 

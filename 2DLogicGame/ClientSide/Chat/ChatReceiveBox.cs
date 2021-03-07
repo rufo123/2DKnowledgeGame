@@ -108,8 +108,8 @@ namespace _2DLogicGame.ClientSide.Chat
             {
                 aTimeCounter += gameTime.ElapsedGameTime.TotalSeconds; //Pripocitame kolko "sekund" ubehlo za vykreslenie jedneho framu k pocitadlu casu
 
-                aLogicGame.SpriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend); //Zacneme vykreslovanie SpriteBatchu - s ohladom na priehladnost
-                aLogicGame.SpriteBatch.Draw(aChatInputDummyTexture, aChatOutputRectagle, Color.Black * 0.3F); //Vykresli ChatInputBox pomocou Textury, Rectangle a farby - Color.White zachovava povodne farby
+             //   aLogicGame.SpriteBatch.Begin(); //Zacneme vykreslovanie SpriteBatchu - s ohladom na priehladnost
+                aLogicGame.SpriteBatch.Draw(aChatInputDummyTexture, aPositionVector, aChatOutputRectagle, Color.Black * 0.3F, 0F, Vector2.Zero, 1F, SpriteEffects.None, 0.1F ); //Vykresli ChatInputBox pomocou Textury, Rectangle a farby - Color.White zachovava povodne farby
 
                 if (aMessageStorage.Count > aOldStorageSize) //Zabezpecime, ze po prijati novej spravy sa zresetuje pocitadlo na aku dlhu dobu ma byt zobraeny Receive Box
                 {
@@ -134,9 +134,9 @@ namespace _2DLogicGame.ClientSide.Chat
 
 
 
-                   aLogicGame.SpriteBatch.DrawString(aLogicGame.Font, tmpStringWithoutColorCode, tmpOffSetVector, ConvertEnumColor(tmpMessageColor), 0F, Vector2.Zero, aMessagesScale, SpriteEffects.None, 0); //Samotne vykreslovanie riadkov sprav
+                   aLogicGame.SpriteBatch.DrawString(aLogicGame.Font, tmpStringWithoutColorCode, tmpOffSetVector, ConvertEnumColor(tmpMessageColor), 0F, Vector2.Zero, aMessagesScale, SpriteEffects.None, 0F); //Samotne vykreslovanie riadkov sprav
                 }
-                aLogicGame.SpriteBatch.End();
+                //    aLogicGame.SpriteBatch.End();
 
                 if (aTimeCounter > aReceiveBoxShownFor) //Ak vyprsal cas pre vykreslenie Receive Boxu
                 {

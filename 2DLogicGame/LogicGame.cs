@@ -89,6 +89,8 @@ namespace _2DLogicGame
             Graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
+            this.IsFixedTimeStep = false;
+            this.TargetElapsedTime = TimeSpan.FromSeconds(1D / 30D);
         }
 
 
@@ -110,10 +112,12 @@ namespace _2DLogicGame
             ClientSide.Chat.ChatReceiveBox chatReceive = new ClientSide.Chat.ChatReceiveBox(this, Window, 593, 800, Vector2.Zero + new Vector2(10,10));
             ClientSide.Chat.ChatInputBox chatInput = new ClientSide.Chat.ChatInputBox(this, Window, 1000, 246, new Vector2((aRenderTargetWidth-1000)/2, aRenderTargetHeight-246));
             aChat = new ClientSide.Chat.Chat(this, chatInput, chatReceive);
-            Player tmpPlayer = new Player(0, this, new Vector2(50, 100), new Vector2(100, 128), Color.White);
+            //Player tmpPlayer = new Player(0, this, new Vector2(800, 500), new Vector2(49, 64), Color.White);
+            //PlayerController tmpController = new PlayerController(this, tmpPlayer);
 
-            aPlayingScreen = new ComponentCollection(this, aChat, chatInput, chatReceive, tmpPlayer);
+            aPlayingScreen = new ComponentCollection(this, aChat, chatInput, chatReceive);
 
+           // Components.Add(tmpController);
             
 
             base.Initialize();
@@ -164,7 +168,7 @@ namespace _2DLogicGame
                         {
                             SwitchScene(aMainMenu, aPlayingScreen);
                             aServerClass = new Server("Test", this);
-                            aClientClass = new Client("Test", this, aChat);
+                            aClientClass = new Client("Test", this, aChat, aPlayingScreen);
 
                             aServerReadThread = new Thread(new ThreadStart(aServerClass.ReadMessages));
                             aServerReadThread.Start();
@@ -178,7 +182,7 @@ namespace _2DLogicGame
 
                             string userName = Console.ReadLine();
 
-                            aClientClass = new Client("Test", this, aChat, "Tester");
+                            aClientClass = new Client("Test", this, aChat, aPlayingScreen, "Tester");
 
                             aClientReadThread = new Thread(new ThreadStart(aClientClass.ReadMessages));
                             aClientReadThread.Start();
@@ -255,11 +259,18 @@ namespace _2DLogicGame
 
             // TODO: Add your drawing code here
 
+
+
+            SpriteBatch.Begin(samplerState: SamplerState.PointClamp, depthStencilState: DepthStencilState.None, rasterizerState: RasterizerState.CullCounterClockwise, sortMode: SpriteSortMode.BackToFront, blendState: BlendState.AlphaBlend);
             base.Draw(gameTime);
+
+            SpriteBatch.End();
+
+
+            SpriteBatch.Begin();
 
             this.GraphicsDevice.SetRenderTarget(null);
 
-            SpriteBatch.Begin();
             SpriteBatch.Draw(aRenderTarget, Vector2.Zero, null, Color.White, 0f, Vector2.Zero, aScale, SpriteEffects.None, 0f);
             SpriteBatch.End();
         }
@@ -293,6 +304,8 @@ namespace _2DLogicGame
                 parNewScene.SetVisibility(true);
             }
         }
+
+       
 
         /// <summary>
         /// On Exiting s vyvola presne v tedy, ked napriklad stlacime tlacitko X - Vyriesene Joinovanie Threadov

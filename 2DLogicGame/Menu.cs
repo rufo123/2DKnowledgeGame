@@ -54,9 +54,9 @@ namespace _2DLogicGame
         public override void Draw(GameTime gameTime)
         {
 
-            aLogicGame.SpriteBatch.Begin();
+           //  aLogicGame.SpriteBatch.Begin();
             aLogicGame.SpriteBatch.Draw(aMenuBackground, new Vector2(0, 0), Color.White);
-            aLogicGame.SpriteBatch.End();
+           // aLogicGame.SpriteBatch.End();
 
          
             base.Draw(gameTime);

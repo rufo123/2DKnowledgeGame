@@ -1,4 +1,5 @@
 ﻿using Lidgren.Network;
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -48,10 +49,14 @@ namespace _2DLogicGame
 
         private ClientSide.Chat.Chat aChatManager;
 
+        private GraphicObjects.PlayerController aPlayerController;
+
+        private ComponentCollection aClientObjects;
+
 
         public bool Connected { get => aConnected; set => aConnected = value; }
 
-        public Client(string parAppName, LogicGame parGame, ClientSide.Chat.Chat parChatManager, string parNickName = "Player")
+        public Client(string parAppName, LogicGame parGame, ClientSide.Chat.Chat parChatManager, ComponentCollection parClientObjects, string parNickName = "Player")
         {
 
             aLogicGame = parGame;
@@ -64,6 +69,7 @@ namespace _2DLogicGame
 
             //tmpClientConfig.EnableMessageType(NetIncomingMessageType.ConnectionApproval); //Povolime prijmanie spravy typu - ConnectionApproval (Enum)
 
+            aClientObjects = parClientObjects;
 
             aClient = new NetClient(tmpClientConfig); //Vytvorime Klienta so zvolenou konfiguraciou
 
@@ -89,6 +95,8 @@ namespace _2DLogicGame
             {
                 aConnected = false;
             }
+
+
         }
 
 
@@ -96,6 +104,9 @@ namespace _2DLogicGame
         {
             while (aLogicGame.GameState != GameState.Exit)
             {
+
+                
+
                 // aClient.MessageReceivedEvent.WaitOne();
                 NetIncomingMessage tmpIncommingMessage;
 
@@ -103,7 +114,9 @@ namespace _2DLogicGame
 
                 if (tmpIncommingMessage == null)
                 {
+                    Thread.Sleep(100);
                     continue;
+                    
                 }
 
                 byte tmpReceivedByte;
@@ -275,10 +288,15 @@ namespace _2DLogicGame
                 {
                     if (aDictionaryPlayerData.Count <= 0) //Ak este ziaden hrac nie je ulozeny v databaze, vieme ze ide o mna
                     {
-                        aDictionaryPlayerData.Add(tmpRUID, new ClientSide.PlayerClientData(tmpID, tmpNickname, tmpRUID, true)); //Pridame nove data o hracovi do uloziska, na zaklade Remote UID a pri udajoch o hracovi zadame, ze ide o nas
+                        aDictionaryPlayerData.Add(tmpRUID, new ClientSide.PlayerClientData(tmpID, tmpNickname, tmpRUID, aLogicGame, new Vector2(800,800), new Vector2(49, 64), parIsMe: true)); //Pridame nove data o hracovi do uloziska, na zaklade Remote UID a pri udajoch o hracovi zadame, ze ide o nas
+                        aPlayerController = new GraphicObjects.PlayerController(aLogicGame, aDictionaryPlayerData[tmpRUID]);
+                        aClientObjects.AddComponent(aDictionaryPlayerData[tmpRUID]);
+                        aLogicGame.Components.Add(aPlayerController);
+
                     }
                     else {
-                        aDictionaryPlayerData.Add(tmpRUID, new ClientSide.PlayerClientData(tmpID, tmpNickname, tmpRUID)); //Pridame nove data o hracovi do uloziska
+                        aDictionaryPlayerData.Add(tmpRUID, new ClientSide.PlayerClientData(tmpID, tmpNickname, tmpRUID, aLogicGame, new Vector2(800, 800), new Vector2(49, 64))); //Pridame nove data o hracovi do uloziska
+                        aClientObjects.AddComponent(aDictionaryPlayerData[tmpRUID]);
                     }
                     
                     HandleChatMessage(tmpNickname, "Connected", ClientSide.Chat.ChatColors.Purple); //Odosleme spravu o tom, ze sa nejaky hrac pripojil
@@ -290,7 +308,8 @@ namespace _2DLogicGame
                 {
                     if (tmpID != -1) //Ak sa nejedna o prazdnu spravu
                     {
-                        aDictionaryPlayerData.Add(tmpRUID, new ClientSide.PlayerClientData(tmpID, tmpNickname, tmpRUID)); //Pridame hraca do uloziska
+                        aDictionaryPlayerData.Add(tmpRUID, new ClientSide.PlayerClientData(tmpID, tmpNickname, tmpRUID, aLogicGame, new Vector2(800, 800), new Vector2(49, 64))); //Pridame hraca do uloziska
+                        aClientObjects.AddComponent(aDictionaryPlayerData[tmpRUID]);
                         HandleChatMessage(tmpNickname, "Is Already Here", ClientSide.Chat.ChatColors.Purple); //Odosleme spravu o tom, kto uz bol pripojeny - predomnou
                         Debug.WriteLine("Klient - Request - Data o Hracovi: " + tmpNickname + " boli pridane!");
                         return true;
@@ -332,6 +351,7 @@ namespace _2DLogicGame
         public bool RemovePlayer(long parRemoteUniqueIdentifier)
         {
             HandleChatMessage(aDictionaryPlayerData[parRemoteUniqueIdentifier].PlayerNickName, "Disconnected", ClientSide.Chat.ChatColors.Red);
+            aLogicGame.Components.Remove(aDictionaryPlayerData[parRemoteUniqueIdentifier]);
             return aDictionaryPlayerData.Remove(parRemoteUniqueIdentifier);
         }
 
@@ -343,6 +363,16 @@ namespace _2DLogicGame
 
             aClient.Disconnect("Connection Dropped");
             aClient.Shutdown("Shutting Down Client");
+
+            foreach (KeyValuePair<long, ClientSide.PlayerClientData> dictItem in aDictionaryPlayerData) //Prejdeme vsetky data v Dictionary
+            {
+                aLogicGame.Components.Remove(dictItem.Value);
+            }
+
+            aDictionaryPlayerData.Clear();
+
+            
+
 
             if (aClient.ConnectionStatus == NetConnectionStatus.Disconnected)
             {

@@ -55,7 +55,8 @@ namespace _2DLogicGame
         public override void Draw(GameTime gameTime)
         {
 
-            aLogicGame.SpriteBatch.Begin();
+            // aLogicGame.SpriteBatch.Begin();
+
 
             for (int i = 0; i < aBoxItems.Count; i++)
             {
@@ -71,7 +72,7 @@ namespace _2DLogicGame
 
             }
 
-            aLogicGame.SpriteBatch.End();
+          //  aLogicGame.SpriteBatch.End();
 
 
             base.Draw(gameTime);

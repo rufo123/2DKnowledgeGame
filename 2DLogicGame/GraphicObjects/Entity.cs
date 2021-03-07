@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace _2DLogicGame.GraphicObjects
@@ -58,6 +59,11 @@ namespace _2DLogicGame.GraphicObjects
         /// </summary>
         private string aImage;
 
+        /// <summary>
+        /// Atribut reprezentujuci Velkost Entity - typ Vector2
+        /// </summary>
+        private Vector2 aSize;
+
         private float aRotation = 0F;
 
         private float aLayerDepth = 0F;
@@ -65,21 +71,36 @@ namespace _2DLogicGame.GraphicObjects
         private SpriteEffects aEffects = SpriteEffects.None;
 
         /// <summary>
+        /// Pocitadlo casu, potrebne k spravnemu vykraslovaniu framov animacie Entity
+        /// </summary>
+        private double aTimeCounter = 0.0D;
+
+        /// <summary>
         /// Atribut reprezentujuci rychlost entity - typ float
         /// </summary>
         private float aSpeed = 1F;
 
+        /// <summary>
+        /// Atribut reprezentujuci nasobnu velkost oproti originalu - typ float
+        /// </summary>
+        private float aEntityScale = 1F;
+
         public float Speed { get => aSpeed; set => aSpeed = value; }
         public Color Color { get => aColor; set => aColor = value; }
         public Vector2 Position { get => aPosition; }
+        public float EntityScale { get => aEntityScale; set => aEntityScale = value; }
 
-        public Entity(LogicGame parGame, Vector2 parPosition, Vector2 parSize, Color parColor, Direction parDirection = Direction.UP, float parSpeed = 1F) : base(parGame)
+        public Entity(LogicGame parGame, Vector2 parPosition, Vector2 parSize ,  Direction parDirection = Direction.UP, float parSpeed = 1F) : base(parGame)
         {
             aLogicGame = parGame;
             aPosition = parPosition;
             aTexture = new Texture2D(parGame.GraphicsDevice, (int)parSize.X, (int)parSize.Y);
-            aRectangle = new Rectangle(0,0, (int)(parSize.X * aLogicGame.Scale), (int)(parSize.Y * aLogicGame.Scale));
-            aColor = parColor;
+            aRectangle = new Rectangle(0,0, (int)(parSize.X ), (int)(parSize.Y ));
+            if (aColor == null)
+            {
+                aColor = Color.White;
+            }
+            aSpeed = parSpeed;
 
         }
 
@@ -135,30 +156,74 @@ namespace _2DLogicGame.GraphicObjects
             aPosition = parPosition;
         }
 
-        public void Move(float parTickSpeed) {
+        public void SetSize(Vector2 parSize) {
+            aSize = parSize;
+        }
+
+        public void Move(GameTime gameTime) {
+
+            SwitchAnimation(gameTime.ElapsedGameTime.TotalMilliseconds);
+
+
             switch (aDirection)
             {
                 case Direction.UP:
-                    aPosition.Y -= parTickSpeed;
+                    aPosition.Y -= aSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
                     break;
                 case Direction.RIGHT:
-                    aPosition.X += parTickSpeed;
+                    aPosition.X += aSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
                     break;
                 case Direction.DOWN:
-                    aPosition.Y += parTickSpeed;
+                    aPosition.Y += aSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
                     break;
                 case Direction.LEFT:
-                    aPosition.X -= parTickSpeed;
+                    aPosition.X -= aSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
                     break;
                 default:
                     break;
             }
+
+
+
+
+            
+        }
+
+        public void SwitchAnimation(double parElapsedTime) {
+
+            //Prepina, framy korespondujuce zmenam smeru - Y - AXIS
+            aRectangle.Y = (int)aDirection * aRectangle.Size.Y;
+
+
+            if (aTimeCounter >= 0 && aTimeCounter < 100)
+            {
+                aTimeCounter += parElapsedTime;
+            }
+            else if (aTimeCounter > 0.02)
+            {
+                //Prepina, framy korespondujuce zmenam smeru - X - AXIS
+                if (aRectangle.X + aRectangle.Size.X <= aRectangle.Size.X * 4)
+                {
+                    aRectangle.X = aRectangle.X + aRectangle.Size.X;
+                    Debug.WriteLine(aRectangle.X);
+                }
+                else
+                {
+                    aRectangle.X = 0;
+                    Debug.WriteLine(aRectangle.X);
+                }
+                aTimeCounter = 0;
+            }
+
         }
 
 
 
         public override void Update(GameTime gameTime)
         {
+
+         
+
             base.Update(gameTime);
         }
 
@@ -178,14 +243,14 @@ namespace _2DLogicGame.GraphicObjects
 
         public override void Draw(GameTime gameTime)
         {
-                aLogicGame.SpriteBatch.Begin();
-              // aLogicGame.SpriteBatch.Draw(aTexture, aRectangle, Color.White);
-            aLogicGame.SpriteBatch.Draw(aTexture, aPosition, aRectangle, aColor, aRotation, Vector2.Zero, aLogicGame.Scale, aEffects, aLayerDepth);
-          
+           
+            // aLogicGame.SpriteBatch.Draw(aTexture, aRectangle, Color.White);
+            aLogicGame.SpriteBatch.Draw(aTexture, aPosition, aRectangle, aColor, aRotation, Vector2.Zero, aLogicGame.Scale * aEntityScale, aEffects, 0.2F);
+
 
             //   aLogicGame.SpriteBatch.Draw(aTexture, aPosition, aRectangle, aColor, aRotation, Vector2.Zero, aLogicGame.Scale, aEffects, aLayerDepth);
 
-            aLogicGame.SpriteBatch.End();
+           //            aLogicGame.SpriteBatch.End();
             base.Draw(gameTime);
         }
     }
