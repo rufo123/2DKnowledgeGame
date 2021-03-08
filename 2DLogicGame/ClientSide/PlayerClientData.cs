@@ -64,7 +64,6 @@ namespace _2DLogicGame.ClientSide
             }
 
             EntityScale = 2F;
-
         }
 
         public long RemoteUniqueIdentifier { get => aRemoteUniqueIdentifier; }

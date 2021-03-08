@@ -1,4 +1,5 @@
-﻿using Lidgren.Network;
+﻿using _2DLogicGame.GraphicObjects;
+using Lidgren.Network;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
@@ -49,14 +50,18 @@ namespace _2DLogicGame
 
         private ClientSide.Chat.Chat aChatManager;
 
-        private GraphicObjects.PlayerController aPlayerController;
-
         private ComponentCollection aClientObjects;
+
+        private PlayerController aPlayerController;
+
+        private Stopwatch aStopWatch;
+
+        private long aMSPerFrame = 1000 / 60;
 
 
         public bool Connected { get => aConnected; set => aConnected = value; }
 
-        public Client(string parAppName, LogicGame parGame, ClientSide.Chat.Chat parChatManager, ComponentCollection parClientObjects, string parNickName = "Player")
+        public Client(string parAppName, LogicGame parGame, ClientSide.Chat.Chat parChatManager, ComponentCollection parClientObjects, PlayerController parPlayController, string parNickName = "Player")
         {
 
             aLogicGame = parGame;
@@ -73,6 +78,8 @@ namespace _2DLogicGame
 
             aClient = new NetClient(tmpClientConfig); //Vytvorime Klienta so zvolenou konfiguraciou
 
+            aStopWatch = new Stopwatch();
+
 
             aClient.Start(); //Spustime Klienta
 
@@ -86,6 +93,7 @@ namespace _2DLogicGame
 
             aDictionaryPlayerData = new Dictionary<long, ClientSide.PlayerClientData>(aMaxPlayers);
 
+            aPlayerController = parPlayController;
 
             if (aClient.ConnectionStatus == NetConnectionStatus.Connected)
             {
@@ -104,8 +112,10 @@ namespace _2DLogicGame
         {
             while (aLogicGame.GameState != GameState.Exit)
             {
+                aStopWatch.Start();
+                long tmpStartTime = aStopWatch.ElapsedMilliseconds;
+                int tmpTimeToSleep;
 
-                
 
                 // aClient.MessageReceivedEvent.WaitOne();
                 NetIncomingMessage tmpIncommingMessage;
@@ -114,8 +124,13 @@ namespace _2DLogicGame
 
                 if (tmpIncommingMessage == null)
                 {
-                    Thread.Sleep(100);
-                    continue;
+                  tmpTimeToSleep = tmpTimeToSleep = unchecked((int)(tmpStartTime + aMSPerFrame - aStopWatch.ElapsedMilliseconds));
+                    if (tmpTimeToSleep < 0)
+                    {
+                        tmpTimeToSleep = 0;
+                    }
+                   Thread.Sleep(tmpTimeToSleep);
+                  continue;
                     
                 }
 
@@ -184,6 +199,16 @@ namespace _2DLogicGame
                             RemovePlayer(tmpRID); 
                         }
 
+                        if (tmpReceivedByte == (byte)PacketMessageType.Movement) {
+                           long tmpRUID = tmpIncommingMessage.ReadVariableInt64();
+                            if (tmpRUID == aMyIdentifier) {
+                                aDictionaryPlayerData[tmpRUID].AwaitingMovementMessage = false;
+                                continue;
+                            }
+                           aDictionaryPlayerData[tmpRUID].PrepareDownloadedData(tmpIncommingMessage, aPlayerController.GameTime);
+                    
+                        }
+
                         break;
                     case NetIncomingMessageType.Receipt:
                         break;
@@ -206,6 +231,13 @@ namespace _2DLogicGame
                     default:
                         break;
                 }
+
+                tmpTimeToSleep = tmpTimeToSleep = unchecked((int)(tmpStartTime + aMSPerFrame - aStopWatch.ElapsedMilliseconds));
+                if (tmpTimeToSleep < 0) {
+                    tmpTimeToSleep = 0;
+                }
+                Thread.Sleep(tmpTimeToSleep);
+
             }
 
             Shutdown(); //Mozno dobre ako destruktor...
@@ -289,9 +321,10 @@ namespace _2DLogicGame
                     if (aDictionaryPlayerData.Count <= 0) //Ak este ziaden hrac nie je ulozeny v databaze, vieme ze ide o mna
                     {
                         aDictionaryPlayerData.Add(tmpRUID, new ClientSide.PlayerClientData(tmpID, tmpNickname, tmpRUID, aLogicGame, new Vector2(800,800), new Vector2(49, 64), parIsMe: true)); //Pridame nove data o hracovi do uloziska, na zaklade Remote UID a pri udajoch o hracovi zadame, ze ide o nas
-                        aPlayerController = new GraphicObjects.PlayerController(aLogicGame, aDictionaryPlayerData[tmpRUID]);
+                        aPlayerController.SetPlayer(aDictionaryPlayerData[tmpRUID]);
                         aClientObjects.AddComponent(aDictionaryPlayerData[tmpRUID]);
                         aLogicGame.Components.Add(aPlayerController);
+                        aMyIdentifier = tmpRUID;
 
                     }
                     else {
@@ -353,6 +386,14 @@ namespace _2DLogicGame
             HandleChatMessage(aDictionaryPlayerData[parRemoteUniqueIdentifier].PlayerNickName, "Disconnected", ClientSide.Chat.ChatColors.Red);
             aLogicGame.Components.Remove(aDictionaryPlayerData[parRemoteUniqueIdentifier]);
             return aDictionaryPlayerData.Remove(parRemoteUniqueIdentifier);
+        }
+
+        public void SendClientData() {
+            NetOutgoingMessage tmpOutMessPlayData = aClient.CreateMessage();
+            tmpOutMessPlayData = aDictionaryPlayerData[aMyIdentifier].PrepareDataForUpload(tmpOutMessPlayData);
+            if (tmpOutMessPlayData != null) { 
+            aClient.SendMessage(tmpOutMessPlayData, NetDeliveryMethod.ReliableOrdered);
+            }
         }
 
         /// <summary>

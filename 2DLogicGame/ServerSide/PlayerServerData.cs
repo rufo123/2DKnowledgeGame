@@ -5,7 +5,7 @@ using System.Text;
 
 namespace _2DLogicGame.ServerSide
 {
-    class PlayerServerData
+    class PlayerServerData : EntityServer
 
     {
         /// <summary>
@@ -30,7 +30,7 @@ namespace _2DLogicGame.ServerSide
         /// <param name="parPlayerID">Parameter - ID Hraca - Typ int</param>
         /// <param name="parPlayerNickName">Parameter - Prezyvka Hraca - Typ string</param>
         /// <param name="parRemoteUniqueIdentifier">Parameter - Remote Unique Identifier Hraca - Typ long</param>
-        public PlayerServerData(int parPlayerID, string parPlayerNickName, long parRemoteUniqueIdentifier)
+        public PlayerServerData(int parPlayerID, string parPlayerNickName, long parRemoteUniqueIdentifier, Vector2 parPosition, Vector2 parSize) : base(parPosition, parSize)
         {
             aPlayerID = parPlayerID; //Priradime ID Hraca
             aPlayerNickName = parPlayerNickName; //Priradime Prezyvku Hraca
@@ -48,7 +48,8 @@ namespace _2DLogicGame.ServerSide
         /// <param name="parMessage">Parameter reprezentujuci prichodziu spravu - Typ NetOutgoingMessage</param>
         /// <param name="parRUIDToIgnore">Parameter reprezentujuci RUID, ktore ma byt ignorovane - Typ long</param>
         /// <returns></returns>
-        public NetOutgoingMessage PrepareIdentificationData(NetOutgoingMessage parMessage, long parRUIDToIgnore = 0) {
+        public NetOutgoingMessage PrepareIdentificationData(NetOutgoingMessage parMessage, long parRUIDToIgnore = 0)
+        {
 
             if (aRemoteUniqueIdentifier != parRUIDToIgnore)
             {
@@ -58,9 +59,22 @@ namespace _2DLogicGame.ServerSide
                 parMessage.WriteVariableInt64(aRemoteUniqueIdentifier);
 
             }
-           
 
-            return parMessage; 
+
+            return parMessage;
         }
+
+      /*  public NetOutgoingMessage PrepareDataForUploadWithRUID(NetOutgoingMessage parMessage)
+        {
+           
+            if (!float.IsNaN(aRemoteUniqueIdentifier)) //Skontrulujeme ci sa jedna o cislo...
+            {
+                parMessage.WriteVariableInt64(aRemoteUniqueIdentifier); //Do spravy pridame Remove Unique Identifikator Hraca
+            }
+
+            parMessage = PrepareDataForUpload(parMessage);
+
+            return parMessage;
+        } */
     }
 }

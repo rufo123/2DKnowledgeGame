@@ -45,6 +45,8 @@ namespace _2DLogicGame
 
         private RenderTarget2D aRenderTarget;
 
+        private PlayerController aPlayerController;
+
         private int aRenderTargetWidth = 1920;
 
         private int aRenderTargetHeight = 1080;
@@ -55,6 +57,7 @@ namespace _2DLogicGame
 
 
 
+        
 
         private float aScale = 1F;
 
@@ -71,11 +74,11 @@ namespace _2DLogicGame
         public Keys ChatWriteMessageKey { get => aChatWriteMessageKey; set => aChatWriteMessageKey = value; }
         public RenderTarget2D RenderTarget { get => aRenderTarget; }
         public GraphicsDeviceManager Graphics { get => _graphics; set => _graphics = value; }
-        public float Scale { get => aScale;  }
+        public float Scale { get => aScale; }
 
-       // public int RenderTargetWidth { get => aRenderTargetWidth;  }
+        // public int RenderTargetWidth { get => aRenderTargetWidth;  }
 
-       // public int RenderTargetHeight { get => aRenderTargetHeight; }
+        // public int RenderTargetHeight { get => aRenderTargetHeight; }
         //Keys
 
         private Keys aUpKey = Keys.W;
@@ -109,16 +112,18 @@ namespace _2DLogicGame
             aMainMenu = new ComponentCollection(this, aMenu, aMenuBox);
 
 
-            ClientSide.Chat.ChatReceiveBox chatReceive = new ClientSide.Chat.ChatReceiveBox(this, Window, 593, 800, Vector2.Zero + new Vector2(10,10));
-            ClientSide.Chat.ChatInputBox chatInput = new ClientSide.Chat.ChatInputBox(this, Window, 1000, 246, new Vector2((aRenderTargetWidth-1000)/2, aRenderTargetHeight-246));
+            ClientSide.Chat.ChatReceiveBox chatReceive = new ClientSide.Chat.ChatReceiveBox(this, Window, 593, 800, Vector2.Zero + new Vector2(10, 10));
+            ClientSide.Chat.ChatInputBox chatInput = new ClientSide.Chat.ChatInputBox(this, Window, 1000, 246, new Vector2((aRenderTargetWidth - 1000) / 2, aRenderTargetHeight - 246));
             aChat = new ClientSide.Chat.Chat(this, chatInput, chatReceive);
             //Player tmpPlayer = new Player(0, this, new Vector2(800, 500), new Vector2(49, 64), Color.White);
             //PlayerController tmpController = new PlayerController(this, tmpPlayer);
 
             aPlayingScreen = new ComponentCollection(this, aChat, chatInput, chatReceive);
 
-           // Components.Add(tmpController);
-            
+            aPlayerController = new GraphicObjects.PlayerController(this);
+
+            // Components.Add(tmpController);
+
 
             base.Initialize();
 
@@ -126,23 +131,23 @@ namespace _2DLogicGame
             Graphics.PreferredBackBufferHeight = aBackBufferHeight;
             Graphics.ApplyChanges();
 
-             aScale = 1F / (1080F / _graphics.GraphicsDevice.Viewport.Height);
+            aScale = 1F / (1080F / _graphics.GraphicsDevice.Viewport.Height);
         }
-        
+
         protected override void LoadContent()
         {
 
             Font = Content.Load<SpriteFont>("Fonts\\StickRegular12");
 
             aRenderTarget = new RenderTarget2D(this.GraphicsDevice, aRenderTargetWidth, aRenderTargetHeight);
-           
+
             SpriteBatch = new SpriteBatch(GraphicsDevice);
-  
+
             bck = Content.Load<Texture2D>("Sprites\\Backgrounds\\menuBackground");
 
             aMainMenu.SetVisibility(true);
 
-            
+
             // TODO: use this.Content to load your game content here
         }
 
@@ -168,7 +173,7 @@ namespace _2DLogicGame
                         {
                             SwitchScene(aMainMenu, aPlayingScreen);
                             aServerClass = new Server("Test", this);
-                            aClientClass = new Client("Test", this, aChat, aPlayingScreen);
+                            aClientClass = new Client("Test", this, aChat, aPlayingScreen, aPlayerController);
 
                             aServerReadThread = new Thread(new ThreadStart(aServerClass.ReadMessages));
                             aServerReadThread.Start();
@@ -176,13 +181,14 @@ namespace _2DLogicGame
                             aClientReadThread = new Thread(new ThreadStart(aClientClass.ReadMessages));
                             aClientReadThread.Start();
                         }
-                        else if (aMenu.TaskToExecute == MenuTasksToBeExecuted.Play_Start) {
+                        else if (aMenu.TaskToExecute == MenuTasksToBeExecuted.Play_Start)
+                        {
 
                             SwitchScene(aMainMenu, aPlayingScreen);
 
                             string userName = Console.ReadLine();
 
-                            aClientClass = new Client("Test", this, aChat, aPlayingScreen, "Tester");
+                            aClientClass = new Client("Test", this, aChat, aPlayingScreen, aPlayerController, "Tester");
 
                             aClientReadThread = new Thread(new ThreadStart(aClientClass.ReadMessages));
                             aClientReadThread.Start();
@@ -199,6 +205,15 @@ namespace _2DLogicGame
                 }
 
                 aMenu.TaskToExecute = MenuTasksToBeExecuted.None;
+            }
+
+            if (aPlayerController != null)
+            {
+                if (aPlayerController.IsUpdateNeeded() == true)
+                {
+                    aClientClass.SendClientData();
+                }
+
             }
 
 
@@ -237,21 +252,24 @@ namespace _2DLogicGame
                 {
                     GraphicsDevice.Clear(Color.Red);
                 }
-            } else if (aClientClass != null) {
+            }
+            else if (aClientClass != null)
+            {
 
                 if (aClientClass.Connected == true)
                 {
 
                     GraphicsDevice.Clear(Color.Green);
                 }
-                else {
+                else
+                {
 
                     GraphicsDevice.Clear(Color.Orange);
                 }
 
 
             }
-     
+
             else
             {
                 GraphicsDevice.Clear(Color.DarkGray);
@@ -305,7 +323,7 @@ namespace _2DLogicGame
             }
         }
 
-       
+
 
         /// <summary>
         /// On Exiting s vyvola presne v tedy, ked napriklad stlacime tlacitko X - Vyriesene Joinovanie Threadov

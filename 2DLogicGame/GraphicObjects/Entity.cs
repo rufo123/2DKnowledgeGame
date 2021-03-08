@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Lidgren.Network;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -28,6 +29,8 @@ namespace _2DLogicGame.GraphicObjects
         /// Atribut reprezentujuci poziciu entity - Typ Vector2
         /// </summary>
         private Vector2 aPosition;
+
+        private Vector2 aRemotePosition;
 
         /// <summary>
         /// Atribut reprezentujuci texturu entity - typ Texture2D
@@ -80,22 +83,33 @@ namespace _2DLogicGame.GraphicObjects
         /// </summary>
         private float aSpeed = 1F;
 
+        private float aVelocity;
+
+        private Vector2 aMovementVector;
+
+        private int aCounterZmazat = 0;
+
         /// <summary>
         /// Atribut reprezentujuci nasobnu velkost oproti originalu - typ float
         /// </summary>
         private float aEntityScale = 1F;
+
+        private bool aAwaitingMovementMessage = false;
 
         public float Speed { get => aSpeed; set => aSpeed = value; }
         public Color Color { get => aColor; set => aColor = value; }
         public Vector2 Position { get => aPosition; }
         public float EntityScale { get => aEntityScale; set => aEntityScale = value; }
 
-        public Entity(LogicGame parGame, Vector2 parPosition, Vector2 parSize ,  Direction parDirection = Direction.UP, float parSpeed = 1F) : base(parGame)
+        public bool AwaitingMovementMessage { get => aAwaitingMovementMessage; set => aAwaitingMovementMessage = value; }
+
+        public Entity(LogicGame parGame, Vector2 parPosition, Vector2 parSize, Direction parDirection = Direction.UP, float parSpeed = 1F) : base(parGame)
         {
             aLogicGame = parGame;
             aPosition = parPosition;
+            aRemotePosition = parPosition;
             aTexture = new Texture2D(parGame.GraphicsDevice, (int)parSize.X, (int)parSize.Y);
-            aRectangle = new Rectangle(0,0, (int)(parSize.X ), (int)(parSize.Y ));
+            aRectangle = new Rectangle(0, 0, (int)(parSize.X), (int)(parSize.Y));
             if (aColor == null)
             {
                 aColor = Color.White;
@@ -109,8 +123,10 @@ namespace _2DLogicGame.GraphicObjects
             aDirection = parDirection;
         }
 
-        public void SetImage(string parImage) {
-            if (!string.IsNullOrEmpty(parImage)) {
+        public void SetImage(string parImage)
+        {
+            if (!string.IsNullOrEmpty(parImage))
+            {
                 aImage = parImage;
             }
         }
@@ -143,7 +159,8 @@ namespace _2DLogicGame.GraphicObjects
         /// </summary>
         /// <param name="parX">Parameter reprezentujuci X-ovu suradnicu - typ float</param>
         /// <param name="parY">Parameter reprezentujuci Y-ovu suradnicu - typ float</param>
-        public void SetPosition(float parX, float parY) {
+        public void SetPosition(float parX, float parY)
+        {
             aPosition.X = parX;
             aPosition.Y = parY;
         }
@@ -152,44 +169,54 @@ namespace _2DLogicGame.GraphicObjects
         /// Metoda nastavi poziciu na zaklade novo zadaneho 2D Vectora - typ Vector2
         /// </summary>
         /// <param name="parPosition">Parameter reprezentujuci suradnicovy 2D vector - typ Vectro2</param>
-        public void SetPosition(Vector2 parPosition) {
+        public void SetPosition(Vector2 parPosition)
+        {
             aPosition = parPosition;
         }
 
-        public void SetSize(Vector2 parSize) {
+        public void SetSize(Vector2 parSize)
+        {
             aSize = parSize;
         }
 
-        public void Move(GameTime gameTime) {
+        public void Move(GameTime gameTime)
+        {
 
             SwitchAnimation(gameTime.ElapsedGameTime.TotalMilliseconds);
 
+            aVelocity = aSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
             switch (aDirection)
             {
                 case Direction.UP:
-                    aPosition.Y -= aSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                    aMovementVector.X = 0;
+                    aMovementVector.Y = -1;
                     break;
                 case Direction.RIGHT:
-                    aPosition.X += aSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                    aMovementVector.X = 1;
+                    aMovementVector.Y = 0;
                     break;
                 case Direction.DOWN:
-                    aPosition.Y += aSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                    aMovementVector.X = 0;
+                    aMovementVector.Y = 1;
                     break;
                 case Direction.LEFT:
-                    aPosition.X -= aSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                    aMovementVector.X = -1;
+                    aMovementVector.Y = 0;
                     break;
                 default:
+                    aMovementVector.X = 0;
+                    aMovementVector.Y = 0;
                     break;
             }
 
+            aPosition += aMovementVector * aVelocity;
 
 
-
-            
         }
 
-        public void SwitchAnimation(double parElapsedTime) {
+        public void SwitchAnimation(double parElapsedTime, int vypis = 0)
+        {
 
             //Prepina, framy korespondujuce zmenam smeru - Y - AXIS
             aRectangle.Y = (int)aDirection * aRectangle.Size.Y;
@@ -198,19 +225,27 @@ namespace _2DLogicGame.GraphicObjects
             if (aTimeCounter >= 0 && aTimeCounter < 100)
             {
                 aTimeCounter += parElapsedTime;
+                if (vypis == 1)
+                {
+                    aCounterZmazat++;
+                    Debug.WriteLine("Cudzia " + aCounterZmazat);
+                }
+                else if (vypis == 0) {
+                    aCounterZmazat++;
+                    Debug.WriteLine("Moja " + aCounterZmazat);
+                
+                }
             }
-            else if (aTimeCounter > 0.02)
+            else if (aTimeCounter > 100)
             {
                 //Prepina, framy korespondujuce zmenam smeru - X - AXIS
                 if (aRectangle.X + aRectangle.Size.X <= aRectangle.Size.X * 4)
                 {
                     aRectangle.X = aRectangle.X + aRectangle.Size.X;
-                    Debug.WriteLine(aRectangle.X);
                 }
                 else
                 {
                     aRectangle.X = 0;
-                    Debug.WriteLine(aRectangle.X);
                 }
                 aTimeCounter = 0;
             }
@@ -218,12 +253,70 @@ namespace _2DLogicGame.GraphicObjects
         }
 
 
+        public NetOutgoingMessage PrepareDataForUpload(NetOutgoingMessage parMessage)
+        {
+
+            if (aAwaitingMovementMessage != true)
+            {
+                Debug.Write("Move False");
+                parMessage.Write((byte)PacketMessageType.Movement);
+                parMessage.Write((byte)aDirection);
+                parMessage.WriteVariableInt32((int)aMovementVector.X);
+                parMessage.WriteVariableInt32((int)aMovementVector.Y);
+                parMessage.Write(aVelocity);
+                parMessage.Write(aPosition.X);
+                parMessage.Write(aPosition.Y);
+
+               aAwaitingMovementMessage = true;
+                
+                return parMessage;
+            }
+            else {
+                return null;
+            }
+
+            
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="parMessage"></param>
+        /// <param name="parClientElapsedTime">Reprezentuje cas u klienta, u ktoreho bude toto vsetko vykreslovan</param>
+        public void PrepareDownloadedData(NetIncomingMessage parMessage, GameTime parGameTime)
+        {
+            aDirection = (Direction)parMessage.ReadByte();
+            aMovementVector.X = parMessage.ReadVariableInt32();
+            aMovementVector.Y = parMessage.ReadVariableInt32();
+            aVelocity = parMessage.ReadFloat();
+            aRemotePosition.X = parMessage.ReadFloat();
+            aRemotePosition.Y = parMessage.ReadFloat();
+
+            Interpolate(parGameTime);
+            SwitchAnimation(parGameTime.ElapsedGameTime.TotalMilliseconds, 1);
+
+        }
+
+        public void Interpolate(GameTime parGameTime) {
+
+            float interpolation_constant = 0.5F;
+            float treshold = 0.2F;
+            float differenceX = aRemotePosition.X - aRemotePosition.X;
+            float differenceY = aRemotePosition.Y - aRemotePosition.Y;
+            if ((Math.Abs(differenceX) < treshold) && Math.Abs(differenceY) < treshold)
+            {
+                aPosition = aRemotePosition;
+            }
+            else {
+                aPosition.X = differenceX * (float)parGameTime.ElapsedGameTime.TotalSeconds * interpolation_constant;
+                aPosition.Y = differenceY * (float)parGameTime.ElapsedGameTime.TotalSeconds * interpolation_constant;
+            }
+        }
+
+
 
         public override void Update(GameTime gameTime)
         {
-
-         
-
             base.Update(gameTime);
         }
 
@@ -243,14 +336,14 @@ namespace _2DLogicGame.GraphicObjects
 
         public override void Draw(GameTime gameTime)
         {
-           
+
             // aLogicGame.SpriteBatch.Draw(aTexture, aRectangle, Color.White);
             aLogicGame.SpriteBatch.Draw(aTexture, aPosition, aRectangle, aColor, aRotation, Vector2.Zero, aLogicGame.Scale * aEntityScale, aEffects, 0.2F);
 
 
             //   aLogicGame.SpriteBatch.Draw(aTexture, aPosition, aRectangle, aColor, aRotation, Vector2.Zero, aLogicGame.Scale, aEffects, aLayerDepth);
 
-           //            aLogicGame.SpriteBatch.End();
+            //            aLogicGame.SpriteBatch.End();
             base.Draw(gameTime);
         }
     }

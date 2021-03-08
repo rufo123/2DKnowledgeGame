@@ -16,6 +16,12 @@ namespace _2DLogicGame.GraphicObjects
 
         private Keys aUp = Keys.W, aRight = Keys.D, aDown = Keys.S, aLeft = Keys.A;
 
+        private bool aUpdateNeeded = false;
+
+        private GameTime aGameTime;
+
+        public GameTime GameTime { get => aGameTime; set => aGameTime = value; }
+
         /// <summary>
         /// Konstruktor PlayerControlleru, Hrac mozu byt zadany uz pri konstrukcii, alebo neskor...
         /// </summary>
@@ -32,8 +38,6 @@ namespace _2DLogicGame.GraphicObjects
             base.Initialize();
         }
 
-
-
         /// <summary>
         /// Metoda, ktora nastavi hraca, ktory bude ovladany - Controllerom
         /// </summary>
@@ -45,31 +49,34 @@ namespace _2DLogicGame.GraphicObjects
         public override void Update(GameTime gameTime)
         {
 
+            aGameTime = gameTime;
+
             if (aPlayer != null)
             {
 
                 double tmpElapsedTime = gameTime.ElapsedGameTime.TotalSeconds;
 
-               
-
                 if (Keyboard.GetState().IsKeyDown(aUp))
                 {
+                    aUpdateNeeded = true;
                     aPlayer.SetDirection(Entity.Direction.UP);
                     aPlayer.Move(gameTime);
-                    Debug.WriteLine("PEs");
                 }
                 else if (Keyboard.GetState().IsKeyDown(aRight))
                 {
+                    aUpdateNeeded = true;
                     aPlayer.SetDirection(Entity.Direction.RIGHT);
                     aPlayer.Move(gameTime);
                 }
                 else if (Keyboard.GetState().IsKeyDown(aLeft))
                 {
+                    aUpdateNeeded = true;
                     aPlayer.SetDirection(Entity.Direction.LEFT);
                     aPlayer.Move(gameTime);
                 }
                 else if (Keyboard.GetState().IsKeyDown(aDown))
                 {
+                    aUpdateNeeded = true;
                     aPlayer.SetDirection(Entity.Direction.DOWN);
                     aPlayer.Move(gameTime);
                 }
@@ -78,6 +85,19 @@ namespace _2DLogicGame.GraphicObjects
 
             base.Update(gameTime);
         }
+        public bool IsUpdateNeeded()
+        {
+            if (aUpdateNeeded == true)
+            {
+                aUpdateNeeded = false;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
 
         protected override void OnUpdateOrderChanged(object sender, EventArgs args)
         {

@@ -40,6 +40,13 @@ namespace _2DLogicGame
 
         private LogicGame aLogicGame;
 
+        private const int aTickRate = 60; //Tikov za sekundu
+
+        private long aMSPerFrame = 1000 / aTickRate;
+
+
+        System.Diagnostics.Stopwatch aStopWatch;
+
 
         public bool Started { get => aStarted; set => aStarted = value; }
 
@@ -72,6 +79,7 @@ namespace _2DLogicGame
             aDictionaryPlayerData = new Dictionary<long, ServerSide.PlayerServerData>(aMaxPlayers);
 
 
+            aStopWatch = new Stopwatch();
 
             Debug.WriteLine(aDictionaryPlayerData.Count);
 
@@ -82,6 +90,10 @@ namespace _2DLogicGame
 
             while (aLogicGame.GameState != GameState.Exit)
             {
+                aStopWatch.Start();
+                long tmpStartTime = aStopWatch.ElapsedMilliseconds;
+                int tmpTimeToSleep;
+
 
                 //aServer.MessageReceivedEvent.WaitOne();
 
@@ -91,7 +103,13 @@ namespace _2DLogicGame
 
                 if (tmpIncommingMessage == null)
                 {
-                    Thread.Sleep(100);
+                    tmpTimeToSleep = unchecked((int)(tmpStartTime + aMSPerFrame - aStopWatch.ElapsedMilliseconds));
+                    if (tmpTimeToSleep < 0)
+                    {
+                        tmpTimeToSleep = 0;
+                    }
+                    Thread.Sleep(tmpTimeToSleep); //Pokus o implementaciu konstantneho TICKRATU
+                    
                     continue;
                 }
 
@@ -209,6 +227,21 @@ namespace _2DLogicGame
 
 
                         }
+                        else if (tmpReceivedByte == (byte)PacketMessageType.Movement) {
+
+                            Debug.WriteLine("Prisla sprava od " + tmpIncommingMessage.SenderConnection.RemoteUniqueIdentifier);
+                            //Prijme data od klienta
+                            aDictionaryPlayerData[tmpIncommingMessage.SenderConnection.RemoteUniqueIdentifier].HandleReceivedData(tmpIncommingMessage);
+
+                            //Pripravi na odoslanie klientom
+
+                             NetOutgoingMessage tmpOutMovMessage = aServer.CreateMessage();
+                             tmpOutMovMessage.Write((byte)PacketMessageType.Movement);
+                             tmpOutMovMessage.WriteVariableInt64(tmpIncommingMessage.SenderConnection.RemoteUniqueIdentifier);
+                             tmpOutMovMessage = aDictionaryPlayerData[tmpIncommingMessage.SenderConnection.RemoteUniqueIdentifier].PrepareDataForUpload(tmpOutMovMessage);
+                             aServer.SendToAll(tmpOutMovMessage, NetDeliveryMethod.ReliableOrdered);
+
+                        }
 
                         break;
                     case NetIncomingMessageType.Receipt:
@@ -232,6 +265,13 @@ namespace _2DLogicGame
                     default:
                         break;
                 }
+
+                tmpTimeToSleep = unchecked((int)(tmpStartTime + aMSPerFrame - aStopWatch.ElapsedMilliseconds)); //POkus o TickRate
+                if (tmpTimeToSleep < 0) {
+                    tmpTimeToSleep = 0;
+                }
+                Thread.Sleep(tmpTimeToSleep); //Pokus o implementaciu konstantneho TICKRATU
+
             }
 
             Shutdown();
@@ -267,7 +307,7 @@ namespace _2DLogicGame
             { //Ak je na Serveri volne Miesto
 
                 int tmpNewPlayerID = aDictionaryPlayerData.Count + 1; //Zainicializujeme si nove ID Hraca
-                aDictionaryPlayerData.Add(parRemoteUniqueIdentifier, new ServerSide.PlayerServerData(tmpNewPlayerID, parPlayerNickname, parRemoteUniqueIdentifier)); //Do Dictionary si pridame noveho Hraca s Novym ID a vytvorime objekt typu PlayerServerData podobne spolu s ID a Prezyvkou Hraca
+                aDictionaryPlayerData.Add(parRemoteUniqueIdentifier, new ServerSide.PlayerServerData(tmpNewPlayerID, parPlayerNickname, parRemoteUniqueIdentifier, new ServerSide.Vector2(800,800), new ServerSide.Vector2(49, 64))); //Do Dictionary si pridame noveho Hraca s Novym ID a vytvorime objekt typu PlayerServerData podobne spolu s ID a Prezyvkou Hraca
 
                 Debug.WriteLine("Server - Hrac bol pridany!" + " Nickname: " + parPlayerNickname + " ID " + tmpNewPlayerID + " RID " + parRemoteUniqueIdentifier);
 
@@ -332,6 +372,7 @@ namespace _2DLogicGame
             return true;
         }
 
+
         /// <summary>
         /// Metoda, ktora ma za nasledok vypnutie serveru
         /// </summary>
@@ -347,7 +388,8 @@ namespace _2DLogicGame
 
             Debug.WriteLine("Shutting Down Server");
 
-
+            
         }
+
     }
 }
