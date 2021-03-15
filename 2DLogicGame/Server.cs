@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Threading;
@@ -37,27 +38,52 @@ namespace _2DLogicGame
         /// </summary>
         private int aMaxPlayers = 2;
 
-
+        /// <summary>
+        /// Atribut, reprezentujuci hry typu - LogicGame
+        /// </summary>
         private LogicGame aLogicGame;
 
+
+        /// <summary>
+        /// Atribut reprezeentujuci TickRate serveru - typ int
+        /// </summary>
         private const int aTickRate = 60; //Tikov za sekundu
 
+        /// <summary>
+        /// Atribut reprezentuje, kolko milisekund sa ma rovnat jednemu framu - typ long
+        /// </summary>
         private long aMSPerFrame = 1000 / aTickRate;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje casovac - zabezpecujuci staly TickRate
+        /// </summary>
+        private System.Diagnostics.Stopwatch aStopWatch;
 
-        System.Diagnostics.Stopwatch aStopWatch;
+        /// <summary>
+        /// Vlakno, ktore bude zabezpecovat spracovanie pohybu
+        /// </summary>
+        private Thread aMovementThread;
 
 
-        public bool Started { get => aStarted; set => aStarted = value; }
+        public bool Started
+        {
+            get => aStarted;
+            set => aStarted = value;
+        }
 
         public Server(string parAppName, LogicGame parGame)
         {
 
             aLogicGame = parGame;
 
-            NetPeerConfiguration tmpServerConfig = new NetPeerConfiguration(parAppName) { Port = aPort }; //Nastavime si Meno nasej Aplikacie, ktora bude sluzi na validaciu pri pripojeni a Port
+            NetPeerConfiguration
+                tmpServerConfig = new NetPeerConfiguration(parAppName)
+                {
+                    Port = aPort
+                }; //Nastavime si Meno nasej Aplikacie, ktora bude sluzi na validaciu pri pripojeni a Port
 
-            tmpServerConfig.EnableMessageType(NetIncomingMessageType.ConnectionApproval); //Povolime prijmanie spravy typu - ConnectionApproval (Enum)
+            tmpServerConfig.EnableMessageType(NetIncomingMessageType
+                .ConnectionApproval); //Povolime prijmanie spravy typu - ConnectionApproval (Enum)
 
             aServer = new NetServer(tmpServerConfig); //Inicializujeme Server s nami zadanou Konfiguraciou
 
@@ -66,7 +92,8 @@ namespace _2DLogicGame
             //Ked volame Start() - Lidgren nabinduje vhodny Network Socket a vytvori na pozadi Thread, ktory spracuje prave Sietovanie...
 
             if (aServer.Status == NetPeerStatus.Running)
-            { //Ak server bezi, nastavime atribut aStared na TRUE
+            {
+                //Ak server bezi, nastavime atribut aStared na TRUE
                 aStarted = true;
             }
             else
@@ -83,16 +110,69 @@ namespace _2DLogicGame
 
             Debug.WriteLine(aDictionaryPlayerData.Count);
 
+            aMovementThread = new Thread(new ThreadStart(this.MovementHandler));
+            aMovementThread.Start();
+
+        }
+
+        public void MovementHandler()
+        {
+
+            if (aStopWatch.IsRunning != true)
+            {
+                aStopWatch.Start();
+            }
+
+            int tmpTimeToSleep = 0; //Inicializujeme si premennu - reprezentujucu, kolko ma server "spat"
+
+            while (aLogicGame.GameState != GameState.Exit)
+            {
+
+                long tmpStartTime = aStopWatch.ElapsedMilliseconds; //Nastavime zaciatocny cas
+
+
+
+                if (aDictionaryPlayerData.Count > 0) //Ak je niekto pripojeny na server
+                {
+                    foreach (KeyValuePair<long, ServerSide.PlayerServerData> dictItem in aDictionaryPlayerData.ToList()
+                    ) //Prejdeme vsetky data v Dictionary
+                    {
+                        dictItem.Value.Move((float)(tmpTimeToSleep));
+                        var elapsed = aStopWatch.ElapsedMilliseconds;
+                    }
+
+                }
+
+                //Pripravi na odoslanie klientom
+
+         
+
+                tmpTimeToSleep = unchecked((int)(tmpStartTime + aMSPerFrame - aStopWatch.ElapsedMilliseconds));
+                if (tmpTimeToSleep < 0) //Poistime si aby cas, ktory ma vlakno spat nebol zaporny
+                {
+                    tmpTimeToSleep = 0;
+                }
+
+
+                Thread.Sleep(tmpTimeToSleep); //Pokus o implementaciu konstantneho TICKRATU
+            }
+
+
         }
 
         public void ReadMessages()
         {
+            if (aStopWatch.IsRunning != true)
+            {
+                aStopWatch.Start(); //Zapneme casovat
+            }
+
 
             while (aLogicGame.GameState != GameState.Exit)
             {
-                aStopWatch.Start();
-                long tmpStartTime = aStopWatch.ElapsedMilliseconds;
-                int tmpTimeToSleep;
+
+                long tmpStartTime = aStopWatch.ElapsedMilliseconds; //Nastavime zaciatocny cas
+                int tmpTimeToSleep; //Inicializujeme si premennu - reprezentujucu, kolko ma server "spat"
 
 
                 //aServer.MessageReceivedEvent.WaitOne();
@@ -101,16 +181,17 @@ namespace _2DLogicGame
 
                 tmpIncommingMessage = aServer.ReadMessage(); //Spravu inicializujeme ako aServer.ReadMessage() - Read a pending message from any connection, if any 
 
-                if (tmpIncommingMessage == null)
+                if (tmpIncommingMessage == null) //Pokial na server nepride ziadna sprava
                 {
                     tmpTimeToSleep = unchecked((int)(tmpStartTime + aMSPerFrame - aStopWatch.ElapsedMilliseconds));
-                    if (tmpTimeToSleep < 0)
+                    if (tmpTimeToSleep < 0) //Poistime si aby cas, ktory ma vlakno spat nebol zaporny
                     {
                         tmpTimeToSleep = 0;
                     }
+
                     Thread.Sleep(tmpTimeToSleep); //Pokus o implementaciu konstantneho TICKRATU
-                    
-                    continue;
+
+                    continue; //Ak neprisla ziadna sprava, vratime sa spat na zaciatok cyklu, resp na koniec...
                 }
 
                 byte tmpReceivedByte;
@@ -146,11 +227,12 @@ namespace _2DLogicGame
                                 {
                                     Debug.WriteLine("DSDASDADAS ---" + tmpReason);
                                 }
-                                else {
+                                else
+                                {
                                     Debug.WriteLine("dSDAdsdadasda ---- " + tmpReason);
                                     DisconnectClient(tmpIncommingMessage);
                                 }
-                                
+
                                 break;
                             default:
                                 break;
@@ -227,21 +309,24 @@ namespace _2DLogicGame
 
 
                         }
-                        else if (tmpReceivedByte == (byte)PacketMessageType.Movement) {
+                        else if (tmpReceivedByte == (byte)PacketMessageType.Movement)
+                        {
 
                             Debug.WriteLine("Prisla sprava od " + tmpIncommingMessage.SenderConnection.RemoteUniqueIdentifier);
                             //Prijme data od klienta
                             aDictionaryPlayerData[tmpIncommingMessage.SenderConnection.RemoteUniqueIdentifier].HandleReceivedData(tmpIncommingMessage);
 
-                            //Pripravi na odoslanie klientom
+                            //Odosle spat
 
-                             NetOutgoingMessage tmpOutMovMessage = aServer.CreateMessage();
-                             tmpOutMovMessage.Write((byte)PacketMessageType.Movement);
-                             tmpOutMovMessage.WriteVariableInt64(tmpIncommingMessage.SenderConnection.RemoteUniqueIdentifier);
-                             tmpOutMovMessage = aDictionaryPlayerData[tmpIncommingMessage.SenderConnection.RemoteUniqueIdentifier].PrepareDataForUpload(tmpOutMovMessage);
-                             aServer.SendToAll(tmpOutMovMessage, NetDeliveryMethod.ReliableOrdered);
-
+                            NetOutgoingMessage tmpOutMovMessage = aServer.CreateMessage();
+                            tmpOutMovMessage.Write((byte)PacketMessageType.Movement);
+                            tmpOutMovMessage.WriteVariableInt64(tmpIncommingMessage.SenderConnection.RemoteUniqueIdentifier);
+                            tmpOutMovMessage = aDictionaryPlayerData[tmpIncommingMessage.SenderConnection.RemoteUniqueIdentifier].PrepareDataForUpload(tmpOutMovMessage);
+                            aServer.SendToAll(tmpOutMovMessage, NetDeliveryMethod.ReliableOrdered); 
                         }
+
+                       
+
 
                         break;
                     case NetIncomingMessageType.Receipt:
@@ -267,13 +352,15 @@ namespace _2DLogicGame
                 }
 
                 tmpTimeToSleep = unchecked((int)(tmpStartTime + aMSPerFrame - aStopWatch.ElapsedMilliseconds)); //POkus o TickRate
-                if (tmpTimeToSleep < 0) {
+                if (tmpTimeToSleep < 0)
+                {
                     tmpTimeToSleep = 0;
                 }
                 Thread.Sleep(tmpTimeToSleep); //Pokus o implementaciu konstantneho TICKRATU
 
             }
 
+            aStopWatch.Stop();
             Shutdown();
         }
 
@@ -307,7 +394,7 @@ namespace _2DLogicGame
             { //Ak je na Serveri volne Miesto
 
                 int tmpNewPlayerID = aDictionaryPlayerData.Count + 1; //Zainicializujeme si nove ID Hraca
-                aDictionaryPlayerData.Add(parRemoteUniqueIdentifier, new ServerSide.PlayerServerData(tmpNewPlayerID, parPlayerNickname, parRemoteUniqueIdentifier, new ServerSide.Vector2(800,800), new ServerSide.Vector2(49, 64))); //Do Dictionary si pridame noveho Hraca s Novym ID a vytvorime objekt typu PlayerServerData podobne spolu s ID a Prezyvkou Hraca
+                aDictionaryPlayerData.Add(parRemoteUniqueIdentifier, new ServerSide.PlayerServerData(tmpNewPlayerID, parPlayerNickname, parRemoteUniqueIdentifier, new ServerSide.Vector2(800, 800), new ServerSide.Vector2(49, 64))); //Do Dictionary si pridame noveho Hraca s Novym ID a vytvorime objekt typu PlayerServerData podobne spolu s ID a Prezyvkou Hraca
 
                 Debug.WriteLine("Server - Hrac bol pridany!" + " Nickname: " + parPlayerNickname + " ID " + tmpNewPlayerID + " RID " + parRemoteUniqueIdentifier);
 
@@ -347,7 +434,7 @@ namespace _2DLogicGame
         {
             return aDictionaryPlayerData.Remove(parRemoveUniqueIdentifier);
         }
-        
+
         /// <summary>
         /// Metoda, ktora odpoji klienta - vymaze ho z uloziska, a odosle informaciu ostatnym o jeho odpojeni
         /// </summary>
@@ -356,19 +443,19 @@ namespace _2DLogicGame
         public bool DisconnectClient(NetIncomingMessage parMessage)
         {
 
-                long tmpRemoteUniqueIdentifier = parMessage.SenderConnection.RemoteUniqueIdentifier;
-                aDictionaryPlayerData.Remove(tmpRemoteUniqueIdentifier);
+            long tmpRemoteUniqueIdentifier = parMessage.SenderConnection.RemoteUniqueIdentifier;
+            aDictionaryPlayerData.Remove(tmpRemoteUniqueIdentifier);
 
-                // parMessage.SenderConnection.Disconnect("Disconnect Requested");
+            // parMessage.SenderConnection.Disconnect("Disconnect Requested");
 
-                NetOutgoingMessage tmpOutgoingMessage = aServer.CreateMessage();
-                tmpOutgoingMessage.Write((byte)PacketMessageType.Disconnect);
-                
-                tmpOutgoingMessage.WriteVariableInt64(tmpRemoteUniqueIdentifier);
+            NetOutgoingMessage tmpOutgoingMessage = aServer.CreateMessage();
+            tmpOutgoingMessage.Write((byte)PacketMessageType.Disconnect);
 
-                aServer.SendToAll(tmpOutgoingMessage, NetDeliveryMethod.ReliableOrdered);
+            tmpOutgoingMessage.WriteVariableInt64(tmpRemoteUniqueIdentifier);
 
-           
+            aServer.SendToAll(tmpOutgoingMessage, NetDeliveryMethod.ReliableOrdered);
+
+
             return true;
         }
 
@@ -386,9 +473,11 @@ namespace _2DLogicGame
 
             aServer = null;
 
+            aMovementThread.Join();
+
             Debug.WriteLine("Shutting Down Server");
 
-            
+
         }
 
     }

@@ -30,7 +30,7 @@ namespace _2DLogicGame.ServerSide
         /// <param name="parPlayerID">Parameter - ID Hraca - Typ int</param>
         /// <param name="parPlayerNickName">Parameter - Prezyvka Hraca - Typ string</param>
         /// <param name="parRemoteUniqueIdentifier">Parameter - Remote Unique Identifier Hraca - Typ long</param>
-        public PlayerServerData(int parPlayerID, string parPlayerNickName, long parRemoteUniqueIdentifier, Vector2 parPosition, Vector2 parSize) : base(parPosition, parSize)
+        public PlayerServerData(int parPlayerID, string parPlayerNickName, long parRemoteUniqueIdentifier, Vector2 parPosition, Vector2 parSize) : base(parPosition, parSize, parSpeed: 200F)
         {
             aPlayerID = parPlayerID; //Priradime ID Hraca
             aPlayerNickName = parPlayerNickName; //Priradime Prezyvku Hraca
@@ -59,8 +59,6 @@ namespace _2DLogicGame.ServerSide
                 parMessage.WriteVariableInt64(aRemoteUniqueIdentifier);
 
             }
-
-
             return parMessage;
         }
 

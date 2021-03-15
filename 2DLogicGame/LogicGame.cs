@@ -186,14 +186,12 @@ namespace _2DLogicGame
 
                             SwitchScene(aMainMenu, aPlayingScreen);
 
-                            string userName = Console.ReadLine();
-
                             aClientClass = new Client("Test", this, aChat, aPlayingScreen, aPlayerController, "Tester");
 
                             aClientReadThread = new Thread(new ThreadStart(aClientClass.ReadMessages));
                             aClientReadThread.Start();
                         }
-
+                        
                         break;
                     case GameState.Paused:
                         break;
@@ -211,7 +209,7 @@ namespace _2DLogicGame
             {
                 if (aPlayerController.IsUpdateNeeded() == true)
                 {
-                    aClientClass.SendClientData();
+                    aClientClass.SendClientData(); //Odosleme data len vtedy, pokial sa zmenil pohyb...
                 }
 
             }

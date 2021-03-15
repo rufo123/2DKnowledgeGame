@@ -56,7 +56,9 @@ namespace _2DLogicGame
 
         private Stopwatch aStopWatch;
 
-        private long aMSPerFrame = 1000 / 60;
+        private const int aTickRate = 60;
+
+        private long aMSPerFrame = 1000 / aTickRate;
 
 
         public bool Connected { get => aConnected; set => aConnected = value; }
@@ -79,7 +81,6 @@ namespace _2DLogicGame
             aClient = new NetClient(tmpClientConfig); //Vytvorime Klienta so zvolenou konfiguraciou
 
             aStopWatch = new Stopwatch();
-
 
             aClient.Start(); //Spustime Klienta
 
@@ -124,14 +125,14 @@ namespace _2DLogicGame
 
                 if (tmpIncommingMessage == null)
                 {
-                  tmpTimeToSleep = tmpTimeToSleep = unchecked((int)(tmpStartTime + aMSPerFrame - aStopWatch.ElapsedMilliseconds));
+                    tmpTimeToSleep = tmpTimeToSleep = unchecked((int)(tmpStartTime + aMSPerFrame - aStopWatch.ElapsedMilliseconds));
                     if (tmpTimeToSleep < 0)
                     {
                         tmpTimeToSleep = 0;
                     }
-                   Thread.Sleep(tmpTimeToSleep);
-                  continue;
-                    
+                    Thread.Sleep(tmpTimeToSleep);
+                    continue;
+
                 }
 
                 byte tmpReceivedByte;
@@ -191,22 +192,25 @@ namespace _2DLogicGame
                             }
                         }
 
-                        if (tmpReceivedByte == (byte)PacketMessageType.Disconnect) {
+                        if (tmpReceivedByte == (byte)PacketMessageType.Disconnect)
+                        {
 
                             long tmpRID = tmpIncommingMessage.ReadVariableInt64();
                             Debug.WriteLine("Typ" + tmpReceivedByte);
                             Debug.WriteLine("Pokus o Remove" + tmpRID);
-                            RemovePlayer(tmpRID); 
+                            RemovePlayer(tmpRID);
                         }
 
-                        if (tmpReceivedByte == (byte)PacketMessageType.Movement) {
-                           long tmpRUID = tmpIncommingMessage.ReadVariableInt64();
-                            if (tmpRUID == aMyIdentifier) {
+                        if (tmpReceivedByte == (byte)PacketMessageType.Movement)
+                        {
+                            long tmpRUID = tmpIncommingMessage.ReadVariableInt64();
+                            if (tmpRUID == aMyIdentifier)
+                            {
                                 aDictionaryPlayerData[tmpRUID].AwaitingMovementMessage = false;
                                 continue;
                             }
-                           aDictionaryPlayerData[tmpRUID].PrepareDownloadedData(tmpIncommingMessage, aPlayerController.GameTime);
-                    
+                            aDictionaryPlayerData[tmpRUID].PrepareDownloadedData(tmpIncommingMessage, aPlayerController.GameTime);
+
                         }
 
                         break;
@@ -233,7 +237,8 @@ namespace _2DLogicGame
                 }
 
                 tmpTimeToSleep = tmpTimeToSleep = unchecked((int)(tmpStartTime + aMSPerFrame - aStopWatch.ElapsedMilliseconds));
-                if (tmpTimeToSleep < 0) {
+                if (tmpTimeToSleep < 0)
+                {
                     tmpTimeToSleep = 0;
                 }
                 Thread.Sleep(tmpTimeToSleep);
@@ -307,7 +312,7 @@ namespace _2DLogicGame
         /// <param name="parRequestType">Parameter reprezentujuci o aky typ requestu ide - Connect, alebo Request informacii o ostatnym pouzivateloch - Typ - Enum - PacketInfoRequestType</param>
         /// <returns></returns>
         public bool AddPlayer(NetIncomingMessage parIncommingMessage, PacketInfoRequestType parRequestType)
-        { 
+        {
             int tmpID = parIncommingMessage.ReadVariableInt32();
 
             string tmpNickname = parIncommingMessage.ReadString();
@@ -320,18 +325,19 @@ namespace _2DLogicGame
                 {
                     if (aDictionaryPlayerData.Count <= 0) //Ak este ziaden hrac nie je ulozeny v databaze, vieme ze ide o mna
                     {
-                        aDictionaryPlayerData.Add(tmpRUID, new ClientSide.PlayerClientData(tmpID, tmpNickname, tmpRUID, aLogicGame, new Vector2(800,800), new Vector2(49, 64), parIsMe: true)); //Pridame nove data o hracovi do uloziska, na zaklade Remote UID a pri udajoch o hracovi zadame, ze ide o nas
+                        aDictionaryPlayerData.Add(tmpRUID, new ClientSide.PlayerClientData(tmpID, tmpNickname, tmpRUID, aLogicGame, new Vector2(800, 800), new Vector2(49, 64), parIsMe: true)); //Pridame nove data o hracovi do uloziska, na zaklade Remote UID a pri udajoch o hracovi zadame, ze ide o nas
                         aPlayerController.SetPlayer(aDictionaryPlayerData[tmpRUID]);
                         aClientObjects.AddComponent(aDictionaryPlayerData[tmpRUID]);
                         aLogicGame.Components.Add(aPlayerController);
                         aMyIdentifier = tmpRUID;
 
                     }
-                    else {
+                    else
+                    {
                         aDictionaryPlayerData.Add(tmpRUID, new ClientSide.PlayerClientData(tmpID, tmpNickname, tmpRUID, aLogicGame, new Vector2(800, 800), new Vector2(49, 64))); //Pridame nove data o hracovi do uloziska
                         aClientObjects.AddComponent(aDictionaryPlayerData[tmpRUID]);
                     }
-                    
+
                     HandleChatMessage(tmpNickname, "Connected", ClientSide.Chat.ChatColors.Purple); //Odosleme spravu o tom, ze sa nejaky hrac pripojil
                     Debug.WriteLine("Klient - Connect - Data o Hracovi: " + tmpNickname + " boli pridane!");
 
@@ -388,11 +394,13 @@ namespace _2DLogicGame
             return aDictionaryPlayerData.Remove(parRemoteUniqueIdentifier);
         }
 
-        public void SendClientData() {
+        public void SendClientData()
+        {
             NetOutgoingMessage tmpOutMessPlayData = aClient.CreateMessage();
             tmpOutMessPlayData = aDictionaryPlayerData[aMyIdentifier].PrepareDataForUpload(tmpOutMessPlayData);
-            if (tmpOutMessPlayData != null) { 
-            aClient.SendMessage(tmpOutMessPlayData, NetDeliveryMethod.ReliableOrdered);
+            if (tmpOutMessPlayData != null)
+            {
+                aClient.SendMessage(tmpOutMessPlayData, NetDeliveryMethod.ReliableOrdered);
             }
         }
 
@@ -412,7 +420,7 @@ namespace _2DLogicGame
 
             aDictionaryPlayerData.Clear();
 
-            
+
 
 
             if (aClient.ConnectionStatus == NetConnectionStatus.Disconnected)

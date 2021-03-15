@@ -25,6 +25,8 @@ namespace _2DLogicGame.GraphicObjects
             TO_LEFT = -1
         }
 
+
+
         /// <summary>
         /// Atribut reprezentujuci poziciu entity - Typ Vector2
         /// </summary>
@@ -96,12 +98,16 @@ namespace _2DLogicGame.GraphicObjects
 
         private bool aAwaitingMovementMessage = false;
 
+        private bool aIsMoving = false;
+
         public float Speed { get => aSpeed; set => aSpeed = value; }
         public Color Color { get => aColor; set => aColor = value; }
         public Vector2 Position { get => aPosition; }
         public float EntityScale { get => aEntityScale; set => aEntityScale = value; }
-
         public bool AwaitingMovementMessage { get => aAwaitingMovementMessage; set => aAwaitingMovementMessage = value; }
+        public bool IsMoving { get => aIsMoving; set => aIsMoving = value; }
+
+
 
         public Entity(LogicGame parGame, Vector2 parPosition, Vector2 parSize, Direction parDirection = Direction.UP, float parSpeed = 1F) : base(parGame)
         {
@@ -174,15 +180,24 @@ namespace _2DLogicGame.GraphicObjects
             aPosition = parPosition;
         }
 
+        /// <summary>
+        /// Setter nastavujuci velkost
+        /// </summary>
+        /// <param name="parSize">Parameter - Velkosti - typ Vector2</param>
         public void SetSize(Vector2 parSize)
         {
             aSize = parSize;
         }
 
+        /// <summary>
+        /// Metoda riadiaca pohyb
+        /// </summary>
+        /// <param name="gameTime"></param>
         public void Move(GameTime gameTime)
         {
 
             SwitchAnimation(gameTime.ElapsedGameTime.TotalMilliseconds);
+
 
             aVelocity = aSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
@@ -212,6 +227,8 @@ namespace _2DLogicGame.GraphicObjects
 
             aPosition += aMovementVector * aVelocity;
 
+            //   Debug.WriteLine("Client Pos - " + aPosition.X + " " + aPosition.Y);}}
+
 
         }
 
@@ -228,12 +245,13 @@ namespace _2DLogicGame.GraphicObjects
                 if (vypis == 1)
                 {
                     aCounterZmazat++;
-                    Debug.WriteLine("Cudzia " + aCounterZmazat);
+                    //Debug.WriteLine("Cudzia " + aCounterZmazat);
                 }
-                else if (vypis == 0) {
-                    aCounterZmazat++;
-                    Debug.WriteLine("Moja " + aCounterZmazat);
-                
+                else if (vypis == 0)
+                {
+                    aCounterZmazat++; 
+                    //Debug.WriteLine("Moja " + aCounterZmazat);}}
+
                 }
             }
             else if (aTimeCounter > 100)
@@ -252,11 +270,15 @@ namespace _2DLogicGame.GraphicObjects
 
         }
 
-
+        /// <summary>
+        /// Pripravi data pre odoslanie
+        /// </summary>
+        /// <param name="parMessage"></param>
+        /// <returns></returns>
         public NetOutgoingMessage PrepareDataForUpload(NetOutgoingMessage parMessage)
         {
 
-            if (aAwaitingMovementMessage != true)
+            if (aAwaitingMovementMessage != true) //Ak bola prijata sprava od servera, moze sa odoslat nova
             {
                 Debug.Write("Move False");
                 parMessage.Write((byte)PacketMessageType.Movement);
@@ -264,22 +286,24 @@ namespace _2DLogicGame.GraphicObjects
                 parMessage.WriteVariableInt32((int)aMovementVector.X);
                 parMessage.WriteVariableInt32((int)aMovementVector.Y);
                 parMessage.Write(aVelocity);
+                parMessage.Write(aIsMoving);
                 parMessage.Write(aPosition.X);
                 parMessage.Write(aPosition.Y);
 
-               aAwaitingMovementMessage = true;
-                
+                aAwaitingMovementMessage = true;
+
                 return parMessage;
             }
-            else {
+            else //Ak este nebola prijata sprava od servera, nebude sa posielat nic
+            {
                 return null;
             }
 
-            
+
         }
 
         /// <summary>
-        /// 
+        /// Spracuje stiahnute data
         /// </summary>
         /// <param name="parMessage"></param>
         /// <param name="parClientElapsedTime">Reprezentuje cas u klienta, u ktoreho bude toto vsetko vykreslovan</param>
@@ -289,6 +313,7 @@ namespace _2DLogicGame.GraphicObjects
             aMovementVector.X = parMessage.ReadVariableInt32();
             aMovementVector.Y = parMessage.ReadVariableInt32();
             aVelocity = parMessage.ReadFloat();
+            aIsMoving = parMessage.ReadBoolean();
             aRemotePosition.X = parMessage.ReadFloat();
             aRemotePosition.Y = parMessage.ReadFloat();
 
@@ -297,7 +322,12 @@ namespace _2DLogicGame.GraphicObjects
 
         }
 
-        public void Interpolate(GameTime parGameTime) {
+        /// <summary>
+        /// Nedokoncene - Pokus o Interpolaciu - Zatial Nefunkcne
+        /// </summary>
+        /// <param name="parGameTime"></param>
+        public void Interpolate(GameTime parGameTime)
+        {
 
             float interpolation_constant = 0.5F;
             float treshold = 0.2F;
@@ -307,7 +337,8 @@ namespace _2DLogicGame.GraphicObjects
             {
                 aPosition = aRemotePosition;
             }
-            else {
+            else
+            {
                 aPosition.X = differenceX * (float)parGameTime.ElapsedGameTime.TotalSeconds * interpolation_constant;
                 aPosition.Y = differenceY * (float)parGameTime.ElapsedGameTime.TotalSeconds * interpolation_constant;
             }
@@ -325,6 +356,9 @@ namespace _2DLogicGame.GraphicObjects
             base.Initialize();
         }
 
+        /// <summary>
+        /// Overridnuta Metoda LoadContent, ktora nacitava Texturu Entity
+        /// </summary>
         protected override void LoadContent()
         {
             if (!string.IsNullOrEmpty(aImage))
