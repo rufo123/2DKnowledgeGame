@@ -21,7 +21,7 @@ namespace _2DLogicGame.GraphicObjects
         /// </summary>
         private Direction aDirection = Direction.UP;
 
-        public MovableBlock(Vector2 parPosition, Texture2D parTexture = null) : base(parPosition, parTexture)
+        public MovableBlock(LogicGame parGame, Vector2 parPosition, Texture2D parTexture = null) : base(parGame, parPosition, parTexture)
         {
         }
 

@@ -117,12 +117,15 @@ namespace _2DLogicGame
             aChat = new ClientSide.Chat.Chat(this, chatInput, chatReceive);
             //Player tmpPlayer = new Player(0, this, new Vector2(800, 500), new Vector2(49, 64), Color.White);
             //PlayerController tmpController = new PlayerController(this, tmpPlayer);
+            
 
             aPlayingScreen = new ComponentCollection(this, aChat, chatInput, chatReceive);
+
 
             aPlayerController = new GraphicObjects.PlayerController(this);
 
             // Components.Add(tmpController);
+
 
 
             base.Initialize();
@@ -130,6 +133,9 @@ namespace _2DLogicGame
             Graphics.PreferredBackBufferWidth = aBackBufferWidth;
             Graphics.PreferredBackBufferHeight = aBackBufferHeight;
             Graphics.ApplyChanges();
+
+          
+
 
             aScale = 1F / (1080F / _graphics.GraphicsDevice.Viewport.Height);
         }
@@ -180,6 +186,16 @@ namespace _2DLogicGame
 
                             aClientReadThread = new Thread(new ThreadStart(aClientClass.ReadMessages));
                             aClientReadThread.Start();
+
+                            for (int i = 0; i < 10; i++) //Test Water Blokov
+                            {
+                                for (int j = 0; j < 5; j++)
+                                {
+                                    WaterBlock block = new WaterBlock(this, new Vector2(700 + (i * 64 * aScale), 700 + (j * 64 * aScale)), null, parIsAnimated: true, parCountOfFrames: 3);
+                                    aPlayingScreen.AddComponent(block);
+                                }
+                                
+                            }
                         }
                         else if (aMenu.TaskToExecute == MenuTasksToBeExecuted.Play_Start)
                         {
@@ -257,7 +273,7 @@ namespace _2DLogicGame
             {
                 if (aServerClass.Started == true && aClientClass.Connected == true)
                 {
-                    GraphicsDevice.Clear(Color.LimeGreen);
+                    GraphicsDevice.Clear(Color.DeepSkyBlue);
                 }
                 else
                 {
