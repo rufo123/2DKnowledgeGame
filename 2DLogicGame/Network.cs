@@ -15,3 +15,9 @@ public enum PacketInfoRequestType {
     Init_Connect = 0,
     Request = 1
 }
+
+public enum ClientMovementDataType
+{
+    Regular = 0,
+    ErrorCorrect = 1
+}

@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using System.Threading;
 
@@ -63,8 +64,10 @@ namespace _2DLogicGame
 
         public bool Connected { get => aConnected; set => aConnected = value; }
 
-        public Client(string parAppName, LogicGame parGame, ClientSide.Chat.Chat parChatManager, ComponentCollection parClientObjects, PlayerController parPlayController, string parNickName = "Player")
+        public Client(string parAppName, LogicGame parGame, ClientSide.Chat.Chat parChatManager, ComponentCollection parClientObjects, PlayerController parPlayController, string parNickName = "Player", string parIP = "127.0.0.1")
         {
+
+            aIP = parIP;
 
             aLogicGame = parGame;
 
@@ -207,9 +210,16 @@ namespace _2DLogicGame
                             if (tmpRUID == aMyIdentifier)
                             {
                                 aDictionaryPlayerData[tmpRUID].AwaitingMovementMessage = false;
+                                bool tmpDataOk = aDictionaryPlayerData[tmpRUID].PrepareDownloadedData(tmpIncommingMessage, aPlayerController.GameTime, true); //Ide o Moje Data
+                                if (!tmpDataOk) //Ak boli detekovane chybne data, pravdepodobne nespravne odoslane
+                                {
+                                    aPlayerController.UpdateNeeded = true; //Nastavime, ze je treba znova poslat update
+                                    
+                                }
+
                                 continue;
                             }
-                            aDictionaryPlayerData[tmpRUID].PrepareDownloadedData(tmpIncommingMessage, aPlayerController.GameTime);
+                            aDictionaryPlayerData[tmpRUID].PrepareDownloadedData(tmpIncommingMessage, aPlayerController.GameTime); //Ide o data o spoluhracoch
 
                         }
 
@@ -403,6 +413,30 @@ namespace _2DLogicGame
                 aClient.SendMessage(tmpOutMessPlayData, NetDeliveryMethod.ReliableOrdered);
             }
         }
+
+        /// <summary>
+        /// Metoda, ktora ovlada pohyb spoluhracov
+        /// </summary>
+        /// <param name="gameTime"></param>
+        public void TeammateMovementHandler(GameTime gameTime) //Metoda, na ovladanie pohybu spolhracov
+        {
+            if (aDictionaryPlayerData.Count > 1)
+            {
+                foreach (KeyValuePair<long, ClientSide.PlayerClientData> dictItem in aDictionaryPlayerData.ToList())
+                {
+                    //Prejdeme vsetky data v Dictionary
+                    {
+                        if (dictItem.Key != aMyIdentifier)
+                        {
+                            dictItem.Value.Move(gameTime);
+                        }
+
+                    }
+
+                }
+            }
+        }
+
 
         /// <summary>
         /// Metoda, ktora ma za nasledok "vypnutie klienta"

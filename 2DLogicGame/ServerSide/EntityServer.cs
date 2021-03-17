@@ -48,7 +48,7 @@ namespace _2DLogicGame.ServerSide
         /// <summary>
         /// Atribut reprezentujuci rychlost entity - typ float
         /// </summary>
-        private float aSpeed = 1F;
+        private float aSpeed = 200F;
 
         private float aVelocity;
 
@@ -56,7 +56,7 @@ namespace _2DLogicGame.ServerSide
 
         private bool aIsMoving = false;
 
-        
+
         public float Speed { get => aSpeed; set => aSpeed = value; }
         public Vector2 Position { get => aPosition; }
         public bool IsMoving { get => aIsMoving; set => aIsMoving = value; }
@@ -70,7 +70,7 @@ namespace _2DLogicGame.ServerSide
         /// <param name="parSize">Parameter - Velkosti - typ Vector2</param>
         /// <param name="parDirection">Parameter - Smeru - typ Enum - Direction</param>
         /// <param name="parSpeed">Prameter - Rychlosti - typ Float - Defaultne 1F</param>
-        public EntityServer(Vector2 parPosition, Vector2 parSize, Direction parDirection = Direction.UP, float parSpeed = 1F)
+        public EntityServer(Vector2 parPosition, Vector2 parSize, Direction parDirection = Direction.UP, float parSpeed = 200F)
         {
             aPosition = parPosition;
             aSize = parSize;
@@ -129,28 +129,18 @@ namespace _2DLogicGame.ServerSide
 
         /// <summary>
         /// Metoda, ktora zabezpecuje pohyb
+        /// Prakticky si sama vypocita Velocity, ktora zavisi od rychlosti a Tick Ratu servera
         /// </summary>
-        /// <param name="gameTime">Parameter reprezentujuci gameTime</param>
-        public void Move(float gameTime)
+        /// <param name="parServerTickRate">Parameter reprezentujuci serverový Tick Rate - Default 60F</param>
+        public void Move(float parServerTickRate)
         {
-
-            float tmpSecondsElapsed = gameTime / 1000;
             if (IsMoving == true)
             {
-                float tmpSleepingVelocity = tmpSecondsElapsed * aSpeed;
-                //aPosition.Y += aMovementVector.Y * tmpSleepingVelocity;
-                //aPosition.X += aMovementVector.X * tmpSleepingVelocity;
-                aPosition.Y += aMovementVector.Y * ((200 / 60F));
-                aPosition.X += aMovementVector.X * ((200 / 60F));
+                aPosition.Y += aMovementVector.Y * ((aSpeed / parServerTickRate));
+                aPosition.X += aMovementVector.X * ((aSpeed / parServerTickRate));
 
-                // Debug.WriteLine("Velocity: " + aVelocity);}}
-
-                //Debug.WriteLine("Server Pos: " + aPosition.X + " " + aPosition.Y);
-               
-
+                Debug.WriteLine("Server Pos: " + aMovementVector.X + " " + aMovementVector.Y);
             }
-
-
         }
 
         /// <summary>
@@ -159,16 +149,24 @@ namespace _2DLogicGame.ServerSide
         /// <param name="parMessage">Parameter prichadzajucej spravy - Typ NetIncommingMessage - Vlastne je to Buffer</param>
         public void HandleReceivedData(NetIncomingMessage parMessage)
         {
+            ClientMovementDataType tmpType = (ClientMovementDataType)parMessage.ReadByte();
 
             aDirection = (Direction)parMessage.ReadByte();
             aMovementVector.X = parMessage.ReadVariableInt32();
             aMovementVector.Y = parMessage.ReadVariableInt32();
             aVelocity = parMessage.ReadFloat();
             aIsMoving = parMessage.ReadBoolean();
-            // aPosition.X = parMessage.ReadFloat();}} 
-            //aPosition.Y = parMessage.ReadFloat();
-            parMessage.ReadFloat(); 
-            parMessage.ReadFloat();
+
+            if (tmpType == ClientMovementDataType.Regular) //Ak pridu klasicke data o pohybe nebude sa nic diat s poziciou
+            {
+                parMessage.ReadFloat();
+                parMessage.ReadFloat();
+            }
+            else if (tmpType == ClientMovementDataType.ErrorCorrect) //Pokial pojde o pokus o korekciu o error pozicia sa nastavi podla klienta
+            {
+                aPosition.X = parMessage.ReadFloat();
+                aPosition.Y = parMessage.ReadFloat();
+            }
 
         }
 
@@ -179,7 +177,7 @@ namespace _2DLogicGame.ServerSide
         /// <returns></returns>
         public NetOutgoingMessage PrepareDataForUpload(NetOutgoingMessage parMessage)
         {
-            
+
             parMessage.Write((byte)aDirection);
             parMessage.WriteVariableInt32((int)aMovementVector.X);
             parMessage.WriteVariableInt32((int)aMovementVector.Y);
@@ -190,7 +188,7 @@ namespace _2DLogicGame.ServerSide
 
             return parMessage;
 
-            
+
         }
 
 

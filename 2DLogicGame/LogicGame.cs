@@ -186,7 +186,9 @@ namespace _2DLogicGame
 
                             SwitchScene(aMainMenu, aPlayingScreen);
 
-                            aClientClass = new Client("Test", this, aChat, aPlayingScreen, aPlayerController, "Tester");
+                            string tmpIP = "127.0.0.1";
+
+                            aClientClass = new Client("Test", this, aChat, aPlayingScreen, aPlayerController, "Tester", tmpIP);
 
                             aClientReadThread = new Thread(new ThreadStart(aClientClass.ReadMessages));
                             aClientReadThread.Start();
@@ -205,9 +207,10 @@ namespace _2DLogicGame
                 aMenu.TaskToExecute = MenuTasksToBeExecuted.None;
             }
 
+            //Odosielanie dat, klienta
             if (aPlayerController != null)
             {
-                if (aPlayerController.IsUpdateNeeded() == true)
+                if (aPlayerController.ConfirmUpdate() == true)
                 {
                     aClientClass.SendClientData(); //Odosleme data len vtedy, pokial sa zmenil pohyb...
                 }
@@ -215,6 +218,7 @@ namespace _2DLogicGame
             }
 
 
+            //Citanie sprav
             if (aChat != null && aChat.IsMessageWaitingToBeSent)
             {
                 if (aClientClass != null)
@@ -223,8 +227,17 @@ namespace _2DLogicGame
 
                     aClientClass.SendChatMessage(tst);
 
+                    
+
                 }
             }
+
+            //Riadenie pohybu spoluhracov
+            if (aClientClass != null)
+            { aClientClass.TeammateMovementHandler(gameTime);
+            }
+
+
 
 
             PreviousPressedKey = CurrentPressedKey;

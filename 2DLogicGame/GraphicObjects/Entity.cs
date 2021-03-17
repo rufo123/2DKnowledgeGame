@@ -89,7 +89,10 @@ namespace _2DLogicGame.GraphicObjects
 
         private Vector2 aMovementVector;
 
+
+
         private int aCounterZmazat = 0;
+
 
         /// <summary>
         /// Atribut reprezentujuci nasobnu velkost oproti originalu - typ float
@@ -100,12 +103,24 @@ namespace _2DLogicGame.GraphicObjects
 
         private bool aIsMoving = false;
 
+        private bool aMovingDataErrored = false;
+
+        private bool aEntityNeedsPosCorrect = false;
+
+        private bool aEntityNeedsInterpolation = false;
+
+
+        // Confirm
+        // Atributy
+        // Od servera
+
         public float Speed { get => aSpeed; set => aSpeed = value; }
         public Color Color { get => aColor; set => aColor = value; }
         public Vector2 Position { get => aPosition; }
         public float EntityScale { get => aEntityScale; set => aEntityScale = value; }
         public bool AwaitingMovementMessage { get => aAwaitingMovementMessage; set => aAwaitingMovementMessage = value; }
         public bool IsMoving { get => aIsMoving; set => aIsMoving = value; }
+        public Vector2 MovementVector { get => aMovementVector; set => aMovementVector = value; }
 
 
 
@@ -195,34 +210,41 @@ namespace _2DLogicGame.GraphicObjects
         /// <param name="gameTime"></param>
         public void Move(GameTime gameTime)
         {
-
-            SwitchAnimation(gameTime.ElapsedGameTime.TotalMilliseconds);
-
-
             aVelocity = aSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            switch (aDirection)
+            if (aIsMoving == true)
             {
-                case Direction.UP:
-                    aMovementVector.X = 0;
-                    aMovementVector.Y = -1;
-                    break;
-                case Direction.RIGHT:
-                    aMovementVector.X = 1;
-                    aMovementVector.Y = 0;
-                    break;
-                case Direction.DOWN:
-                    aMovementVector.X = 0;
-                    aMovementVector.Y = 1;
-                    break;
-                case Direction.LEFT:
-                    aMovementVector.X = -1;
-                    aMovementVector.Y = 0;
-                    break;
-                default:
-                    aMovementVector.X = 0;
-                    aMovementVector.Y = 0;
-                    break;
+
+                SwitchAnimation(gameTime.ElapsedGameTime.TotalMilliseconds);
+
+                switch (aDirection)
+                {
+                    case Direction.UP:
+                        aMovementVector.X = 0;
+                        aMovementVector.Y = -1;
+                        break;
+                    case Direction.RIGHT:
+                        aMovementVector.X = 1;
+                        aMovementVector.Y = 0;
+                        break;
+                    case Direction.DOWN:
+                        aMovementVector.X = 0;
+                        aMovementVector.Y = 1;
+                        break;
+                    case Direction.LEFT:
+                        aMovementVector.X = -1;
+                        aMovementVector.Y = 0;
+                        break;
+                    default:
+                        aMovementVector.X = 0;
+                        aMovementVector.Y = 0;
+                        break;
+                }
+            }
+            else
+            {
+                aMovementVector.X = 0;
+                aMovementVector.Y = 0;
             }
 
             aPosition += aMovementVector * aVelocity;
@@ -249,7 +271,7 @@ namespace _2DLogicGame.GraphicObjects
                 }
                 else if (vypis == 0)
                 {
-                    aCounterZmazat++; 
+                    aCounterZmazat++;
                     //Debug.WriteLine("Moja " + aCounterZmazat);}}
 
                 }
@@ -282,6 +304,17 @@ namespace _2DLogicGame.GraphicObjects
             {
                 Debug.Write("Move False");
                 parMessage.Write((byte)PacketMessageType.Movement);
+
+                if (aMovingDataErrored != true)
+                {
+                    parMessage.Write((byte)ClientMovementDataType.Regular);
+                }
+                else
+                {
+                    parMessage.Write((byte)ClientMovementDataType.ErrorCorrect);
+                    aMovingDataErrored = false;
+                }
+
                 parMessage.Write((byte)aDirection);
                 parMessage.WriteVariableInt32((int)aMovementVector.X);
                 parMessage.WriteVariableInt32((int)aMovementVector.Y);
@@ -299,48 +332,119 @@ namespace _2DLogicGame.GraphicObjects
                 return null;
             }
 
-
         }
+
+
 
         /// <summary>
         /// Spracuje stiahnute data
         /// </summary>
-        /// <param name="parMessage"></param>
-        /// <param name="parClientElapsedTime">Reprezentuje cas u klienta, u ktoreho bude toto vsetko vykreslovan</param>
-        public void PrepareDownloadedData(NetIncomingMessage parMessage, GameTime parGameTime)
+        /// <param name="parMessage">Parameter, reprezentuje prichadzajuci Buffer</param>
+        /// <param name="parGameTime">>Reprezentuje cas u klienta, u ktoreho bude toto vsetko vykreslovane</param>
+        /// <param name="parIsControlledByClient">Reprezentuje ci je je Entita kontrolovana Klientom</param>
+        /// <returns></returns>
+        public bool PrepareDownloadedData(NetIncomingMessage parMessage, GameTime parGameTime, bool parIsControlledByClient = false)
         {
-            aDirection = (Direction)parMessage.ReadByte();
-            aMovementVector.X = parMessage.ReadVariableInt32();
-            aMovementVector.Y = parMessage.ReadVariableInt32();
-            aVelocity = parMessage.ReadFloat();
-            aIsMoving = parMessage.ReadBoolean();
-            aRemotePosition.X = parMessage.ReadFloat();
-            aRemotePosition.Y = parMessage.ReadFloat();
-
-            Interpolate(parGameTime);
-            SwitchAnimation(parGameTime.ElapsedGameTime.TotalMilliseconds, 1);
-
-        }
-
-        /// <summary>
-        /// Nedokoncene - Pokus o Interpolaciu - Zatial Nefunkcne
-        /// </summary>
-        /// <param name="parGameTime"></param>
-        public void Interpolate(GameTime parGameTime)
-        {
-
-            float interpolation_constant = 0.5F;
-            float treshold = 0.2F;
-            float differenceX = aRemotePosition.X - aRemotePosition.X;
-            float differenceY = aRemotePosition.Y - aRemotePosition.Y;
-            if ((Math.Abs(differenceX) < treshold) && Math.Abs(differenceY) < treshold)
+            if (parIsControlledByClient == false)
             {
-                aPosition = aRemotePosition;
+                aDirection = (Direction)parMessage.ReadByte();
+                aMovementVector.X = parMessage.ReadVariableInt32();
+                aMovementVector.Y = parMessage.ReadVariableInt32();
+                aVelocity = parMessage.ReadFloat();
+                aIsMoving = parMessage.ReadBoolean();
+
+                aRemotePosition.X = parMessage.ReadFloat();
+                aRemotePosition.Y = parMessage.ReadFloat();
+
+                if (aRemotePosition != aPosition) //Zavola sa korekcia pozicie
+                {
+                    aEntityNeedsPosCorrect = true;
+                }
+
+                //PositionCorrection(parGameTime);
+                SwitchAnimation(parGameTime.ElapsedGameTime.TotalMilliseconds, 1);
+
+                return true; //V tomto pripade pojde o spoluhraca... tu sa neda co kontrolovat ....
             }
             else
             {
-                aPosition.X = differenceX * (float)parGameTime.ElapsedGameTime.TotalSeconds * interpolation_constant;
-                aPosition.Y = differenceY * (float)parGameTime.ElapsedGameTime.TotalSeconds * interpolation_constant;
+                return DownloadedDataErrorDetection(parMessage);
+            }
+        }
+
+        /// <summary>
+        /// Taka velmi jednoducha forma korekcia suradnic.. ak sa prijate suradnice zo servera nerovnaju proste sa prenastavia
+        /// </summary>
+        /// <param name="parGameTime"></param>
+        public void PositionCorrection(GameTime parGameTime)
+        {
+            /*  float interpolation_constant = 0.5F;
+              float treshold = 0.2F;
+              float differenceX = aPosition.X - aRemotePosition.X;
+              float differenceY = aPosition.Y - aRemotePosition.Y; */
+
+            if (aPosition != aRemotePosition)
+            {
+                aPosition = aRemotePosition;
+                aEntityNeedsPosCorrect = false;
+            }
+
+            /*  if ((Math.Abs(differenceX) < treshold) && Math.Abs(differenceY) < treshold)
+              {
+                  aPosition = aRemotePosition;
+              }
+              else
+              {
+                  aPosition.X -= differenceX * (float)parGameTime.ElapsedGameTime.TotalSeconds * interpolation_constant;
+                  aPosition.Y -= differenceY * (float)parGameTime.ElapsedGameTime.TotalSeconds * interpolation_constant;
+              } */
+        }
+
+        /*     public void Interpolation(GameTime parGameTime)
+        {
+            float interpolation_constant = 2F;
+            float treshold = aSpeed/20;
+            float differenceX = aPosition.X - aRemotePosition.X;
+            float differenceY = aPosition.Y - aRemotePosition.Y;
+
+            if ((Math.Abs(differenceX) < treshold) && Math.Abs(differenceY) < treshold)
+            {
+                aPosition = aRemotePosition;
+                aEntityNeedsInterpolation = false;
+            }
+            else
+            {
+                aPosition.X -= differenceX * (float)parGameTime.ElapsedGameTime.TotalSeconds * interpolation_constant;
+                aPosition.Y -= differenceY * (float)parGameTime.ElapsedGameTime.TotalSeconds * interpolation_constant;
+            }
+        } */ 
+        //Nakoniec INterpolacia Scrapped
+
+
+        public bool DownloadedDataErrorDetection(NetIncomingMessage parMessage)
+        {
+            Direction tmpDir = (Direction)parMessage.ReadByte();
+            float tmpMovX = parMessage.ReadVariableInt32();
+            float tmpMovY = parMessage.ReadVariableInt32();
+            float tmpVel = parMessage.ReadFloat();
+            bool tmpDownMov = parMessage.ReadBoolean();
+
+            aRemotePosition.X = parMessage.ReadFloat();
+            aRemotePosition.Y = parMessage.ReadFloat();
+
+            if (aRemotePosition != aPosition) //Ak suradnice nie su rovnake, zavola sa pokus o interpolaciu - Kedze ide o Klientom ovladanu Entitu, kvoli jemnosti...
+            {
+                aEntityNeedsInterpolation = true; //Zatial nevyuzite
+            }
+
+            if (tmpDownMov != aIsMoving || tmpDir != aDirection)
+            {
+                aMovingDataErrored = true;
+                return false;
+            }
+            else
+            {
+                return true;
             }
         }
 
@@ -348,6 +452,12 @@ namespace _2DLogicGame.GraphicObjects
 
         public override void Update(GameTime gameTime)
         {
+            if (aEntityNeedsPosCorrect == true)
+            {
+                PositionCorrection(gameTime);
+            }
+
+
             base.Update(gameTime);
         }
 

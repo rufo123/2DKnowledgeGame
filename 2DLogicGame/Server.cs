@@ -115,12 +115,15 @@ namespace _2DLogicGame
 
         }
 
+        /// <summary>
+        /// Metoda, ktora sluzi na riadenie pohybu klienotv na serveri
+        /// </summary>
         public void MovementHandler()
         {
 
-            if (aStopWatch.IsRunning != true)
+            if (aStopWatch.IsRunning != true) 
             {
-                aStopWatch.Start();
+                aStopWatch.Start(); //Zapneme casovac
             }
 
             int tmpTimeToSleep = 0; //Inicializujeme si premennu - reprezentujucu, kolko ma server "spat"
@@ -134,10 +137,10 @@ namespace _2DLogicGame
 
                 if (aDictionaryPlayerData.Count > 0) //Ak je niekto pripojeny na server
                 {
-                    foreach (KeyValuePair<long, ServerSide.PlayerServerData> dictItem in aDictionaryPlayerData.ToList()
+                    foreach (KeyValuePair<long, ServerSide.PlayerServerData> dictItem in aDictionaryPlayerData.ToList() //ToList -> Nakopiruje cely Dictionary do Listu... 
                     ) //Prejdeme vsetky data v Dictionary
                     {
-                        dictItem.Value.Move((float)(tmpTimeToSleep));
+                        dictItem.Value.Move((float)(aTickRate)); 
                         var elapsed = aStopWatch.ElapsedMilliseconds;
                     }
 
