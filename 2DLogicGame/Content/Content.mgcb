@@ -10,6 +10,7 @@
 
 #-------------------------------- References --------------------------------#
 
+/reference:..\..\XMLData\bin\Debug\netcoreapp3.1\XMLData.dll
 
 #---------------------------------- Content ---------------------------------#
 
@@ -79,4 +80,9 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Sprites/Entities/postavaFrames.png
+
+#begin XML/Levels.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:XML/Levels.xml
 
