@@ -5,9 +5,9 @@ VisualStudioVersion = 16.0.31005.135
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "2DLogicGame", "2DLogicGame\2DLogicGame.csproj", "{D360E8D4-5428-4BB6-960C-7FA37A19F84E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XMLData", "XMLData\XMLData.csproj", "{00EB956C-4AD0-491C-9E26-3D67D40A42C2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XMLData", "XMLData\XMLData.csproj", "{00EB956C-4AD0-491C-9E26-3D67D40A42C2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LevelCreator", "LevelCreator\LevelCreator.csproj", "{A300462B-929A-4F85-90C1-D7D577E5CDB0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LevelCreator", "LevelCreator\LevelCreator.csproj", "{A300462B-929A-4F85-90C1-D7D577E5CDB0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
