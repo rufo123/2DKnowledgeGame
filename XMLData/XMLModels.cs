@@ -1,6 +1,15 @@
-﻿namespace XMLData
+﻿using System.Collections.Generic;
+using System.Numerics;
+using System.Runtime.Serialization;
+using System.Xml;
+using System.Xml.Serialization;
+using Microsoft.Xna.Framework.Content;
+//using Microsoft.Xna.Framework.Content.Pipeline.Serialization.Intermediate;
+
+namespace XMLData
 {
     //Musime si dat pozor na to aby trieda bola PUBLIC, kvoli XML Serializacii
+    
     public class LevelMaker
     {
         /// <summary>
@@ -9,18 +18,27 @@
         public string LevelName { get; set; } //Auto property - LevelName
 
         /// <summary>
-        /// Auto Property - Oznacujuca Poziciu Bloku X - Typ Int - napr. uz v programe, dostaneme poziciu 1 a tu vynasobime, nami zvolenou velkostou bloku - cize x bude 1*64 ...
+        /// Auto Property - Oznacujuca Dictionary: Key - Pozicia, Value - BlockName
         /// </summary>
-        public int PositionX { get; set; } //Auto Property - Pozicia
+        /// Pozn. Kvoli ContentSerializeru, musela byt pridana referencia na projekt s hrou
+        //public Dictionary<Vector2, string> BlockPositionDictionary { get; set; }
 
-        /// <summary>
-        /// Auto Property - Oznacujuca Poziciu Bloku Y - Typ Int - napr. uz v programe, dostaneme poziciu 1 a tu vynasobime, nami zvolenou velkostou bloku -  y bude 1*64...
-        /// </summary>
-        public int PositionY { get; set; } //Auto Property - Pozicia
+        //Poznamka - Problem s includovanim Monogame Pipelinu
+        //Trebalo pouzit Nuget a Pipeline stiahnut na novo...
 
-        /// <summary>
-        /// Auto Property - Oznacujuca Meno Bloku - Meno bloku by sa malo zhodovat s nazvom textury - Pre spravne fungovanie... 
-        /// </summary>
-        public int BlockName { get; set; } //Auto Property - Pozicia
+        [ContentSerializer(ElementName = "BlockData", CollectionItemName = "BlockPosition")]
+        public List<BlockData> BlockDataList { get; set; }
+
+    }
+
+
+    
+    public class BlockData
+    {
+        [XmlElement(elementName: "Position")]
+        public Vector2 Position;
+
+        [XmlElement(elementName: "BlockName")]
+        public string BlockName;
     }
 }

@@ -2,7 +2,19 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Mime;
+using System.Numerics;
 using System.Text;
+using System.Xml;
+using System.Xml.Serialization;
+using Microsoft.Xna.Framework.Content.Pipeline.Serialization;
+using Microsoft.Xna.Framework.Content.Pipeline.Serialization.Intermediate;
+using XMLData;
+
+// using Microsoft.Xna.Framework.Content.Pipeline.Serialization.Intermediate;
+
+
+// ReSharper disable StringLiteralTypo
+// ReSharper disable CommentTypo
 
 namespace LevelCreator
 {
@@ -13,7 +25,10 @@ namespace LevelCreator
         /// </summary>
         private Dictionary<char, string> aBlockDictionary;
 
-        private FileStream aFileStream;
+        /// <summary>
+        /// Atribut Dictionary - Ako kluc je pozicia bloku a hodnota je nazov bloku
+        /// </summary>
+       // private Dictionary<Vector2, string> aBlockPositionDictionary; 
 
         private int aPositionX = 0;
         private int aPositionY;
@@ -25,17 +40,21 @@ namespace LevelCreator
 
             XMLData.LevelMaker tmpNewLevel = new XMLData.LevelMaker();
 
+           //tmpNewLevel.BlockPositionDictionary = new Dictionary<Vector2, string>();
+
+            tmpNewLevel.BlockDataList = new List<BlockData>();
+
             Console.WriteLine("Zadaj nazov levelu: ");
 
             tmpNewLevel.LevelName = Console.ReadLine();
 
+            Console.WriteLine("Zadaj meno suboru, ktory bude obsahovat udaje o " + tmpNewLevel.LevelName);
+
+            string tmpNewFileName = Console.ReadLine();
+
             Console.WriteLine("Zadaj cestu a nazov suboru pre level " + tmpNewLevel.LevelName + ". Pozn - Musi sa nachadzat v zlozke s Projektom...");
 
-            string tmpFilePath;
-
-            //tmpFileName = Console.ReadLine();
-
-            tmpFilePath = AppContext.BaseDirectory + Console.ReadLine(); //Nezabudnut nastavit - Tuknut na TXT - Copy to OutPut Directory na Always...
+            string tmpFilePath = AppContext.BaseDirectory + Console.ReadLine(); //Nezabudnut nastavit - Tuknut na TXT - Copy to OutPut Directory na Always...
 
             while (!File.Exists(tmpFilePath)) //Ak takyto subor neexistuje
             {
@@ -50,7 +69,7 @@ namespace LevelCreator
             {
                 while (tmpFileStream.Peek() > 0) //Ak sa v subore nachadza dalsi character
                 {
-                    char tmpReadChar = (char) tmpFileStream.Read();
+                    char tmpReadChar = (char)tmpFileStream.Read();
 
                     if (tmpReadChar == '\n' || tmpReadChar == '\r')
                     {
@@ -78,16 +97,44 @@ namespace LevelCreator
                         Console.WriteLine("Znak " + tmpReadChar + " bude teraz definovany ako " + tmpNameOfBlock);
                         Console.WriteLine("--------------------------------------------------------------------");
 
-
-                        
                     }
 
                     Console.WriteLine("Blok - " + aBlockDictionary[tmpReadChar] + " X " + aPositionX + " Y " + aPositionY);
 
+                    // tmpNewLevel.BlockPositionDictionary.Add(new Vector2(aPositionX, aPositionY), aBlockDictionary[tmpReadChar]); //Pocitam s tym, ze pozicie nebudu rovnake
+
+                    BlockData tmpBlockData = new BlockData();
+                    tmpBlockData.BlockName = aBlockDictionary[tmpReadChar];
+                    tmpBlockData.Position = new Vector2(aPositionX, aPositionY);
+
+                    tmpNewLevel.BlockDataList.Add(tmpBlockData);
                     aPositionX++; //Po nacitani bloku, zvysime X-ovu suradnicu
                 }
             }
 
+            XmlWriterSettings tmpSettings = new XmlWriterSettings();
+            tmpSettings.Indent = true;
+
+
+            using (XmlWriter tmpWriter = XmlWriter.Create(tmpNewFileName, tmpSettings))
+            {
+                //Tu velky pozor, treba dat velky pozor..
+                //Ak by isla tato cast projekty do produkcie
+                //Budeme tu mat includnutu content pipeline, ktora zabera asi 100MB a to nechceme
+                //Preto tuto referenciu pri produkcii odstranim, kedze pre bezneho pouzivatela je tento Level Creator nepouzitelny - Je pre mna.
+
+                //Tu nastal jeden obrovsky problem, kedze include Monogame Pipelinu nefungoval
+                //Musel som pouzit Nuget...
+
+                IntermediateSerializer.Serialize(tmpWriter, tmpNewLevel, null);
+            }
+
+
+            //Poznamka od Veduceho - Mozno by bolo dobre spravit to, ze ak sa tam nejaky blok opakuje vela krat napríklad 0 - cize vzduch. Tak to tam proste nedať. 
+            //Proste to neulozit do XML-ka -> To znamena, ze pri nacitani by tam ostal vzduch. Alebo zadefinovat, ze pri nacitani, tam kde nie je nic, dat napriklad travu...
+
+            
         }
+
     }
 }
