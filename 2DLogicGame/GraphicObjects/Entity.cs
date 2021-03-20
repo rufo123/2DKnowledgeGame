@@ -114,6 +114,7 @@ namespace _2DLogicGame.GraphicObjects
         // Atributy
         // Od servera
 
+        public Vector2 Size { get => aSize; }
         public float Speed { get => aSpeed; set => aSpeed = value; }
         public Color Color { get => aColor; set => aColor = value; }
         public Vector2 Position { get => aPosition; }
@@ -129,6 +130,7 @@ namespace _2DLogicGame.GraphicObjects
             aLogicGame = parGame;
             aPosition = parPosition;
             aRemotePosition = parPosition;
+            aSize = parSize;
             aTexture = new Texture2D(parGame.GraphicsDevice, (int)parSize.X, (int)parSize.Y);
             aRectangle = new Rectangle(0, 0, (int)(parSize.X), (int)(parSize.Y));
             if (aColor == null)
@@ -446,6 +448,15 @@ namespace _2DLogicGame.GraphicObjects
             {
                 return true;
             }
+        }
+
+        /// <summary>
+        /// Metoda, ktora vrati vypocitanu, buducu poziciu hraca, v pripade, ze by nedoslo ku kolizii
+        /// </summary>
+        /// <returns></returns>
+        public Vector2 GetAfterMoveVector2()
+        {
+            return aPosition + (aMovementVector * aVelocity); //Zatvorky nemusia byt, pretoze nasobenie ma prednost...
         }
 
 

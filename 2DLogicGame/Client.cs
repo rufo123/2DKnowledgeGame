@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using _2DLogicGame.ClientSide.Levels;
 
 namespace _2DLogicGame
 {
@@ -214,7 +215,7 @@ namespace _2DLogicGame
                                 if (!tmpDataOk) //Ak boli detekovane chybne data, pravdepodobne nespravne odoslane
                                 {
                                     aPlayerController.UpdateNeeded = true; //Nastavime, ze je treba znova poslat update
-                                    
+
                                 }
 
                                 continue;
@@ -435,6 +436,82 @@ namespace _2DLogicGame
 
                 }
             }
+        }
+
+        //Docasne LevelManagera odovzdam ako referenciu, porozmyslat, ci by nebolo lepsie ho definovat rovno v triede
+        public void CollisionHandler(GameTime gameTime, LevelManager parLevelManager)
+        {
+            if (aDictionaryPlayerData != null && aDictionaryPlayerData.Count > 0)
+            {
+                foreach (KeyValuePair<long, ClientSide.PlayerClientData> dictItem in aDictionaryPlayerData.ToList())
+                {
+                    //Prejdeme vsetky data v Dictionary
+                    {
+                        //Bude reprezentovat, poziciu TILU, kde by sa teda hrac nachadzal - pozor nie bloku!, Tile reprezentuje OBLAST jedneho bloku tzn
+                        //Napr. Block so suradnicami 0, 128 - Bude ekvivalentny Tilu so suradnicami 0, 2
+                        //Ak mame teda specifikovanu velkost blokov o 64px...
+
+                        int tmpMapBlockDimSize = parLevelManager.GetMapBlocksDimensionSize();
+
+                        int tmpTilePositionX = (int)Math.Floor(dictItem.Value.GetAfterMoveVector2().X / tmpMapBlockDimSize);
+                        int tmpTilePositionY = (int)Math.Floor(dictItem.Value.GetAfterMoveVector2().Y / tmpMapBlockDimSize);
+
+                        float sizeOfPlayerX = dictItem.Value.Size.X * dictItem.Value.EntityScale;
+                        float sizeOfPLayerY = dictItem.Value.Size.Y * dictItem.Value.EntityScale;
+
+                        //Vypocitame si kolko blokov zabera entita
+
+
+                        int tmpWidth = (int)Math.Ceiling(sizeOfPlayerX / tmpMapBlockDimSize);
+                        int tmpHeight = (int)Math.Ceiling(tmpMapBlockDimSize / sizeOfPLayerY);
+
+                        if (tmpWidth < 1)
+                        {
+                            tmpWidth = 1;
+                        }
+
+                        if (tmpHeight < 1)
+                        {
+                            tmpHeight = 1;
+                        }
+
+                        float tmpNumberOfOccupiedBlocks = tmpWidth * tmpHeight;
+
+                        //Zajtra dorobit detekciu kolizie blokov
+                        //Budu sa musiet prehladavat v Dictionary vsetky bloky na ktorych postava stoji
+
+
+                        //P 1 - dictItem.Value.GetAfterMoveVector2().X < 
+                        //P 2
+                        //P 3
+                        //P 4
+
+                        //Po zaokruhleni, prekonvertujeme suradnice spat
+                        Vector2 tmpTilePositVector2 = new Vector2(tmpTilePositionX * tmpMapBlockDimSize, tmpTilePositionY * tmpMapBlockDimSize);
+
+
+
+                        //Takto nejako by sa riesila kolizia, ale ja to chcem zjednodusit a navyse s pristupom do Dictionary
+                        /*  if (PLAY_X_AFTER < BLOCK_X + BLOCK_X_SIRKA &&
+                               PLAY_X_AFTER + BLOCK_X_SIRKA > BLOCK_X &&
+                               PLAY_Y_AFTER < BLOCK_Y + BLOCK_Y_SIRKA &&
+                               PLAY_Y_AFTER + BLOCK_Y_SIRKA > BLOCK_Y)
+                        { */
+
+
+                        if (parLevelManager.GetBlockByPosition(tmpTilePositVector2) != null) //Ak na takejto suradnici vobec nejaky blok existuje
+                        {
+                            if (parLevelManager.GetBlockByPosition(tmpTilePositVector2).BlockCollisionType ==
+                                BlockCollisionType.Wall)
+                            {
+                                Debug.WriteLine("Collision");
+                            }
+                        }
+
+                    }}
+
+                }
+            
         }
 
 

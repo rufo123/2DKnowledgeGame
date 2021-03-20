@@ -42,4 +42,7 @@
   <ItemGroup>
     <Folder Include="Content\Sprites\Entities\" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\XMLData\XMLData.csproj" />
+  </ItemGroup>
 </Project>

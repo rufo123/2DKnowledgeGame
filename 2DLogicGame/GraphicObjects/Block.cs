@@ -8,6 +8,16 @@ using System.Text;
 
 namespace _2DLogicGame.GraphicObjects
 {
+    /// <summary>
+    /// None - Nema koliziu, Wall - Cez takyto blok entita neprejde, Zap - Znici Entitu
+    /// </summary>
+    public enum BlockCollisionType
+    {
+        None = 0,
+        Wall = 1,
+        Slow = 2,
+        Zap = 3
+    }
 
 
     class Block : DrawableGameComponent
@@ -67,6 +77,17 @@ namespace _2DLogicGame.GraphicObjects
         /// </summary>
         private bool aAnimateForwards = true;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje informacie o tom, ci sa jedna o kolizny objekt alebo nie
+        /// </summary>
+        private BlockCollisionType aBlockCollisionType = BlockCollisionType.None;
+
+        public BlockCollisionType BlockCollisionType
+        {
+            get => aBlockCollisionType;
+            set => aBlockCollisionType = value;
+        }
+
         public string ImageLocation
         {
             get => aImageLocation;
@@ -93,12 +114,13 @@ namespace _2DLogicGame.GraphicObjects
         /// <param name="parGame">Atribut Hry - Typ LogicGame</param>
         /// <param name="parPosition">Atribut Pozicie -Typ Vector2</param>
         /// <param name="parTexture">Atribut Textury - Typ Texture2D</param>
-        public Block(LogicGame parGame, Vector2 parPosition, Texture2D parTexture = null, bool parIsAnimated = false, int parCountOfFrames = 0) : base(parGame)
+        public Block(LogicGame parGame, Vector2 parPosition, Texture2D parTexture = null, bool parIsAnimated = false, int parCountOfFrames = 0, BlockCollisionType parCollisionType = BlockCollisionType.None) : base(parGame)
         {
             aGame = parGame;
             aPosition = parPosition;
             aIsAnimated = parIsAnimated;
             aCountOfFrames = parCountOfFrames;
+            aBlockCollisionType = parCollisionType;
 
             if (parTexture != null)
             {
@@ -147,10 +169,9 @@ namespace _2DLogicGame.GraphicObjects
         {
             if (aTexture != null )
             {
-                aGame.SpriteBatch.Draw(aTexture, aPosition, aRectangle, Color.White, 0F, Vector2.Zero, aGame.Scale * aBlockScale, SpriteEffects.None, 1F);
+                aGame.SpriteBatch.Draw(aTexture, aPosition, aRectangle, Color.White, 0F, Vector2.Zero, 1F, SpriteEffects.None, 1F);
             }
-            else
-            
+
             base.Draw(gameTime);
         }
 

@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Diagnostics;
 using System.Threading;
+using _2DLogicGame.ClientSide.Levels;
 
 namespace _2DLogicGame
 {
@@ -46,6 +47,8 @@ namespace _2DLogicGame
         private RenderTarget2D aRenderTarget;
 
         private PlayerController aPlayerController;
+
+        private LevelManager aLevelManager;
 
         private int aRenderTargetWidth = 1920;
 
@@ -121,11 +124,12 @@ namespace _2DLogicGame
 
             aPlayingScreen = new ComponentCollection(this, aChat, chatInput, chatReceive);
 
-
             aPlayerController = new GraphicObjects.PlayerController(this);
 
             // Components.Add(tmpController);
 
+            aLevelManager = new LevelManager(this, aPlayingScreen);
+            
 
 
             base.Initialize();
@@ -187,15 +191,8 @@ namespace _2DLogicGame
                             aClientReadThread = new Thread(new ThreadStart(aClientClass.ReadMessages));
                             aClientReadThread.Start();
 
-                            for (int i = 0; i < 10; i++) //Test Water Blokov
-                            {
-                                for (int j = 0; j < 5; j++)
-                                {
-                                    WaterBlock block = new WaterBlock(this, new Vector2(700 + (i * 64 * aScale), 700 + (j * 64 * aScale)), null, parIsAnimated: true, parCountOfFrames: 3);
-                                    aPlayingScreen.AddComponent(block);
-                                }
-                                
-                            }
+                            aLevelManager.InitLevel("Levels\\level1");
+                           
                         }
                         else if (aMenu.TaskToExecute == MenuTasksToBeExecuted.Play_Start)
                         {
@@ -250,7 +247,15 @@ namespace _2DLogicGame
 
             //Riadenie pohybu spoluhracov
             if (aClientClass != null)
-            { aClientClass.TeammateMovementHandler(gameTime);
+            {
+                aClientClass.TeammateMovementHandler(gameTime);
+                
+            }
+
+            //Riadenie kolizie s podmienkou existencie Klienta, LevelManazera a vytvoreneho levelu
+            if (aClientClass != null && aLevelManager != null && aLevelManager.IsLevelInitalized)
+            {
+                aClientClass.CollisionHandler(gameTime, aLevelManager);
             }
 
 
@@ -306,13 +311,13 @@ namespace _2DLogicGame
 
 
 
-            SpriteBatch.Begin(samplerState: SamplerState.PointClamp, depthStencilState: DepthStencilState.None, rasterizerState: RasterizerState.CullCounterClockwise, sortMode: SpriteSortMode.BackToFront, blendState: BlendState.AlphaBlend);
+            SpriteBatch.Begin(samplerState: SamplerState.PointClamp, depthStencilState: DepthStencilState.None, rasterizerState: RasterizerState.CullNone ,sortMode: SpriteSortMode.BackToFront, blendState: BlendState.AlphaBlend);
             base.Draw(gameTime);
 
             SpriteBatch.End();
 
 
-            SpriteBatch.Begin();
+            SpriteBatch.Begin(samplerState: SamplerState.PointClamp, depthStencilState: DepthStencilState.None, rasterizerState: RasterizerState.CullNone, sortMode: SpriteSortMode.BackToFront, blendState: BlendState.AlphaBlend);
 
             this.GraphicsDevice.SetRenderTarget(null);
 
