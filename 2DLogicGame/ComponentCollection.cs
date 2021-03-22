@@ -44,6 +44,18 @@ namespace _2DLogicGame
             }
         }
 
+        public void AddComponents(List<DrawableGameComponent> parComponents)
+        {
+            if (aComponentList != null)
+            {
+                for (int i = 0; i < parComponents.Count; i++)
+                {
+                    aComponentList.Add(parComponents[i]);
+                    aGame.Components.Add(parComponents[i]);
+                }
+            }
+        }
+
         public void SetVisibility(bool parVisible)
         {
 
