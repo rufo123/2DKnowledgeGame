@@ -59,23 +59,23 @@ namespace _2DLogicGame.GraphicObjects
             this.aPlayer = parPlayer;
         }
 
-        public override void Update(GameTime gameTime)
+
+        /// <summary>
+        /// Metoda, ktora si vyziada, resp zmeni Smer a odosle informaciu, ze sa hrac snazi alebo nesnazi pohnut
+        /// </summary>
+        public void MoveRequest()
         {
-
-            aGameTime = gameTime;
-
-            KeyboardState tmpNewKeyBoardState = Keyboard.GetState();
 
             if (aPlayer != null)
             {
+                KeyboardState tmpNewKeyBoardState = Keyboard.GetState();
+
                 Keys tmpCurrentKeyPresed = Keys.None;
 
-                double tmpElapsedTime = gameTime.ElapsedGameTime.TotalSeconds;
 
                 if (tmpNewKeyBoardState.IsKeyDown(aUp))
                 {
                     tmpCurrentKeyPresed = aUp;
-                    aPlayer.IsMoving = true;
                     aPlayer.SetDirection(Entity.Direction.UP);
 
                     if (tmpCurrentKeyPresed != aOldKeyPressed)
@@ -83,16 +83,11 @@ namespace _2DLogicGame.GraphicObjects
                         aUpdateNeeded = true;
                     }
 
-                    aPlayer.Move(gameTime);
-                   
-
-
-
+                    aPlayer.IsTryingToMove = true;
                 }
                 else if (tmpNewKeyBoardState.IsKeyDown(aRight))
                 {
                     tmpCurrentKeyPresed = aRight;
-                    aPlayer.IsMoving = true;
                     aPlayer.SetDirection(Entity.Direction.RIGHT);
 
                     if (tmpCurrentKeyPresed != aOldKeyPressed)
@@ -100,13 +95,11 @@ namespace _2DLogicGame.GraphicObjects
                         aUpdateNeeded = true;
                     }
 
-                    aPlayer.Move(gameTime);
-                    
+                    aPlayer.IsTryingToMove = true;
                 }
                 else if (tmpNewKeyBoardState.IsKeyDown(aLeft))
                 {
                     tmpCurrentKeyPresed = aLeft;
-                    aPlayer.IsMoving = true;
                     aPlayer.SetDirection(Entity.Direction.LEFT);
 
                     if (tmpCurrentKeyPresed != aOldKeyPressed)
@@ -114,16 +107,11 @@ namespace _2DLogicGame.GraphicObjects
                         aUpdateNeeded = true;
                     }
 
-                    aPlayer.Move(gameTime);
-                   
-
-                    
-
+                    aPlayer.IsTryingToMove = true;
                 }
                 else if (tmpNewKeyBoardState.IsKeyDown(aDown))
                 {
                     tmpCurrentKeyPresed = aDown;
-                    aPlayer.IsMoving = true;
                     aPlayer.SetDirection(Entity.Direction.DOWN);
 
                     if (tmpCurrentKeyPresed != aOldKeyPressed)
@@ -131,16 +119,12 @@ namespace _2DLogicGame.GraphicObjects
                         aUpdateNeeded = true;
                     }
 
-                    aPlayer.Move(gameTime);
-                    
-
-                    
-
+                    aPlayer.IsTryingToMove = true;
                 }
                 else
                 {
-                    aPlayer.IsMoving = false;
-                    aPlayer.MovementVector = new Vector2(0,0);
+                    aPlayer.IsTryingToMove = false;
+                    aPlayer.MovementVector = new Vector2(0, 0);
                     tmpCurrentKeyPresed = Keys.None;
 
                     if (tmpCurrentKeyPresed != aOldKeyPressed)
@@ -150,43 +134,146 @@ namespace _2DLogicGame.GraphicObjects
 
                 }
 
-                
-
-                //Kedy je update pre server potrebny?
-
-                /*  if (tmpNewKeyBoardState.IsKeyDown(tmpCurrentKeyPresed) && aOldKeyboardState.IsKeyUp(tmpCurrentKeyPresed)) //Porovname, ci uzivatel stlacil nove tlacitko
-                  {
-                      aUpdateNeeded = true;
-
-                  }
-                  else if (tmpNewKeyBoardState.IsKeyUp(tmpCurrentKeyPresed)) //Ak dojde k tomu, ze pustime tlacitka
-                  {
-                      if (aOldKeyboardState.IsKeyDown(aUp) || aOldKeyboardState.IsKeyDown(aRight) || //Porovname ci pred tym bolo stlacene tlacitko pohybu
-                          aOldKeyboardState.IsKeyDown(aLeft) || aOldKeyboardState.IsKeyDown(aDown))
-                      {
-                          aUpdateNeeded = true;
-
-                      }
-                  }
-                  else if (tmpNewKeyBoardState.GetPressedKeyCount() == 2 && aOldKeyboardState.GetPressedKeyCount() == 1 || tmpNewKeyBoardState.GetPressedKeyCount() == 1 && aOldKeyboardState.GetPressedKeyCount() == 2) //Poistka proti stlacaniu 2 klaves naraz, hlavne viditelne pri starsich PS2 klavesniciach
-                  {
-
-                      if (tmpNewKeyBoardState.IsKeyDown(aUp) || tmpNewKeyBoardState.IsKeyDown(aRight) ||
-                          tmpNewKeyBoardState.IsKeyDown(aDown) || tmpNewKeyBoardState.IsKeyDown(aLeft))
-                      {
-
-                          aUpdateNeeded = true;
-                      }
-
-                  }  */
 
                 aOldKeyPressed = tmpCurrentKeyPresed;
                 aOldKeyboardState = tmpNewKeyBoardState;
-                aOldMoving = aPlayer.IsMoving;
+                aOldMoving = aPlayer.IsTryingToMove;
             }
-
-            base.Update(gameTime);
         }
+
+        /// <summary>
+        /// Metoda, ktora realne ovlada pohyb hraca - vola Move
+        /// </summary>
+        /// <param name="parGameTime"></param>
+        public void ControlPlayerMovement(GameTime parGameTime)
+        {
+            if (aPlayer != null)
+            {
+                if (aOldMoving == true && aPlayer.IsBlocked == true) //Ak sa pred tym hrac pohyboval, a teraz je v stave zablokovany
+                {
+                    aUpdateNeeded = true;
+                }
+
+                aPlayer.Move(gameTime: parGameTime);
+            }
+        }
+
+
+
+        /*    public override void Update(GameTime gameTime)
+            {
+
+                aGameTime = gameTime;
+
+                KeyboardState tmpNewKeyBoardState = Keyboard.GetState();
+
+                if (aPlayer != null)
+                {
+                    Keys tmpCurrentKeyPresed = Keys.None;
+
+                    double tmpElapsedTime = gameTime.ElapsedGameTime.TotalSeconds;
+
+                    if (tmpNewKeyBoardState.IsKeyDown(aUp))
+                    {
+                        tmpCurrentKeyPresed = aUp;
+                        aPlayer.IsTryingToMove = true;
+                        aPlayer.SetDirection(Entity.Direction.UP);
+
+                        if (tmpCurrentKeyPresed != aOldKeyPressed)
+                        {
+                            aUpdateNeeded = true;
+                        }
+                        aPlayer.Move(gameTime);
+                    }
+                    else if (tmpNewKeyBoardState.IsKeyDown(aRight))
+                    {
+                        tmpCurrentKeyPresed = aRight;
+                        aPlayer.IsTryingToMove = true;
+                        aPlayer.SetDirection(Entity.Direction.RIGHT);
+
+                        if (tmpCurrentKeyPresed != aOldKeyPressed)
+                        {
+                            aUpdateNeeded = true;
+                        }
+                        aPlayer.Move(gameTime);
+                    }
+                    else if (tmpNewKeyBoardState.IsKeyDown(aLeft))
+                    {
+                        tmpCurrentKeyPresed = aLeft;
+                        aPlayer.IsTryingToMove = true;
+                        aPlayer.SetDirection(Entity.Direction.LEFT);
+
+                        if (tmpCurrentKeyPresed != aOldKeyPressed)
+                        {
+                            aUpdateNeeded = true;
+                        }
+
+                        aPlayer.Move(gameTime);
+                    }
+                    else if (tmpNewKeyBoardState.IsKeyDown(aDown))
+                    {
+                        tmpCurrentKeyPresed = aDown;
+                        aPlayer.IsTryingToMove = true;
+                        aPlayer.SetDirection(Entity.Direction.DOWN);
+
+                        if (tmpCurrentKeyPresed != aOldKeyPressed)
+                        {
+                            aUpdateNeeded = true;
+                        }
+                        aPlayer.Move(gameTime);
+                    }
+                    else
+                    {
+                        aPlayer.IsTryingToMove = false;
+                        aPlayer.MovementVector = new Vector2(0, 0);
+                        tmpCurrentKeyPresed = Keys.None;
+
+                        if (tmpCurrentKeyPresed != aOldKeyPressed)
+                        {
+                            aUpdateNeeded = true;
+                        }
+
+                    }
+
+
+
+                    //Kedy je update pre server potrebny?
+
+                    /*  if (tmpNewKeyBoardState.IsKeyDown(tmpCurrentKeyPresed) && aOldKeyboardState.IsKeyUp(tmpCurrentKeyPresed)) //Porovname, ci uzivatel stlacil nove tlacitko
+                      {
+                          aUpdateNeeded = true;
+
+                      }
+                      else if (tmpNewKeyBoardState.IsKeyUp(tmpCurrentKeyPresed)) //Ak dojde k tomu, ze pustime tlacitka
+                      {
+                          if (aOldKeyboardState.IsKeyDown(aUp) || aOldKeyboardState.IsKeyDown(aRight) || //Porovname ci pred tym bolo stlacene tlacitko pohybu
+                              aOldKeyboardState.IsKeyDown(aLeft) || aOldKeyboardState.IsKeyDown(aDown))
+                          {
+                              aUpdateNeeded = true;
+
+                          }
+                      }
+                      else if (tmpNewKeyBoardState.GetPressedKeyCount() == 2 && aOldKeyboardState.GetPressedKeyCount() == 1 || tmpNewKeyBoardState.GetPressedKeyCount() == 1 && aOldKeyboardState.GetPressedKeyCount() == 2) //Poistka proti stlacaniu 2 klaves naraz, hlavne viditelne pri starsich PS2 klavesniciach
+                      {
+
+                          if (tmpNewKeyBoardState.IsKeyDown(aUp) || tmpNewKeyBoardState.IsKeyDown(aRight) ||
+                              tmpNewKeyBoardState.IsKeyDown(aDown) || tmpNewKeyBoardState.IsKeyDown(aLeft))
+                          {
+
+                              aUpdateNeeded = true;
+                          }
+
+                      }  */
+
+        /*          aOldKeyPressed = tmpCurrentKeyPresed;
+                  aOldKeyboardState = tmpNewKeyBoardState;
+                  aOldMoving = aPlayer.IsTryingToMove;
+
+              }
+
+              base.Update(gameTime);
+          } */
+
         /// <summary>
         /// Metoda reprezentujuca, kedy je update potrebny - pre Server, pokial si server zavola tuto metodu, zaroven ohlasi, ze update uz nie je potrebny a caka sa na dalsi...
         /// </summary>

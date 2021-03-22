@@ -77,6 +77,9 @@ namespace _2DLogicGame.GraphicObjects
         /// </summary>
         private bool aAnimateForwards = true;
 
+
+        private Color zmazatColor = Color.White;
+
         /// <summary>
         /// Atribut, ktory reprezentuje informacie o tom, ci sa jedna o kolizny objekt alebo nie
         /// </summary>
@@ -169,7 +172,7 @@ namespace _2DLogicGame.GraphicObjects
         {
             if (aTexture != null )
             {
-                aGame.SpriteBatch.Draw(aTexture, aPosition, aRectangle, Color.White, 0F, Vector2.Zero, 1F, SpriteEffects.None, 1F);
+                aGame.SpriteBatch.Draw(aTexture, aPosition, aRectangle, zmazatColor, 0F, Vector2.Zero, 1F, SpriteEffects.None, 1F);
             }
 
             base.Draw(gameTime);
@@ -264,6 +267,20 @@ namespace _2DLogicGame.GraphicObjects
         public void SetImageLocation(string parImageLocation)
         {
             aImageLocation = parImageLocation;
+
+        }
+
+        public void ChangeColor(bool par)
+        {
+
+            if (zmazatColor == Color.White)
+            {
+                zmazatColor = Color.Red;
+            }
+            else
+            {
+                zmazatColor = Color.White;
+            }
 
         }
 

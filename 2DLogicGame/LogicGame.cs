@@ -220,6 +220,17 @@ namespace _2DLogicGame
                 aMenu.TaskToExecute = MenuTasksToBeExecuted.None;
             }
 
+
+            //Riadenie kolizie s podmienkou existencie Klienta, LevelManazera a vytvoreneho levelu
+            if (aClientClass != null && aLevelManager != null && aLevelManager.IsLevelInitalized && aPlayerController != null)
+            {
+                aPlayerController.MoveRequest();
+                aClientClass.CollisionHandler(gameTime, aLevelManager);
+                aPlayerController.ControlPlayerMovement(gameTime);
+
+            }
+
+
             //Odosielanie dat, klienta
             if (aPlayerController != null)
             {
@@ -245,6 +256,7 @@ namespace _2DLogicGame
                 }
             }
 
+
             //Riadenie pohybu spoluhracov
             if (aClientClass != null)
             {
@@ -252,11 +264,7 @@ namespace _2DLogicGame
                 
             }
 
-            //Riadenie kolizie s podmienkou existencie Klienta, LevelManazera a vytvoreneho levelu
-            if (aClientClass != null && aLevelManager != null && aLevelManager.IsLevelInitalized)
-            {
-                aClientClass.CollisionHandler(gameTime, aLevelManager);
-            }
+           
 
 
 
@@ -267,6 +275,14 @@ namespace _2DLogicGame
             // TODO: Add your update logic here
 
             base.Update(gameTime);
+
+         
+
+
+            //MoveRequest
+
+
+
         }
 
         protected override void Draw(GameTime gameTime)
