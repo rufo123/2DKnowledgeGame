@@ -277,7 +277,6 @@ namespace _2DLogicGame.ClientSide.Chat
                     return Color.Purple;
                 default:
                     return Color.White;
-                    break;
             }
         }
     }

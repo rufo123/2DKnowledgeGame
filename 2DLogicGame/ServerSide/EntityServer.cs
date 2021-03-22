@@ -6,7 +6,7 @@ using System.Text;
 
 namespace _2DLogicGame.ServerSide
 {
-    class EntityServer
+    public class EntityServer
     {
         /// <summary>
         /// Enum reprezentujuci Smer
@@ -45,10 +45,16 @@ namespace _2DLogicGame.ServerSide
         /// </summary>
         private Vector2 aSize;
 
+
         /// <summary>
         /// Atribut reprezentujuci rychlost entity - typ float
         /// </summary>
         private float aSpeed = 200F;
+
+        /// <summary>
+        /// Atribut, ktory reprezentuje prednastavenu rychlost Enity - typ float
+        /// </summary>
+        private float aDefaultSpeed = 0;
 
         private float aVelocity;
 
@@ -56,10 +62,18 @@ namespace _2DLogicGame.ServerSide
 
         private bool aIsMoving = false;
 
+        private float aEntityScale = 1F;
+        public float EntityScale { get => aEntityScale; set => aEntityScale = value; }
+
+        public bool aIsBlocked = false;
+
 
         public float Speed { get => aSpeed; set => aSpeed = value; }
         public Vector2 Position { get => aPosition; }
         public bool IsMoving { get => aIsMoving; set => aIsMoving = value; }
+        public Vector2 Size { get => aSize; set => aSize = value; }
+        public bool IsBlocked { get => aIsBlocked; set => aIsBlocked = value; }
+
 
 
 
@@ -75,6 +89,7 @@ namespace _2DLogicGame.ServerSide
             aPosition = parPosition;
             aSize = parSize;
             aSpeed = parSpeed;
+            aDefaultSpeed = aSpeed;
 
             aMovementVector = new Vector2(0, 0);
 
@@ -134,13 +149,58 @@ namespace _2DLogicGame.ServerSide
         /// <param name="parServerTickRate">Parameter reprezentujuci serverový Tick Rate - Default 60F</param>
         public void Move(float parServerTickRate)
         {
-            if (IsMoving == true)
+            if (IsMoving == true && IsBlocked == false)
             {
                 aPosition.Y += aMovementVector.Y * ((aSpeed / parServerTickRate));
                 aPosition.X += aMovementVector.X * ((aSpeed / parServerTickRate));
 
                 Debug.WriteLine("Server Pos: " + aMovementVector.X + " " + aMovementVector.Y);
             }
+        }
+
+        /// <summary>
+        /// Metoda, ktora spomali entitu o polovicu - Zalezi od atributu aDefualtSpeed
+        /// </summary>
+        /// <param name="parSlowDown">Parameter ci ma Entita spomalit - Typ Boolean</param>
+        public void SlowDown(bool parSlowDown)
+        {
+            if (parSlowDown) //Ak ma Entit spomalit
+            {
+                aSpeed = aDefaultSpeed / 1.5F;
+            }
+            else //Ak nema spomalit
+            {
+                aSpeed = aDefaultSpeed;
+            }
+        }
+
+        public Vector2 GetAfterMoveVector2(float parServerTickRate)
+        {
+            Vector2 tmpNewMovementVector2 = new Vector2(0,0);
+
+            switch (aDirection)
+            {
+                case Direction.UP:
+                    tmpNewMovementVector2.X = 0;
+                    tmpNewMovementVector2.Y = -1;
+                    break;
+                case Direction.RIGHT:
+                    tmpNewMovementVector2.X = 1;
+                    tmpNewMovementVector2.Y = 0;
+                    break;
+                case Direction.DOWN:
+                    tmpNewMovementVector2.X = 0;
+                    tmpNewMovementVector2.Y = 1;
+                    break;
+                case Direction.LEFT:
+                    tmpNewMovementVector2.X = -1;
+                    tmpNewMovementVector2.Y = 0;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+            float tmpNewVelocity = aSpeed / parServerTickRate;
+            return aPosition + (tmpNewMovementVector2 * tmpNewVelocity); //Zatvorky nemusia byt, pretoze nasobenie ma prednost...
         }
 
         /// <summary>

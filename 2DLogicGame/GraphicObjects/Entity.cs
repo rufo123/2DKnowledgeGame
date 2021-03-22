@@ -85,6 +85,11 @@ namespace _2DLogicGame.GraphicObjects
         /// </summary>
         private float aSpeed = 1F;
 
+        /// <summary>
+        /// Atribut reprezentujuci prednastavenu rychlost entity - typ float
+        /// </summary>
+        private float aDefaultSpeed = 0;
+
         private float aVelocity;
 
         private Vector2 aMovementVector;
@@ -138,6 +143,7 @@ namespace _2DLogicGame.GraphicObjects
                 aColor = Color.White;
             }
             aSpeed = parSpeed;
+            aDefaultSpeed = aSpeed;
 
         }
 
@@ -214,7 +220,7 @@ namespace _2DLogicGame.GraphicObjects
         {
 
 
-            if (aIsTryingToMove == true)
+            if (aIsTryingToMove)
             {
 
                 SwitchAnimation(gameTime.ElapsedGameTime.TotalMilliseconds);
@@ -260,16 +266,44 @@ namespace _2DLogicGame.GraphicObjects
 
         }
 
+
+        /// <summary>
+        /// Metoda, ktora spomali entitu o polovicu - Zalezi od atributu aDefualtSpeed
+        /// </summary>
+        /// <param name="parSlowDown">Parameter ci ma Entita spomalit - Typ Boolean</param>
+        public void SlowDown(bool parSlowDown)
+        {
+            if (parSlowDown) //Ak ma Entit spomalit
+            {
+                aSpeed = aDefaultSpeed / 1.5F;
+            }
+            else //Ak nema spomalit
+            {
+                aSpeed = aDefaultSpeed;
+            }
+        }
+
         public void SwitchAnimation(double parElapsedTime, int vypis = 0)
         {
 
             //Prepina, framy korespondujuce zmenam smeru - Y - AXIS
             aRectangle.Y = (int)aDirection * aRectangle.Size.Y;
 
+            int tmpTimeThreshold = 100;
+
+
+            //Spomalenie/Zrychlenie Animacie v pripade zmeny rychlosti
+            if (Math.Abs(aDefaultSpeed - aSpeed) > 0.5) //Pri porovnavani hodnot - float musime brat do uvahy aj urcitu toleranciu rozdielu.. Vlastne porovnavame ci sa hodnoty nerovanaju ALE s toleranciou
+            {
+                tmpTimeThreshold = (int)(tmpTimeThreshold * (aDefaultSpeed / aSpeed));
+            }
+
+
+
             if (IsBlocked == false) //Ak entita narazila na barieru, nebude sa prepinat animacia pohybu..
             {
 
-                if (aTimeCounter >= 0 && aTimeCounter < 100)
+                if (aTimeCounter >= 0 && aTimeCounter < tmpTimeThreshold)
                 {
                     aTimeCounter += parElapsedTime;
                     if (vypis == 1)
@@ -282,7 +316,7 @@ namespace _2DLogicGame.GraphicObjects
 
                     }
                 }
-                else if (aTimeCounter > 100)
+                else if (aTimeCounter > tmpTimeThreshold)
                 {
                     //Prepina, framy korespondujuce zmenam smeru - X - AXIS
                     if (aRectangle.X + aRectangle.Size.X <= aRectangle.Size.X * 4)
@@ -367,9 +401,10 @@ namespace _2DLogicGame.GraphicObjects
                 if (aRemotePosition != aPosition) //Zavola sa korekcia pozicie
                 {
                     aEntityNeedsPosCorrect = true;
+
                 }
 
-                //PositionCorrection(parGameTime);
+                PositionCorrection(parGameTime);
                 SwitchAnimation(parGameTime.ElapsedGameTime.TotalMilliseconds, 1);
 
                 return true; //V tomto pripade pojde o spoluhraca... tu sa neda co kontrolovat ....
@@ -386,46 +421,13 @@ namespace _2DLogicGame.GraphicObjects
         /// <param name="parGameTime"></param>
         public void PositionCorrection(GameTime parGameTime)
         {
-            /*  float interpolation_constant = 0.5F;
-              float treshold = 0.2F;
-              float differenceX = aPosition.X - aRemotePosition.X;
-              float differenceY = aPosition.Y - aRemotePosition.Y; */
-
             if (aPosition != aRemotePosition)
             {
                 aPosition = aRemotePosition;
                 aEntityNeedsPosCorrect = false;
             }
-
-            /*  if ((Math.Abs(differenceX) < treshold) && Math.Abs(differenceY) < treshold)
-              {
-                  aPosition = aRemotePosition;
-              }
-              else
-              {
-                  aPosition.X -= differenceX * (float)parGameTime.ElapsedGameTime.TotalSeconds * interpolation_constant;
-                  aPosition.Y -= differenceY * (float)parGameTime.ElapsedGameTime.TotalSeconds * interpolation_constant;
-              } */
         }
 
-        /*     public void Interpolation(GameTime parGameTime)
-        {
-            float interpolation_constant = 2F;
-            float treshold = aSpeed/20;
-            float differenceX = aPosition.X - aRemotePosition.X;
-            float differenceY = aPosition.Y - aRemotePosition.Y;
-
-            if ((Math.Abs(differenceX) < treshold) && Math.Abs(differenceY) < treshold)
-            {
-                aPosition = aRemotePosition;
-                aEntityNeedsInterpolation = false;
-            }
-            else
-            {
-                aPosition.X -= differenceX * (float)parGameTime.ElapsedGameTime.TotalSeconds * interpolation_constant;
-                aPosition.Y -= differenceY * (float)parGameTime.ElapsedGameTime.TotalSeconds * interpolation_constant;
-            }
-        } */
         //Nakoniec INterpolacia Scrapped
 
 

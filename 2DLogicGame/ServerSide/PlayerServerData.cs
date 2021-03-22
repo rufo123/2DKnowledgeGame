@@ -36,6 +36,7 @@ namespace _2DLogicGame.ServerSide
             aPlayerNickName = parPlayerNickName; //Priradime Prezyvku Hraca
             aRemoteUniqueIdentifier = parRemoteUniqueIdentifier; //Priradime Unikatny Identifikator
 
+            EntityScale = 2F;
         }
 
         public long RemoteUniqueIdentifier { get => aRemoteUniqueIdentifier; }

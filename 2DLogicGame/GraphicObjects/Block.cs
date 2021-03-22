@@ -109,14 +109,15 @@ namespace _2DLogicGame.GraphicObjects
         }
 
 
-
-
         /// <summary>
         /// Trieda reprezentujuca Blok, ktory je specifikovany poziciou a pokial pouzivatel potrebuje, moze hned inicializovat aj Texturu
         /// </summary>
-        /// <param name="parGame">Atribut Hry - Typ LogicGame</param>
-        /// <param name="parPosition">Atribut Pozicie -Typ Vector2</param>
-        /// <param name="parTexture">Atribut Textury - Typ Texture2D</param>
+        /// <param name="parGame">Parameter Hry - Typ LogicGame</param>
+        /// <param name="parPosition">Parameter Pozicie -Typ Vector2</param>
+        /// <param name="parTexture">Volitelny Parameter Textury - Typ Texture2D</param>
+        /// <param name="parIsAnimated">Volitelny Parameter - Reprezentujuci ci je blok animovany - Typ Bool</param>
+        /// <param name="parCountOfFrames">Volitelny Parameter - Reprezentujuci pocet framov animacie - Typ Int</param>
+        /// <param name="parCollisionType">Volitelny Parameter - Reprezentujuci o aky typ kolizie sa jedna - Typ BlockCollisionType - Enum</param>
         public Block(LogicGame parGame, Vector2 parPosition, Texture2D parTexture = null, bool parIsAnimated = false, int parCountOfFrames = 0, BlockCollisionType parCollisionType = BlockCollisionType.None) : base(parGame)
         {
             aGame = parGame;
@@ -178,6 +179,7 @@ namespace _2DLogicGame.GraphicObjects
             base.Draw(gameTime);
         }
 
+
         public override void Update(GameTime gameTime)
         {
 
@@ -197,6 +199,10 @@ namespace _2DLogicGame.GraphicObjects
             base.Update(gameTime);
         }
 
+
+        /// <summary>
+        /// Metoda, ktora spravuje posuvanie framov animacie -> Doprava, potom sa otoci, samozrejme uz nebude zobrazovat znova posledny frame ale skoci do stredu ide smerom dolava, tam podobne a znova
+        /// </summary>
         public void SwitchAnimation()
         {
             if (aAnimateForwards && aRectangle.X + aRectangle.Size.X <= aRectangle.Size.X * (aCountOfFrames - 1)) //Ak mozeme posuvat animaciu dopredu - su tam este framy
@@ -270,9 +276,12 @@ namespace _2DLogicGame.GraphicObjects
 
         }
 
+        /// <summary>
+        /// Pomocna Debug Metoda - DEBUG ONLY - Zmazat
+        /// </summary>
+        /// <param name="par">DEBUG ONLY</param>
         public void ChangeColor(bool par)
         {
-
             if (zmazatColor == Color.White)
             {
                 zmazatColor = Color.Red;
@@ -281,9 +290,6 @@ namespace _2DLogicGame.GraphicObjects
             {
                 zmazatColor = Color.White;
             }
-
         }
-
-
     }
 }

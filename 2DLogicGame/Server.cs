@@ -5,6 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Threading;
+using _2DLogicGame.ServerSide;
+using _2DLogicGame.ServerSide.Blocks_ServerSide;
+using _2DLogicGame.ServerSide.Levels_ServerSide;
 using Lidgren.Network;
 
 
@@ -64,6 +67,11 @@ namespace _2DLogicGame
         /// </summary>
         private Thread aMovementThread;
 
+        /// <summary>
+        /// Atribut, reprezentujuci Level Managera - Typ LevelManager
+        /// </summary>
+        private LevelManager aLevelManager;
+
 
         public bool Started
         {
@@ -75,6 +83,7 @@ namespace _2DLogicGame
         {
 
             aLogicGame = parGame;
+            aLevelManager = new LevelManager(parGame);
 
             NetPeerConfiguration
                 tmpServerConfig = new NetPeerConfiguration(parAppName)
@@ -105,6 +114,7 @@ namespace _2DLogicGame
 
             aDictionaryPlayerData = new Dictionary<long, ServerSide.PlayerServerData>(aMaxPlayers);
 
+            aLevelManager.InitLevel("Levels\\level1");
 
             aStopWatch = new Stopwatch();
 
@@ -140,6 +150,9 @@ namespace _2DLogicGame
                     foreach (KeyValuePair<long, ServerSide.PlayerServerData> dictItem in aDictionaryPlayerData.ToList() //ToList -> Nakopiruje cely Dictionary do Listu... 
                     ) //Prejdeme vsetky data v Dictionary
                     {
+                        
+                        CollisionHandler(aLevelManager, dictItem.Value);
+
                         dictItem.Value.Move((float)(aTickRate)); 
                         var elapsed = aStopWatch.ElapsedMilliseconds;
                     }
@@ -162,6 +175,84 @@ namespace _2DLogicGame
 
 
         }
+
+
+        /// <summary>
+        /// Metoda, ktora spravuje koliziu
+        /// </summary>
+        /// <param name="parGameTime">Parameter Casu Hry - Typ GameTime</param>
+        /// <param name="parLevelManager">Parameter Level Managera - Typ LevelManager</param>
+        /// <param name="parEntity">Parameter Reprezentuje Entitu - Typ Entity</param>
+        public void CollisionHandler(LevelManager parLevelManager, EntityServer parEntity)
+        {
+
+            if (aDictionaryPlayerData != null && aDictionaryPlayerData.Count > 0 )
+            {
+
+                //Prejdeme vsetky data v Dictionary
+                {
+                    //Bude reprezentovat, poziciu TILU, kde by sa teda hrac nachadzal - pozor nie bloku!, Tile reprezentuje OBLAST jedneho bloku tzn
+                    //Napr. Block so suradnicami 0, 128 - Bude ekvivalentny Tilu so suradnicami 0, 2
+                    //Ak mame teda specifikovanu velkost blokov o 64px...
+
+                    int tmpMapBlockDimSize = parLevelManager.GetMapBlocksDimensionSize();
+
+                    float sizeOfPlayerX = parEntity.Size.X * parEntity.EntityScale;
+                    float sizeOfPLayerY = parEntity.Size.Y * parEntity.EntityScale;
+
+                    int tmpTilePositionX = (int)Math.Floor(parEntity.GetAfterMoveVector2(aTickRate).X / tmpMapBlockDimSize); //Zaciatocna X-ova Tile Suradnica - Vlavo
+                    int tmpTilePositionY = (int)Math.Floor(parEntity.GetAfterMoveVector2(aTickRate).Y / tmpMapBlockDimSize); //Zaciatocna Y-ova Tile Suradnica - Hore
+
+                    int tmpEndTilePositionX = (int)Math.Floor((parEntity.GetAfterMoveVector2(aTickRate).X + sizeOfPlayerX) / tmpMapBlockDimSize); //Koncova X-ova Tile Suradnica - Vpravo
+                    int tmpEndTilePositionY = (int)Math.Floor((parEntity.GetAfterMoveVector2(aTickRate).Y + sizeOfPLayerY) / tmpMapBlockDimSize); //Koncova Y-ova Tile Suraadnica - Dole
+
+                    // Debug.WriteLine(parEntity.GetAfterMoveVector2(aTickRate).X);
+
+                    // float tmpNumberOfOccupiedBlocks = tmpWidth * tmpHeight;}}
+                    bool tmpIsBlocked = false;
+                    bool tmpIsSlowed = false;
+
+                    for (int i = tmpTilePositionX; i <= tmpEndTilePositionX; i++) //For Cyklus pre X-ovu Suradnicu, kde by v buducnosti stala Entita
+                    {
+                        for (int j = tmpTilePositionY; j <= tmpEndTilePositionY; j++) //FOr Cyklus pre Y-ovu Suradnicu, kde by v buducnosti stala Entita
+                        {
+                            Vector2 tmpTilePositVector2 = new Vector2(i * tmpMapBlockDimSize, j * tmpMapBlockDimSize);
+                            if (parLevelManager.GetBlockByPosition(tmpTilePositVector2) != null) //Ak na takejto suradnici vobec nejaky blok existuje
+                            {
+
+                                switch (parLevelManager.GetBlockByPosition(tmpTilePositVector2).BlockCollisionType)
+                                {
+                                    case BlockCollisionType.None:
+                                        break;
+                                    case BlockCollisionType.Wall: //Ak je prekazka typu WALL - Dojde ku kolizii
+                                        if (tmpIsBlocked == false) //Preto je tu tato podmienka, aby sme zabranili tomu, ze ak sa uz Entita detegovala jednu koliziu, neprepise ju..
+                                        {
+                                            tmpIsBlocked = true;
+                                            parEntity.IsBlocked = tmpIsBlocked;
+                                        }
+
+                                        break;
+                                    case BlockCollisionType.Slow: //Ak je prekazka typu SLOW - Napr Voda - Spomali sa Entita
+                                        if (tmpIsSlowed == false) //Preto je tu tato podmienka, aby sme zabranili tomu, ze ak sa uz Entita detegovala jednu napr. vodu, neprepise ju..
+                                        {
+                                            tmpIsSlowed = true;
+                                        }
+
+                                        break;
+                                    case BlockCollisionType.Zap:
+                                        break;
+                                    default:
+                                        throw new ArgumentOutOfRangeException();
+                                }
+                            }
+                        }
+                    }
+                    parEntity.IsBlocked = tmpIsBlocked;
+                    parEntity.SlowDown(tmpIsSlowed);
+                }
+            }
+        }
+
 
         public void ReadMessages()
         {

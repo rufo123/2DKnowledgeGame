@@ -7,7 +7,7 @@ namespace _2DLogicGame.ServerSide
     /// <summary>
     /// Trieda reprezentuje 2-rozmerný Vektor
     /// </summary>
-    class Vector2 : IEquatable<Vector2>
+    public class Vector2 : IEquatable<Vector2>
     {
 
         private float aVectorX;
@@ -29,14 +29,10 @@ namespace _2DLogicGame.ServerSide
             return Equals(obj as Vector2);
         }
 
-        //Vygenerovane
+        //Vygenerovane - Poznamka. Kod musel byt prerobeny aby fungoval aj s NULL -> Vyuzite pri operaciach != a ==
         public bool Equals(Vector2 other)
         {
-            return other != null &&
-                   aVectorX == other.aVectorX &&
-                   aVectorY == other.aVectorY &&
-                   X == other.X &&
-                   Y == other.Y;
+            return (X == other.X) && (Y == other.Y);
         }
 
         //Vygenerovane
@@ -54,7 +50,7 @@ namespace _2DLogicGame.ServerSide
         public static Vector2 operator +(Vector2 parHodn1, Vector2 parHodn2)
         {
             float tmpSumX = parHodn1.X + parHodn2.X;
-            float tmpSumY = parHodn2.Y + parHodn2.Y;
+            float tmpSumY = parHodn1.Y + parHodn2.Y;
             return new Vector2(tmpSumX, tmpSumY);
         }
 
@@ -79,8 +75,8 @@ namespace _2DLogicGame.ServerSide
         /// <returns>Vrati Vector - Vysledok Nasobenia</returns>
         public static Vector2 operator *(Vector2 parHodn1, Vector2 parHodn2)
         {
-            float tmpMultX = parHodn1.X * parHodn1.X;
-            float tmpMultY = parHodn1.Y * parHodn1.Y;
+            float tmpMultX = parHodn1.X * parHodn2.X;
+            float tmpMultY = parHodn1.Y * parHodn2.Y;
             return new Vector2(tmpMultX, tmpMultY);
         }
 
@@ -129,7 +125,8 @@ namespace _2DLogicGame.ServerSide
         /// <param name="parHodn1">Lavy parameter - Typ Vector2</param>
         /// <param name="parHodn2">Pravy parameter - Typ Vector2</param>
         /// <returns>Vrati Vector - Vysledok Delenia</returns>
-        public static Vector2 operator /(Vector2 parHodn1, Vector2 parHodn2) {
+        public static Vector2 operator /(Vector2 parHodn1, Vector2 parHodn2)
+        {
             float tmpDivX = parHodn1.X / parHodn2.X;
             float tmpDivY = parHodn1.Y / parHodn2.Y;
             return new Vector2(tmpDivX, tmpDivY);
@@ -141,10 +138,10 @@ namespace _2DLogicGame.ServerSide
         /// <param name="parHodn1">Lavy parameter - Typ Vector2</param>
         /// <param name="parHodn2">Pravy parameter - Typ Vector2</param>
         /// <returns>Vrati Vector - Vysledok Rovnosti</returns>
-        public static bool operator ==(Vector2 parHodn1, Vector2 parHodn2) {
-            bool tmpEqX = (parHodn1.X == parHodn2.X);
-            bool tmpEqY = (parHodn2.X == parHodn2.Y);
-            return tmpEqX == tmpEqY;
+        public static bool operator ==(Vector2 parHodn1, Vector2 parHodn2)
+        {
+            return parHodn1.X == parHodn2.X || parHodn2.X == parHodn2.Y;
+
         }
 
         /// <summary>
@@ -153,11 +150,11 @@ namespace _2DLogicGame.ServerSide
         /// <param name="parHodn1">Lavy parameter - Typ Vector2</param>
         /// <param name="parHodn2">Pravy parameter - Typ Vector2</param>
         /// <returns>Vrati Vector - Vysledok Nerovnosti</returns>
-        public static bool operator !=(Vector2 parHodn1, Vector2 parHodn2) {
-            bool tmpNEqX = (parHodn1.X != parHodn2.X);
-            bool tmpNEqY = (parHodn2.X != parHodn2.Y);
-            return tmpNEqX == tmpNEqY;
+        public static bool operator !=(Vector2 parHodn1, Vector2 parHodn2)
+        {
+            return parHodn1.X != parHodn2.X || parHodn2.X != parHodn2.Y;
         }
+
 
     }
 }

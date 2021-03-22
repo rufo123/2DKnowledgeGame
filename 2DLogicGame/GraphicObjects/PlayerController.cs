@@ -63,8 +63,10 @@ namespace _2DLogicGame.GraphicObjects
         /// <summary>
         /// Metoda, ktora si vyziada, resp zmeni Smer a odosle informaciu, ze sa hrac snazi alebo nesnazi pohnut
         /// </summary>
-        public void MoveRequest()
+        public void MoveRequest(GameTime parGameTime)
         {
+
+            this.aGameTime = parGameTime; //Nacitame aj GameTime
 
             if (aPlayer != null)
             {
@@ -147,6 +149,9 @@ namespace _2DLogicGame.GraphicObjects
         /// <param name="parGameTime"></param>
         public void ControlPlayerMovement(GameTime parGameTime)
         {
+
+            this.aGameTime = parGameTime; //Nacitame tie aj GameTime
+
             if (aPlayer != null)
             {
                 if (aOldMoving == true && aPlayer.IsBlocked == true) //Ak sa pred tym hrac pohyboval, a teraz je v stave zablokovany

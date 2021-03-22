@@ -114,7 +114,6 @@ namespace _2DLogicGame
 
             aMainMenu = new ComponentCollection(this, aMenu, aMenuBox);
 
-
             ClientSide.Chat.ChatReceiveBox chatReceive = new ClientSide.Chat.ChatReceiveBox(this, Window, 593, 800, Vector2.Zero + new Vector2(10, 10));
             ClientSide.Chat.ChatInputBox chatInput = new ClientSide.Chat.ChatInputBox(this, Window, 1000, 246, new Vector2((aRenderTargetWidth - 1000) / 2, aRenderTargetHeight - 246));
             aChat = new ClientSide.Chat.Chat(this, chatInput, chatReceive);
@@ -205,6 +204,8 @@ namespace _2DLogicGame
 
                             aClientReadThread = new Thread(new ThreadStart(aClientClass.ReadMessages));
                             aClientReadThread.Start();
+
+                            aLevelManager.InitLevel("Levels\\level1");
                         }
                         
                         break;
@@ -224,7 +225,7 @@ namespace _2DLogicGame
             //Riadenie kolizie s podmienkou existencie Klienta, LevelManazera a vytvoreneho levelu
             if (aClientClass != null && aLevelManager != null && aLevelManager.IsLevelInitalized && aPlayerController != null)
             {
-                aPlayerController.MoveRequest();
+                aPlayerController.MoveRequest(gameTime);
                 aClientClass.CollisionHandler(gameTime, aLevelManager);
                 aPlayerController.ControlPlayerMovement(gameTime);
 
@@ -258,9 +259,9 @@ namespace _2DLogicGame
 
 
             //Riadenie pohybu spoluhracov
-            if (aClientClass != null)
+            if (aClientClass != null && aLevelManager != null)
             {
-                aClientClass.TeammateMovementHandler(gameTime);
+                aClientClass.TeammateMovementHandler(gameTime, aLevelManager);
                 
             }
 

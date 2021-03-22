@@ -418,8 +418,9 @@ namespace _2DLogicGame
         /// <summary>
         /// Metoda, ktora ovlada pohyb spoluhracov
         /// </summary>
-        /// <param name="gameTime"></param>
-        public void TeammateMovementHandler(GameTime gameTime) //Metoda, na ovladanie pohybu spolhracov
+        /// <param name="parGameTime"></param>
+        /// <param name="parLevelManager"></param>
+        public void TeammateMovementHandler(GameTime parGameTime, LevelManager parLevelManager) //Metoda, na ovladanie pohybu spolhracov
         {
             if (aDictionaryPlayerData.Count > 1)
             {
@@ -429,107 +430,92 @@ namespace _2DLogicGame
                     {
                         if (dictItem.Key != aMyIdentifier)
                         {
-                            dictItem.Value.Move(gameTime);
+                            CollisionHandler(parGameTime, parLevelManager, dictItem.Value);
+                            dictItem.Value.Move(parGameTime);
                         }
-
                     }
-
                 }
             }
         }
 
-        //Docasne LevelManagera odovzdam ako referenciu, porozmyslat, ci by nebolo lepsie ho definovat rovno v triede
-        public void CollisionHandler(GameTime gameTime, LevelManager parLevelManager)
+        /// <summary>
+        /// Metoda, ktora spravuje koliziu
+        /// </summary>
+        /// <param name="parGameTime">Parameter Casu Hry - Typ GameTime</param>
+        /// <param name="parLevelManager">Parameter Level Managera - Typ LevelManager</param>
+        /// <param name="parEntity">Parameter Reprezentuje Entitu - Typ Entity</param>
+        public void CollisionHandler(GameTime parGameTime, LevelManager parLevelManager, Entity parEntity = null)
         {
-            if (aDictionaryPlayerData != null && aDictionaryPlayerData.Count > 0)
+
+            if (aDictionaryPlayerData != null && aDictionaryPlayerData.Count > 0 && aMyIdentifier != 0)
             {
-                foreach (KeyValuePair<long, ClientSide.PlayerClientData> dictItem in aDictionaryPlayerData.ToList())
+
+                if (parEntity == null) //Ak nezadame Entitu ako parameter, tak budeme predpokladat, ze sa jedna o nas - teda naseho hraca - nie spoluhraca
                 {
-                    //Prejdeme vsetky data v Dictionary
-                    {
-                        //Bude reprezentovat, poziciu TILU, kde by sa teda hrac nachadzal - pozor nie bloku!, Tile reprezentuje OBLAST jedneho bloku tzn
-                        //Napr. Block so suradnicami 0, 128 - Bude ekvivalentny Tilu so suradnicami 0, 2
-                        //Ak mame teda specifikovanu velkost blokov o 64px...
-
-                        int tmpMapBlockDimSize = parLevelManager.GetMapBlocksDimensionSize();
-
-                        float sizeOfPlayerX = dictItem.Value.Size.X * dictItem.Value.EntityScale;
-                        float sizeOfPLayerY = dictItem.Value.Size.Y * dictItem.Value.EntityScale;
-
-                        int tmpTilePositionX = (int)Math.Floor(dictItem.Value.GetAfterMoveVector2(gameTime).X / tmpMapBlockDimSize); //Zaciatocna X-ova Tile Suradnica - Vlavo
-                        int tmpTilePositionY = (int)Math.Floor(dictItem.Value.GetAfterMoveVector2(gameTime).Y / tmpMapBlockDimSize); //Zaciatocna Y-ova Tile Suradnica - Hore
-
-                        int tmpEndTilePositionX = (int)Math.Floor((dictItem.Value.GetAfterMoveVector2(gameTime).X + sizeOfPlayerX)/ tmpMapBlockDimSize); //Koncova X-ova Tile Suradnica - Vpravo
-                        int tmpEndTilePositionY = (int)Math.Floor((dictItem.Value.GetAfterMoveVector2(gameTime).Y + sizeOfPLayerY) / tmpMapBlockDimSize); //Koncova Y-ova Tile Suraadnica - Dole
-
-                        Debug.WriteLine(dictItem.Value.GetAfterMoveVector2(gameTime).X);
-                        
-                        //Vypocitame si kolko blokov zabera entita
-
-                      /*  int tmpWidth = (int)Math.Ceiling(sizeOfPlayerX / tmpMapBlockDimSize);
-                        int tmpHeight = (int)Math.Ceiling(sizeOfPLayerY / tmpMapBlockDimSize);
-
-                        if (tmpWidth < 1)
-                        {
-                            tmpWidth = 1;
-                        }
-
-                        if (tmpHeight < 1)
-                        {
-                            tmpHeight = 1;
-                        } */
-                       
-                        // float tmpNumberOfOccupiedBlocks = tmpWidth * tmpHeight;}}
-                        bool tmpIsBlocked = false;
-
-                        for (int i = tmpTilePositionX; i <= tmpEndTilePositionX; i++) //For Cyklus pre X-ovu Suradnicu, kde by v buducnosti stala Entita
-                        {
-                            for (int j = tmpTilePositionY; j <= tmpEndTilePositionY; j++) //FOr Cyklus pre Y-ovu Suradnicu, kde by v buducnosti stala Entita
-                            {
-             
-                                Vector2 tmpTilePositVector2 = new Vector2(i * tmpMapBlockDimSize, j * tmpMapBlockDimSize);
-                                if (parLevelManager.GetBlockByPosition(tmpTilePositVector2) != null) //Ak na takejto suradnici vobec nejaky blok existuje
-                                {
-                                    if (parLevelManager.GetBlockByPosition(tmpTilePositVector2).BlockCollisionType == BlockCollisionType.Wall) //Ak je prekazka typu WALL - Dojde ku kolizii
-                                    {
-                                        //Debug.Flush();
-                                        //Debug.WriteLine("Collision");
-                                        parLevelManager.GetBlockByPosition(tmpTilePositVector2).ChangeColor(true); /////////////// ZMAZAT
-                                        tmpIsBlocked = true;
-                                        dictItem.Value.IsBlocked = tmpIsBlocked;
-                                    }
-                                }
-                            }
-                        }
-                        dictItem.Value.IsBlocked = tmpIsBlocked;
-                    }
+                    parEntity = aDictionaryPlayerData[aMyIdentifier];
                 }
 
+                //Bude reprezentovat, poziciu TILU, kde by sa teda hrac nachadzal - pozor nie bloku!, Tile reprezentuje OBLAST jedneho bloku tzn
+                //Napr. Block so suradnicami 0, 128 - Bude ekvivalentny Tilu so suradnicami 0, 2
+                //Ak mame teda specifikovanu velkost blokov o 64px...
+
+                int tmpMapBlockDimSize = parLevelManager.GetMapBlocksDimensionSize();
+
+                float sizeOfPlayerX = parEntity.Size.X * parEntity.EntityScale;
+                float sizeOfPLayerY = parEntity.Size.Y * parEntity.EntityScale;
+
+                int tmpTilePositionX = (int)Math.Floor(parEntity.GetAfterMoveVector2(parGameTime).X / tmpMapBlockDimSize); //Zaciatocna X-ova Tile Suradnica - Vlavo
+                int tmpTilePositionY = (int)Math.Floor(parEntity.GetAfterMoveVector2(parGameTime).Y / tmpMapBlockDimSize); //Zaciatocna Y-ova Tile Suradnica - Hore
+
+                int tmpEndTilePositionX = (int)Math.Floor((parEntity.GetAfterMoveVector2(parGameTime).X + sizeOfPlayerX) / tmpMapBlockDimSize); //Koncova X-ova Tile Suradnica - Vpravo
+                int tmpEndTilePositionY = (int)Math.Floor((parEntity.GetAfterMoveVector2(parGameTime).Y + sizeOfPLayerY) / tmpMapBlockDimSize); //Koncova Y-ova Tile Suraadnica - Dole
+
+                //Debug.WriteLine(parEntity.GetAfterMoveVector2(parGameTime).X);
+
+                // float tmpNumberOfOccupiedBlocks = tmpWidth * tmpHeight;}}
+                bool tmpIsBlocked = false;
+                bool tmpIsSlowed = false;
+
+                for (int i = tmpTilePositionX; i <= tmpEndTilePositionX; i++) //For Cyklus pre X-ovu Suradnicu, kde by v buducnosti stala Entita
+                {
+                    for (int j = tmpTilePositionY; j <= tmpEndTilePositionY; j++) //FOr Cyklus pre Y-ovu Suradnicu, kde by v buducnosti stala Entita
+                    {
+
+                        Vector2 tmpTilePositVector2 = new Vector2(i * tmpMapBlockDimSize, j * tmpMapBlockDimSize);
+                        if (parLevelManager.GetBlockByPosition(tmpTilePositVector2) != null) //Ak na takejto suradnici vobec nejaky blok existuje
+                        {
+                            switch (parLevelManager.GetBlockByPosition(tmpTilePositVector2).BlockCollisionType)
+                            {
+                                case BlockCollisionType.None:
+                                    break;
+                                case BlockCollisionType.Wall: //Prekazka typu Stena
+                                    parLevelManager.GetBlockByPosition(tmpTilePositVector2).ChangeColor(true); /////////////// ZMAZAT
+                                    if (tmpIsBlocked == false) //Preto je tu tato podmienka, aby sme zabranili tomu, ze ak sa uz Entita detegovala jednu koliziu, neprepise ju..
+                                    {
+                                        tmpIsBlocked = true;
+                                        parEntity.IsBlocked = tmpIsBlocked;
+                                    }
+                                   
+                                    break;
+                                case BlockCollisionType.Slow: //Prekazka napr Voda
+                                    if (tmpIsSlowed == false) //Preto je tu tato podmienka, aby sme zabranili tomu, ze ak sa uz Entita detegovala jednu napr. vodu, neprepise ju..
+                                    {
+                                        tmpIsSlowed = true;
+                                    }
+                                    break;
+                                    
+                                case BlockCollisionType.Zap:
+                                    break;
+                                default:
+                                    throw new ArgumentOutOfRangeException();
+                            }
+                        }
+                    }
+                }
+                parEntity.IsBlocked = tmpIsBlocked;
+                parEntity.SlowDown(tmpIsSlowed); //Nastavi ci ma Entita spomalit alebo nie
+
             }
-
-
-
-            //Zajtra dorobit detekciu kolizie blokov
-            //Budu sa musiet prehladavat v Dictionary vsetky bloky na ktorych postava stoji
-
-
-            //P 1 - dictItem.Value.GetAfterMoveVector2().X < 
-            //P 2
-            //P 3
-            //P 4
-
-            //Po zaokruhleni, prekonvertujeme suradnice spat
-
-
-
-
-            //Takto nejako by sa riesila kolizia, ale ja to chcem zjednodusit a navyse s pristupom do Dictionary
-            /*  if (PLAY_X_AFTER < BLOCK_X + BLOCK_X_SIRKA &&
-                   PLAY_X_AFTER + BLOCK_X_SIRKA > BLOCK_X &&
-                   PLAY_Y_AFTER < BLOCK_Y + BLOCK_Y_SIRKA &&
-                   PLAY_Y_AFTER + BLOCK_Y_SIRKA > BLOCK_Y)
-            { */
-
         }
 
 
