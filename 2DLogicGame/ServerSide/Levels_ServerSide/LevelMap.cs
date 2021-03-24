@@ -38,8 +38,8 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
         public LevelMap(int parDefaultBlockDimension = 64)
         {
             aDefaultBlockDimension = parDefaultBlockDimension;
-            aBlockPositionDictionary = new Dictionary<Vector2, BlockServer>(30 * 16);
-            aBlockList = new List<BlockServer>(30 * 16);
+            aBlockPositionDictionary = new Dictionary<Vector2, BlockServer>(31 * 16);
+            aBlockList = new List<BlockServer>(31 * 16);
         }
 
         public void InitMap(List<BlockData> parBlockPositions)
@@ -70,7 +70,7 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
                     aBlockPositionDictionary.Add(tmpBlockPosition, tmpBarrierBlock);
                     aBlockList.Add(tmpBarrierBlock);
                 }
-                else
+                else 
                 {
                     //Blank
                 }

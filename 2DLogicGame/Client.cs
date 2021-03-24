@@ -475,6 +475,7 @@ namespace _2DLogicGame
                 // float tmpNumberOfOccupiedBlocks = tmpWidth * tmpHeight;}}
                 bool tmpIsBlocked = false;
                 bool tmpIsSlowed = false;
+                bool tmpButtonActivation = false;
 
                 for (int i = tmpTilePositionX; i <= tmpEndTilePositionX; i++) //For Cyklus pre X-ovu Suradnicu, kde by v buducnosti stala Entita
                 {
@@ -503,8 +504,19 @@ namespace _2DLogicGame
                                         tmpIsSlowed = true;
                                     }
                                     break;
-                                    
                                 case BlockCollisionType.Zap:
+                                    break;
+                                case BlockCollisionType.Button:
+
+                                    tmpButtonActivation = true;
+
+                                    if (parLevelManager.GetBlockByPosition(tmpTilePositVector2) is ButtonBlock)
+                                    {
+                                        ButtonBlock tmpButton = (ButtonBlock)parLevelManager.GetBlockByPosition(tmpTilePositVector2);
+                                        tmpButton.TurnOn(tmpButtonActivation, parGameTime);
+                                        
+                                    }
+
                                     break;
                                 default:
                                     throw new ArgumentOutOfRangeException();
@@ -514,6 +526,7 @@ namespace _2DLogicGame
                 }
                 parEntity.IsBlocked = tmpIsBlocked;
                 parEntity.SlowDown(tmpIsSlowed); //Nastavi ci ma Entita spomalit alebo nie
+
 
             }
         }

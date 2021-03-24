@@ -48,8 +48,8 @@ namespace _2DLogicGame.ClientSide.Levels
             aLogicGame = parLogicGame;
 
             aDefaultBlockDimension = parDefaultBlockDimension;
-            aBlockPositionDictionary = new Dictionary<Vector2, Block>(30 * 16);
-            aBlockList = new List<DrawableGameComponent>(30 * 16);
+            aBlockPositionDictionary = new Dictionary<Vector2, Block>(31 * 16);
+            aBlockList = new List<DrawableGameComponent>(31 * 16);
         }
 
         public void InitMap(List<BlockData> parBlockPositions)
@@ -69,7 +69,6 @@ namespace _2DLogicGame.ClientSide.Levels
                     WaterBlock tmpWaterBlock = new WaterBlock(aLogicGame, tmpBlockPosition);
                     aBlockPositionDictionary.Add(tmpBlockPosition, tmpWaterBlock);
                     aBlockList.Add(tmpWaterBlock);
-
                 }
                 else if (parBlockPositions[i].BlockName == "barrierBlock")
                 {
@@ -79,6 +78,29 @@ namespace _2DLogicGame.ClientSide.Levels
                     BarrierBlock tmpBarrierBlock = new BarrierBlock(aLogicGame, tmpBlockPosition);
                     aBlockPositionDictionary.Add(tmpBlockPosition, tmpBarrierBlock);
                     aBlockList.Add(tmpBarrierBlock);
+                }
+                else if (parBlockPositions[i].BlockName == "bridgeBlock")
+                {
+                    Vector2 tmpBlockPosition = new Vector2(parBlockPositions[i].Position.X * (aDefaultBlockDimension), parBlockPositions[i].Position.Y * (aDefaultBlockDimension));
+                    //Water Block inizializujeme s pouzitim Atributu hry a pozicie bloku
+                    BridgeBlock tmpBridgeBlock = new BridgeBlock(aLogicGame, tmpBlockPosition);
+                    aBlockPositionDictionary.Add(tmpBlockPosition, tmpBridgeBlock);
+                    aBlockList.Add(tmpBridgeBlock);
+                }
+                else if (parBlockPositions[i].BlockName == "endBlock")
+                {
+                    Vector2 tmpBlockPosition = new Vector2(parBlockPositions[i].Position.X * (aDefaultBlockDimension), parBlockPositions[i].Position.Y * (aDefaultBlockDimension));
+                    //Water Block inizializujeme s pouzitim Atributu hry a pozicie bloku
+                    EndBlock tmpEndBlock = new EndBlock(aLogicGame, tmpBlockPosition);
+                    aBlockPositionDictionary.Add(tmpBlockPosition, tmpEndBlock);
+                    aBlockList.Add(tmpEndBlock);
+                } else if (parBlockPositions[i].BlockName == "mathGenerateBlock")
+                {
+                    Vector2 tmpBlockPosition = new Vector2(parBlockPositions[i].Position.X * (aDefaultBlockDimension), parBlockPositions[i].Position.Y * (aDefaultBlockDimension));
+                    //Water Block inizializujeme s pouzitim Atributu hry a pozicie bloku
+                    ButtonBlock tmpButtonBlock = new ButtonBlock(aLogicGame, tmpBlockPosition);
+                    aBlockPositionDictionary.Add(tmpBlockPosition, tmpButtonBlock);
+                    aBlockList.Add(tmpButtonBlock);
                 }
                 else
                 {

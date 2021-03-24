@@ -190,7 +190,7 @@ namespace _2DLogicGame
                             aClientReadThread = new Thread(new ThreadStart(aClientClass.ReadMessages));
                             aClientReadThread.Start();
 
-                            aLevelManager.InitLevel("Levels\\level1");
+                            aLevelManager.InitLevel("Levels\\levelMath");
                            
                         }
                         else if (aMenu.TaskToExecute == MenuTasksToBeExecuted.Play_Start)
@@ -205,7 +205,7 @@ namespace _2DLogicGame
                             aClientReadThread = new Thread(new ThreadStart(aClientClass.ReadMessages));
                             aClientReadThread.Start();
 
-                            aLevelManager.InitLevel("Levels\\level1");
+                            aLevelManager.InitLevel("Levels\\levelMath");
                         }
                         
                         break;

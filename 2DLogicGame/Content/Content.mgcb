@@ -26,6 +26,11 @@
 /processor:PassThroughProcessor
 /build:Levels/level1.xml
 
+#begin Levels/levelMath.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:Levels/levelMath.xml
+
 #begin Sprites/Backgrounds/InputBCK.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -61,6 +66,42 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Sprites/Blocks/barrierBlock.png
+
+#begin Sprites/Blocks/bridgeBlock.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Blocks/bridgeBlock.png
+
+#begin Sprites/Blocks/buttonBlock.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Blocks/buttonBlock.png
+
+#begin Sprites/Blocks/endBlock.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Blocks/endBlock.png
 
 #begin Sprites/Blocks/waterBlock.png
 /importer:TextureImporter

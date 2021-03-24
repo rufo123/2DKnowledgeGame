@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XMLData", "XMLData\XMLData.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LevelCreator", "LevelCreator\LevelCreator.csproj", "{A300462B-929A-4F85-90C1-D7D577E5CDB0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "2DLogicGameUnit", "2DLogicGameUnit\2DLogicGameUnit.csproj", "{5AB4D011-CAEB-4CAC-83BB-C98493310604}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{A300462B-929A-4F85-90C1-D7D577E5CDB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A300462B-929A-4F85-90C1-D7D577E5CDB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A300462B-929A-4F85-90C1-D7D577E5CDB0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5AB4D011-CAEB-4CAC-83BB-C98493310604}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5AB4D011-CAEB-4CAC-83BB-C98493310604}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5AB4D011-CAEB-4CAC-83BB-C98493310604}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5AB4D011-CAEB-4CAC-83BB-C98493310604}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

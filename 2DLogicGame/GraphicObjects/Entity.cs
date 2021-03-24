@@ -219,7 +219,6 @@ namespace _2DLogicGame.GraphicObjects
         public void Move(GameTime gameTime)
         {
 
-
             if (aIsTryingToMove)
             {
 
@@ -297,7 +296,6 @@ namespace _2DLogicGame.GraphicObjects
             {
                 tmpTimeThreshold = (int)(tmpTimeThreshold * (aDefaultSpeed / aSpeed));
             }
-
 
 
             if (IsBlocked == false) //Ak entita narazila na barieru, nebude sa prepinat animacia pohybu..

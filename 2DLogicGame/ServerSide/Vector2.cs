@@ -20,8 +20,17 @@ namespace _2DLogicGame.ServerSide
             aVectorY = parSurY;
         }
 
-        public float X { get => aVectorX; set => aVectorX = value; }
-        public float Y { get => aVectorY; set => aVectorY = value; }
+        public float X
+        {
+            get => aVectorX;
+            set => aVectorX = value;
+        }
+
+        public float Y
+        {
+            get => aVectorY;
+            set => aVectorY = value;
+        }
 
         //Vygenerovane
         public override bool Equals(object obj)
@@ -49,9 +58,11 @@ namespace _2DLogicGame.ServerSide
         /// <returns>Vrati Vector - Vysledok Scitania</returns>
         public static Vector2 operator +(Vector2 parHodn1, Vector2 parHodn2)
         {
+
             float tmpSumX = parHodn1.X + parHodn2.X;
             float tmpSumY = parHodn1.Y + parHodn2.Y;
             return new Vector2(tmpSumX, tmpSumY);
+
         }
 
         /// <summary>

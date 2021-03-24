@@ -21,9 +21,9 @@ namespace LevelCreator
     class Creator
     {
         /// <summary>
-        /// Atribut Dictionary - Bude nam sluzit na uchovananie mien blokov...
+        /// Atribut Dictionary - Bude nam sluzit na uchovananie dat o blokoch...
         /// </summary>
-        private Dictionary<char, string> aBlockDictionary;
+        private Dictionary<char, BlockData> aBlockDictionary;
 
         /// <summary>
         /// Atribut Dictionary - Ako kluc je pozicia bloku a hodnota je nazov bloku
@@ -36,7 +36,7 @@ namespace LevelCreator
         public Creator()
         {
 
-            aBlockDictionary = new Dictionary<char, string>();
+            aBlockDictionary = new Dictionary<char, BlockData>();
 
             XMLData.LevelMaker tmpNewLevel = new XMLData.LevelMaker();
 
@@ -89,23 +89,35 @@ namespace LevelCreator
                         Console.WriteLine();
                         Console.WriteLine("Zadaj meno pre znak " + tmpReadChar);
                         Console.WriteLine();
-                        string tmpNameOfBlock = Console.ReadLine();
+                        string tmpNameOfBlock = Console.ReadLine(); //Nazov Bloku - napr. waterBlock
 
+                        Console.WriteLine("Zadajte doplnujuce informacie o bloku (Enter -> Ziadne)");
 
-                        aBlockDictionary.Add(tmpReadChar, tmpNameOfBlock);
+                        string tmpAdditionalData = Console.ReadLine(); //Doplnujuce udaje o bloku - ako napr. Cislo Mostu...
+
+                        BlockData tmpNewBlockData = new BlockData();
+                        tmpNewBlockData.BlockName = tmpNameOfBlock;
+
+                        if (!string.IsNullOrEmpty(tmpAdditionalData)) //Ak sme zadali nejake doplnujuce udaje o bloku, tak ich aj ulozime
+                        {
+                            tmpNewBlockData.AdditionalData = tmpAdditionalData;
+                        }
+
+                        aBlockDictionary.Add(tmpReadChar, tmpNewBlockData);
 
                         Console.WriteLine("Znak " + tmpReadChar + " bude teraz definovany ako " + tmpNameOfBlock);
                         Console.WriteLine("--------------------------------------------------------------------");
 
                     }
 
-                    Console.WriteLine("Blok - " + aBlockDictionary[tmpReadChar] + " X " + aPositionX + " Y " + aPositionY);
+                    Console.WriteLine("Blok - " + aBlockDictionary[tmpReadChar].BlockName + " X " + aPositionX + " Y " + aPositionY);
 
                     // tmpNewLevel.BlockPositionDictionary.Add(new Vector2(aPositionX, aPositionY), aBlockDictionary[tmpReadChar]); //Pocitam s tym, ze pozicie nebudu rovnake
 
                     BlockData tmpBlockData = new BlockData();
-                    tmpBlockData.BlockName = aBlockDictionary[tmpReadChar];
+                    tmpBlockData.BlockName = aBlockDictionary[tmpReadChar].BlockName;
                     tmpBlockData.Position = new Vector2(aPositionX, aPositionY);
+                    tmpBlockData.AdditionalData = aBlockDictionary[tmpReadChar].AdditionalData;
 
                     tmpNewLevel.BlockDataList.Add(tmpBlockData);
                     aPositionX++; //Po nacitani bloku, zvysime X-ovu suradnicu

@@ -114,7 +114,7 @@ namespace _2DLogicGame
 
             aDictionaryPlayerData = new Dictionary<long, ServerSide.PlayerServerData>(aMaxPlayers);
 
-            aLevelManager.InitLevel("Levels\\level1");
+            aLevelManager.InitLevel("Levels\\levelMath");
 
             aStopWatch = new Stopwatch();
 

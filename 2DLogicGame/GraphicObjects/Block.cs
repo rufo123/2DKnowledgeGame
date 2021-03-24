@@ -16,7 +16,8 @@ namespace _2DLogicGame.GraphicObjects
         None = 0,
         Wall = 1,
         Slow = 2,
-        Zap = 3
+        Zap = 3,
+        Button = 4
     }
 
 
@@ -41,6 +42,12 @@ namespace _2DLogicGame.GraphicObjects
         /// Atribut, reprezentujuci ci sa jedna o animovany blok alebo nie
         /// </summary>
         private bool aIsAnimated;
+
+        /// <summary>
+        /// Atribut, reprezentujuci ci ma blok rozne "staty"(eng), napr. inu texturu ked na nom niekto stoji a inu v pravy opak
+        /// Atribut nie je potrebne nastavovat na true, v pripade ak uz je nastaveny atribut aIsAnimated na true
+        /// </summary>
+        private bool aHasStates;
 
         /// <summary>
         /// Atribut, reprezentujuci pocet framov animacie
@@ -77,8 +84,20 @@ namespace _2DLogicGame.GraphicObjects
         /// </summary>
         private bool aAnimateForwards = true;
 
+        // Atribut, ktory reprezentuje, casovac, ktory pocita cas od kedy sa zmenil stav - textura bloku
+        private float aTimerStateChanged = 0F;
+
+        public float TimerStateChanged { get => aTimerStateChanged; set => aTimerStateChanged = value; }
+
 
         private Color zmazatColor = Color.White;
+
+        /// <summary>
+        /// Atribut, reprezentujuci - v akej vyske sa vykresli Block v zavislosti od druhych vykreslenych Spritov - Typ float - Default 1F
+        /// </summary>
+        private float aLayerDepth = 1F;
+
+        public float LayerDepth { get => aLayerDepth; set => aLayerDepth = value; }
 
         /// <summary>
         /// Atribut, ktory reprezentuje informacie o tom, ci sa jedna o kolizny objekt alebo nie
@@ -116,15 +135,24 @@ namespace _2DLogicGame.GraphicObjects
         /// <param name="parPosition">Parameter Pozicie -Typ Vector2</param>
         /// <param name="parTexture">Volitelny Parameter Textury - Typ Texture2D</param>
         /// <param name="parIsAnimated">Volitelny Parameter - Reprezentujuci ci je blok animovany - Typ Bool</param>
+        /// <param name="parHasStates">Volitelny Parameter - Reprezentujuci, ci sa jedna o blok, ktory ma viac "statov"(eng) - stadii, netreba ho nastavovat na true, v pripade ak uz je paramter parIsAnimated true</param>
         /// <param name="parCountOfFrames">Volitelny Parameter - Reprezentujuci pocet framov animacie - Typ Int</param>
         /// <param name="parCollisionType">Volitelny Parameter - Reprezentujuci o aky typ kolizie sa jedna - Typ BlockCollisionType - Enum</param>
-        public Block(LogicGame parGame, Vector2 parPosition, Texture2D parTexture = null, bool parIsAnimated = false, int parCountOfFrames = 0, BlockCollisionType parCollisionType = BlockCollisionType.None) : base(parGame)
+        public Block(LogicGame parGame, Vector2 parPosition, Texture2D parTexture = null, bool parIsAnimated = false, bool parHasStates = false, int parCountOfFrames = 0, BlockCollisionType parCollisionType = BlockCollisionType.None) : base(parGame)
         {
             aGame = parGame;
             aPosition = parPosition;
             aIsAnimated = parIsAnimated;
             aCountOfFrames = parCountOfFrames;
             aBlockCollisionType = parCollisionType;
+            aTimerStateChanged = 0F;
+
+            aHasStates = parHasStates;
+
+            if (parIsAnimated == true) //V pripade, ze je blok animovany, je samozrejme ze ma aj urcite stadia
+            {
+                aHasStates = true;
+            }
 
             if (parTexture != null)
             {
@@ -144,7 +172,7 @@ namespace _2DLogicGame.GraphicObjects
             {
                 aTexture = aGame.Content.Load<Texture2D>(aImageLocation);
 
-                if (aIsAnimated == true && aCountOfFrames != 0) //V pripade koretne animovaneho bloku
+                if ((aIsAnimated == true || aHasStates == true) && aCountOfFrames != 0) //V pripade koretne animovaneho bloku
                 {
                     int tmpTextureFrameWidth = aTexture.Width / aCountOfFrames;
                     int tmpTextureFrameHeight = aTexture.Height;
@@ -171,9 +199,9 @@ namespace _2DLogicGame.GraphicObjects
         /// <param name="gameTime">Parameter reprezentujuci cas hry - typ GameTime</param>
         public override void Draw(GameTime gameTime)
         {
-            if (aTexture != null )
+            if (aTexture != null)
             {
-                aGame.SpriteBatch.Draw(aTexture, aPosition, aRectangle, zmazatColor, 0F, Vector2.Zero, 1F, SpriteEffects.None, 1F);
+                aGame.SpriteBatch.Draw(aTexture, aPosition, aRectangle, zmazatColor, 0F, Vector2.Zero, 1F, SpriteEffects.None, aLayerDepth);
             }
 
             base.Draw(gameTime);
@@ -194,6 +222,15 @@ namespace _2DLogicGame.GraphicObjects
                     SwitchAnimation();
                     aAnimationTimer = 0;
                 }
+            }
+            if (aHasStates && aTimerStateChanged > 50)
+            {
+                ResetState(true);
+                aTimerStateChanged = 0;
+            }
+            else if (aHasStates && aTimerStateChanged > 0F)
+            {
+                aTimerStateChanged += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
             }
 
             base.Update(gameTime);
@@ -228,6 +265,31 @@ namespace _2DLogicGame.GraphicObjects
             }
 
 
+        }
+
+        /// <summary>
+        /// Metoda, ktora sluzi na prepinanie "statov" textur blokov
+        /// Zaroven metoda zapocne pocitanie casu od peslednej zmeny textury bloku
+        /// </summary>
+        /// <param name="parStateNumber">Parameter reprezentujuci </param>
+        /// <param name="parTime">Parameter reprezentujuci Ubehnute Milisekundy</param>
+        public void SwitchState(int parStateNumber, float parTime)
+        {
+            aTimerStateChanged = parTime;
+            aRectangle.X = (aRectangle.Size.X * parStateNumber - 1) + 1;
+        }
+
+        /// <summary>
+        /// Metoda, ktora sluzi na reset statov bloku, resp posunie suradnicu rectanglu bloku na X - 0
+        /// </summary>
+        /// <param name="parReset"></param>
+        public void ResetState(bool parReset)
+        {
+            if (parReset)
+            {
+                aRectangle.X = 0;
+                aTimerStateChanged = 0F;
+            }
         }
 
         /// <summary>

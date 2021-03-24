@@ -31,8 +31,6 @@ namespace XMLData
 
     }
 
-
-    
     public class BlockData
     {
         [XmlElement(elementName: "Position")]
@@ -40,5 +38,9 @@ namespace XMLData
 
         [XmlElement(elementName: "BlockName")]
         public string BlockName;
+
+        [ContentSerializer(Optional = true)]
+        [XmlElement(elementName: "AdditionalData")]
+        public string AdditionalData;
     }
 }
