@@ -8,7 +8,7 @@ using System.Text;
 
 namespace _2DLogicGame.GraphicObjects
 {
-    class PlayerController : GameComponent
+    public class PlayerController : GameComponent
     {
 
 

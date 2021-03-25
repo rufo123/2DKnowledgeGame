@@ -6,7 +6,7 @@ using System.Text;
 
 namespace _2DLogicGame.GraphicObjects
 {
-    class MovableBlock : Block
+    public class MovableBlock : Block
     {
         public enum Direction
         {

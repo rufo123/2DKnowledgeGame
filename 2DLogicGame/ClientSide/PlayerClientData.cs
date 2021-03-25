@@ -9,7 +9,7 @@ namespace _2DLogicGame.ClientSide
 
 
 
-    class PlayerClientData : GraphicObjects.Entity
+    public class PlayerClientData : GraphicObjects.Entity
     {
 
         /// <summary>

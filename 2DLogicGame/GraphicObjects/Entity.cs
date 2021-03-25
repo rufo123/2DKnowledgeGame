@@ -8,7 +8,7 @@ using System.Text;
 
 namespace _2DLogicGame.GraphicObjects
 {
-    class Entity : DrawableGameComponent
+    public class Entity : DrawableGameComponent
     {
         public enum Direction
         {

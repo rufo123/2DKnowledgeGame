@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace _2DLogicGame.GraphicObjects
 {
-    class EndBlock : Block
+    public class EndBlock : Block
     {
         public EndBlock(LogicGame parGame, Vector2 parPosition, Texture2D parTexture = null) : base(parGame, parPosition, parTexture, parCollisionType: BlockCollisionType.None)
         {

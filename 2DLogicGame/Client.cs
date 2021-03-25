@@ -15,7 +15,7 @@ namespace _2DLogicGame
 
 
 
-    class Client
+    public class Client
     {
 
         private NetClient aClient;
@@ -477,6 +477,9 @@ namespace _2DLogicGame
                 bool tmpIsSlowed = false;
                 bool tmpButtonActivation = false;
 
+
+                
+
                 for (int i = tmpTilePositionX; i <= tmpEndTilePositionX; i++) //For Cyklus pre X-ovu Suradnicu, kde by v buducnosti stala Entita
                 {
                     for (int j = tmpTilePositionY; j <= tmpEndTilePositionY; j++) //FOr Cyklus pre Y-ovu Suradnicu, kde by v buducnosti stala Entita
@@ -510,11 +513,11 @@ namespace _2DLogicGame
 
                                     tmpButtonActivation = true;
 
-                                    if (parLevelManager.GetBlockByPosition(tmpTilePositVector2) is ButtonBlock)
+                                    if (parLevelManager.GetBlockByPosition(tmpTilePositVector2) is ButtonBlock) //Najprv si porovname, či ziskaný block je typu ButtonBlock
                                     {
-                                        ButtonBlock tmpButton = (ButtonBlock)parLevelManager.GetBlockByPosition(tmpTilePositVector2);
-                                        tmpButton.TurnOn(tmpButtonActivation, parGameTime);
-                                        
+                                        ButtonBlock tmpButton = (ButtonBlock)parLevelManager.GetBlockByPosition(tmpTilePositVector2); //Ak je, mozeme ho pretypovat naspat - tkzv. DownCasting - Tu je to bezpecne, lebo vieme ze pojde urcite o ButtonBlock
+                                        tmpButton.TurnOn(tmpButtonActivation, parGameTime); //Nasledne si zavolame metodu, ktora "zapne"
+
                                     }
 
                                     break;

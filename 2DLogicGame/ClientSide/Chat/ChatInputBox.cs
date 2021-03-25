@@ -8,7 +8,7 @@ using System.Text;
 
 namespace _2DLogicGame.ClientSide.Chat
 {
-    class ChatInputBox : Microsoft.Xna.Framework.DrawableGameComponent
+    public class ChatInputBox : Microsoft.Xna.Framework.DrawableGameComponent
     {
         /// <summary>
         /// Objekt Hra - typ LogicGame

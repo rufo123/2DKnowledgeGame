@@ -7,7 +7,7 @@ using System.Text;
 
 namespace _2DLogicGame.ClientSide.Chat
 {
-    class ChatReceiveBox : Microsoft.Xna.Framework.DrawableGameComponent
+    public class ChatReceiveBox : Microsoft.Xna.Framework.DrawableGameComponent
     {
         /// <summary>
         /// Atribut Hry - typ LogicGame

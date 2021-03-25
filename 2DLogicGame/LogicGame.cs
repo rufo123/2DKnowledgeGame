@@ -60,7 +60,8 @@ namespace _2DLogicGame
 
 
 
-        
+
+
 
         private float aScale = 1F;
 
@@ -119,7 +120,6 @@ namespace _2DLogicGame
             aChat = new ClientSide.Chat.Chat(this, chatInput, chatReceive);
             //Player tmpPlayer = new Player(0, this, new Vector2(800, 500), new Vector2(49, 64), Color.White);
             //PlayerController tmpController = new PlayerController(this, tmpPlayer);
-            
 
             aPlayingScreen = new ComponentCollection(this, aChat, chatInput, chatReceive);
 
@@ -128,7 +128,12 @@ namespace _2DLogicGame
             // Components.Add(tmpController);
 
             aLevelManager = new LevelManager(this, aPlayingScreen);
+
+
             
+
+            
+
 
 
             base.Initialize();
@@ -190,8 +195,10 @@ namespace _2DLogicGame
                             aClientReadThread = new Thread(new ThreadStart(aClientClass.ReadMessages));
                             aClientReadThread.Start();
 
-                            aLevelManager.InitLevel("Levels\\levelMath");
-                           
+                            aLevelManager.InitLevelByNumber(1);
+
+                            
+
                         }
                         else if (aMenu.TaskToExecute == MenuTasksToBeExecuted.Play_Start)
                         {
@@ -206,6 +213,8 @@ namespace _2DLogicGame
                             aClientReadThread.Start();
 
                             aLevelManager.InitLevel("Levels\\levelMath");
+
+                            
                         }
                         
                         break;

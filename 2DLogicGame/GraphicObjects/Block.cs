@@ -21,7 +21,7 @@ namespace _2DLogicGame.GraphicObjects
     }
 
 
-    class Block : DrawableGameComponent
+    public class Block : DrawableGameComponent
     {
         /// <summary>
         /// Atribut reprezentujuci poziciu bloku - Typ Vector2
@@ -87,10 +87,14 @@ namespace _2DLogicGame.GraphicObjects
         // Atribut, ktory reprezentuje, casovac, ktory pocita cas od kedy sa zmenil stav - textura bloku
         private float aTimerStateChanged = 0F;
 
-        public float TimerStateChanged { get => aTimerStateChanged; set => aTimerStateChanged = value; }
+        private Color aColor = Color.White;
 
+        private float aVisibility = 1F;
 
-        private Color zmazatColor = Color.White;
+        /// <summary>
+        /// Atribut, reprezentuje ci sa textura bloku nachadza v prvom stadiu - v pripade statickeho bloku bude vzdy true
+        /// </summary>
+        private bool aTextureIsOnFirstState = true;
 
         /// <summary>
         /// Atribut, reprezentujuci - v akej vyske sa vykresli Block v zavislosti od druhych vykreslenych Spritov - Typ float - Default 1F
@@ -98,6 +102,8 @@ namespace _2DLogicGame.GraphicObjects
         private float aLayerDepth = 1F;
 
         public float LayerDepth { get => aLayerDepth; set => aLayerDepth = value; }
+
+        private bool aIsHidden = false;
 
         /// <summary>
         /// Atribut, ktory reprezentuje informacie o tom, ci sa jedna o kolizny objekt alebo nie
@@ -127,6 +133,27 @@ namespace _2DLogicGame.GraphicObjects
             set => aCountOfFrames = value;
         }
 
+        public float TimerStateChanged
+        {
+            get => aTimerStateChanged; 
+            set => aTimerStateChanged = value;
+        }
+        public bool TextureIsOnFirstState
+        {
+            get => aTextureIsOnFirstState;
+            set => aTextureIsOnFirstState = value;
+        }
+        public bool IsHidden
+        {
+            get => aIsHidden;
+            set => aIsHidden = value;
+        }
+        public float Visibility
+        {
+            get => aVisibility;
+            set => aVisibility = value;
+        }
+
 
         /// <summary>
         /// Trieda reprezentujuca Blok, ktory je specifikovany poziciou a pokial pouzivatel potrebuje, moze hned inicializovat aj Texturu
@@ -146,6 +173,7 @@ namespace _2DLogicGame.GraphicObjects
             aCountOfFrames = parCountOfFrames;
             aBlockCollisionType = parCollisionType;
             aTimerStateChanged = 0F;
+            aTextureIsOnFirstState = true;
 
             aHasStates = parHasStates;
 
@@ -199,9 +227,9 @@ namespace _2DLogicGame.GraphicObjects
         /// <param name="gameTime">Parameter reprezentujuci cas hry - typ GameTime</param>
         public override void Draw(GameTime gameTime)
         {
-            if (aTexture != null)
+            if (aTexture != null && aIsHidden == false)
             {
-                aGame.SpriteBatch.Draw(aTexture, aPosition, aRectangle, zmazatColor, 0F, Vector2.Zero, 1F, SpriteEffects.None, aLayerDepth);
+                aGame.SpriteBatch.Draw(aTexture, aPosition, aRectangle, aColor * Visibility, 0F, Vector2.Zero, 1F, SpriteEffects.None, aLayerDepth);
             }
 
             base.Draw(gameTime);
@@ -277,6 +305,7 @@ namespace _2DLogicGame.GraphicObjects
         {
             aTimerStateChanged = parTime;
             aRectangle.X = (aRectangle.Size.X * parStateNumber - 1) + 1;
+            aTextureIsOnFirstState = false;
         }
 
         /// <summary>
@@ -289,6 +318,7 @@ namespace _2DLogicGame.GraphicObjects
             {
                 aRectangle.X = 0;
                 aTimerStateChanged = 0F;
+                aTextureIsOnFirstState = true;
             }
         }
 
@@ -344,13 +374,13 @@ namespace _2DLogicGame.GraphicObjects
         /// <param name="par">DEBUG ONLY</param>
         public void ChangeColor(bool par)
         {
-            if (zmazatColor == Color.White)
+            if (aColor == Color.White)
             {
-                zmazatColor = Color.Red;
+                aColor = Color.Red;
             }
             else
             {
-                zmazatColor = Color.White;
+                aColor = Color.White;
             }
         }
     }

@@ -14,7 +14,7 @@ namespace _2DLogicGame.ClientSide.Chat
     Purple = 3
     }
 
-    class Chat : Microsoft.Xna.Framework.DrawableGameComponent
+    public class Chat : Microsoft.Xna.Framework.DrawableGameComponent
     {
         /// <summary>
         /// Atribut Hry

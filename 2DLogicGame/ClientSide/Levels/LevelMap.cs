@@ -6,10 +6,11 @@ using _2DLogicGame.GraphicObjects;
 using Microsoft.Xna.Framework;
 using XMLData;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
+// ReSharper disable InvalidXmlDocComment
 
 namespace _2DLogicGame.ClientSide.Levels
 {
-    class LevelMap
+    public class LevelMap
     {
 
         /// <summary>
@@ -26,11 +27,15 @@ namespace _2DLogicGame.ClientSide.Levels
         /// </summary>
         private List<DrawableGameComponent> aBlockList;
 
-
         /// <summary>
         /// Atribut - LogicGame - Hra
         /// </summary>
         private LogicGame aLogicGame;
+
+        /// <summary>
+        /// Atribut reprezentujuci manazer matematickeho problemu - typ MathProblemManager
+        /// </summary>
+        private MathProblemManager aMathProblemManager;
 
         /// <summary>
         /// Atribut, Reprezentujuci Vysku a Sirku Blokov, napr 64 - Defaultne
@@ -43,17 +48,32 @@ namespace _2DLogicGame.ClientSide.Levels
             set => aDefaultBlockDimension = value;
         }
 
+        /// <summary>
+        /// Konstruktor, reprezentujuci mapu levelu
+        /// Inicializuje Hru, Defaultnu Velkost bloku, Dictionary pozicii blokov a List Blokov
+        /// </summary>
+        /// <param name="parLogicGame">Paramter reprezentujuci hru - typ LogicGame</param>
+        /// <param name="parDefaultBlockDimension">Parameter reprezentujuci prednastavenu velkost bloku - typ Int (sirka a vyska je rovnaka)</param>
         public LevelMap(LogicGame parLogicGame, int parDefaultBlockDimension = 64)
         {
             aLogicGame = parLogicGame;
-
             aDefaultBlockDimension = parDefaultBlockDimension;
             aBlockPositionDictionary = new Dictionary<Vector2, Block>(31 * 16);
             aBlockList = new List<DrawableGameComponent>(31 * 16);
         }
 
-        public void InitMap(List<BlockData> parBlockPositions)
+        /// <summary>
+        /// Metoda, ktora Inicializuje mapu pomocou zadaneho Listu dat o Blokoch - typ List<BlockData>
+        /// </summary>
+        /// <param name="parBlockPositions">Parameter reprezentujuci List Dat o blokoch - typ List<BlockData></param>
+        /// <param name="parLevelName"></param>
+        public void InitMap(List<BlockData> parBlockPositions, string parLevelName)
         {
+            if (parLevelName == "Math") //Ak ide o level typu Math, potrebujeme vytvorit manazera Matematickeho Problemu
+            {
+                aMathProblemManager = new MathProblemManager(aLogicGame); 
+            }
+
             for (int i = 0; i < parBlockPositions.Count; i++)
             {
                 if (parBlockPositions[i].BlockName == "waterBlock")
@@ -82,31 +102,47 @@ namespace _2DLogicGame.ClientSide.Levels
                 else if (parBlockPositions[i].BlockName == "bridgeBlock")
                 {
                     Vector2 tmpBlockPosition = new Vector2(parBlockPositions[i].Position.X * (aDefaultBlockDimension), parBlockPositions[i].Position.Y * (aDefaultBlockDimension));
-                    //Water Block inizializujeme s pouzitim Atributu hry a pozicie bloku
                     BridgeBlock tmpBridgeBlock = new BridgeBlock(aLogicGame, tmpBlockPosition);
                     aBlockPositionDictionary.Add(tmpBlockPosition, tmpBridgeBlock);
                     aBlockList.Add(tmpBridgeBlock);
+
+                    if (aMathProblemManager != null && parLevelName == "Math" && parBlockPositions[i].AdditionalData != null) //Ak vieme ze pojde o level typu Math, odosleme MathProblem manazeru, informacie o Bridge Blokoch
+                    {
+                        int tmpBridgeSubNumber = 0;
+                        Int32.TryParse(parBlockPositions[i].AdditionalData, out tmpBridgeSubNumber);
+                        aMathProblemManager.AddBridge(tmpBridgeBlock, tmpBridgeSubNumber);
+                    }
+
                 }
                 else if (parBlockPositions[i].BlockName == "endBlock")
                 {
                     Vector2 tmpBlockPosition = new Vector2(parBlockPositions[i].Position.X * (aDefaultBlockDimension), parBlockPositions[i].Position.Y * (aDefaultBlockDimension));
-                    //Water Block inizializujeme s pouzitim Atributu hry a pozicie bloku
                     EndBlock tmpEndBlock = new EndBlock(aLogicGame, tmpBlockPosition);
                     aBlockPositionDictionary.Add(tmpBlockPosition, tmpEndBlock);
                     aBlockList.Add(tmpEndBlock);
                 } else if (parBlockPositions[i].BlockName == "mathGenerateBlock")
                 {
                     Vector2 tmpBlockPosition = new Vector2(parBlockPositions[i].Position.X * (aDefaultBlockDimension), parBlockPositions[i].Position.Y * (aDefaultBlockDimension));
-                    //Water Block inizializujeme s pouzitim Atributu hry a pozicie bloku
                     ButtonBlock tmpButtonBlock = new ButtonBlock(aLogicGame, tmpBlockPosition);
                     aBlockPositionDictionary.Add(tmpBlockPosition, tmpButtonBlock);
                     aBlockList.Add(tmpButtonBlock);
+
+                    if (aMathProblemManager != null && parLevelName == "Math") //Ak vieme ze pojde o level typu Math, odosleme MathProblem manazeru, informacie o Button Blokoch
+                    {
+                        aMathProblemManager.AddButton(tmpButtonBlock);
+                    }
                 }
                 else
                 {
                     //Blank
                 }
 
+            }
+
+            if (aMathProblemManager != null) //Ak existuje Math Problem Manazer, odosleme informaciu o tom ze sa uz cely level nacital a pridame ho do GameComponentov, tu treba dat pozor aj na odobranie 
+            {//z komponentov pri zmene levelu alebo ukonceni hry
+                aMathProblemManager.CompletelyLoaded = true;
+                aLogicGame.Components.Add(aMathProblemManager);
             }
         }
 

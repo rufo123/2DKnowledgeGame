@@ -16,7 +16,7 @@ using Vector2 = Microsoft.Xna.Framework.Vector2;
 namespace _2DLogicGame.ClientSide.Levels
 {
 
-    class LevelManager
+    public class LevelManager
     {
         /// <summary>
         /// Atribut List - typu BlockData (z XMLData) - Reprezentuje Suradnice a Mena Blokov pre nacitanie
@@ -39,9 +39,14 @@ namespace _2DLogicGame.ClientSide.Levels
         private LevelMap aLevelMap;
 
         /// <summary>
-        /// Boolean, ktory reprezentuje, ci je Level Nacitany alebo nie
+        /// Atribut - Boolean, ktory reprezentuje, ci je Level Nacitany alebo nie
         /// </summary>
         private bool aIsLevelInitalized = false;
+
+        /// <summary>
+        /// Atribut reprezentuje nazov levelu - typ string
+        /// </summary>
+        private string aLevelName;
 
         public bool IsLevelInitalized
         {
@@ -49,7 +54,11 @@ namespace _2DLogicGame.ClientSide.Levels
             set => aIsLevelInitalized = value;
         }
 
-
+        /// <summary>
+        /// Konstruktor LevelManageru -
+        /// </summary>
+        /// <param name="parLogicGame">Parameter reprezentujuci hru - typu LogicGame</param>
+        /// <param name="parPlayingScreenComponentCollection">Paramter reprezentujuci kolekciu komponentov na hracej obrazovke - typ ComponentCollection</param>
         public LevelManager(LogicGame parLogicGame, ComponentCollection parPlayingScreenComponentCollection)
         {
             aLogicGame = parLogicGame;
@@ -58,6 +67,11 @@ namespace _2DLogicGame.ClientSide.Levels
             aLevelMap = new LevelMap(parLogicGame);
         }
 
+        /// <summary>
+        /// Metoda, ktora nacitava level data z XML suboru
+        /// </summary>
+        /// <param name="parLevelXmlPath">Parameter reprezentujuci cestu k XML suboru - typ string</param>
+        /// <returns>Vrati hodnotu true ak metoda prebehla uspesne, inak false</returns>
         public bool LoadBlockXmlData(string parLevelXmlPath)
         {
 
@@ -77,6 +91,7 @@ namespace _2DLogicGame.ClientSide.Levels
             if (tmpLevel != null) //Ak sa nam uspesne podarilo nacitat XML subor s levelom
             {
                 aLevelBlockData = tmpLevel.BlockDataList; //Pridatime Data o Blokoch do Listu
+                aLevelName = tmpLevel.LevelName;
                 return true;
             }
 
@@ -84,15 +99,36 @@ namespace _2DLogicGame.ClientSide.Levels
 
         }
 
+        /// <summary>
+        /// Metoda, ktora inicializuje level na zaklade cesty k XML suboru
+        /// </summary>
+        /// <param name="parLevelXmlPath">Paramter reprezentujuci cestu k XML suboru - typ string</param>
         public void InitLevel(string parLevelXmlPath)
         {
             LoadBlockXmlData(parLevelXmlPath: parLevelXmlPath); //Nacitame do Listu data o blokoch
 
-            aLevelMap.InitMap(aLevelBlockData); //Inicializujeme si Data o Blokoch
+            aLevelMap.InitMap(aLevelBlockData, aLevelName); //Inicializujeme si Data o Blokoch
 
             aPlayScreenComponentCollection.AddComponents(aLevelMap.GetBLockList());
 
             aIsLevelInitalized = true;
+        }
+
+        /// <summary>
+        /// Metoda, ktora nacita level, pomocou zadaneho cisla levelu, ak existuje nacita sa, pokial nie nenacita sa
+        /// </summary>
+        /// <param name="parLevelNumber">Parameter reprezentujuci cislo levelu - typ int</param>
+        public void InitLevelByNumber(int parLevelNumber)
+        {
+            switch (parLevelNumber)
+            {
+                case 1:
+                    InitLevel("Levels\\levelMath");
+
+                    break;
+                default:
+                    break;
+            }
         }
 
         /// <summary>
@@ -113,13 +149,17 @@ namespace _2DLogicGame.ClientSide.Levels
             return aLevelMap.GetBlocksPositionDictionary();
         }
 
+        /// <summary>
+        /// Metoda, ktora vrati Block, podla zadaneho Vektora reprezentujuceho poziciu
+        /// </summary>
+        /// <param name="parBlockPositionVector">Paramter reprezentujuci poziciu bloku reprezentovanu vektorom - typ Vector2</param>
+        /// <returns>Vrati Block podla zadaneho vectoru v parametri</returns>
         public Block GetBlockByPosition(Vector2 parBlockPositionVector)
         {
             //Pouzijeme TryGet aby sme zistili, ci tam zadany kluc - pozicia je, ak ano vratime ho cez out
             Block tmpBlock;
             aLevelMap.GetBlocksPositionDictionary().TryGetValue(parBlockPositionVector, out tmpBlock);
             return tmpBlock;
-
         }
 
     }

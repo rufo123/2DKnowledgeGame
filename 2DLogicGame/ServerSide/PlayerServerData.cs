@@ -5,7 +5,7 @@ using System.Text;
 
 namespace _2DLogicGame.ServerSide
 {
-    class PlayerServerData : EntityServer
+    public class PlayerServerData : EntityServer
 
     {
         /// <summary>

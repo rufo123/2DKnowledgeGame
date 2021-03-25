@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 namespace _2DLogicGame.GraphicObjects
 {
 
-    enum ButtonBlockStates
+    public enum ButtonBlockStates
     {
         Off = 0,
         On = 1,
@@ -15,19 +15,20 @@ namespace _2DLogicGame.GraphicObjects
     }
 
 
-
-    class ButtonBlock : Block
+    public class ButtonBlock : Block
     {
 
-        private bool aIsTimerStarted = false;
+        private bool aIsTurnedOn;
 
-
+        public bool IsTurnedOn
+        {
+            get => !TextureIsOnFirstState;
+            set => TextureIsOnFirstState = !value;
+        }
 
         public ButtonBlock(LogicGame parGame, Vector2 parPosition, Texture2D parTexture = null, bool parHasBlockStates = true, int parCountOfFrames = 3) : base(parGame, parPosition, parTexture, parHasStates: parHasBlockStates, parCountOfFrames: parCountOfFrames, parCollisionType: BlockCollisionType.Button)
         {
             SetImageLocation("Sprites\\Blocks\\buttonBlock");
-
-            aIsTimerStarted = false;
         }
 
         public void TurnOn(bool parTurnOn, GameTime parGameTime)
@@ -42,5 +43,9 @@ namespace _2DLogicGame.GraphicObjects
             }
         }
 
+        public override void Update(GameTime gameTime)
+        {
+            base.Update(gameTime);
+        }
     }
 }
