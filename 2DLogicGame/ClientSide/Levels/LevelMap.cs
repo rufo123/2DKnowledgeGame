@@ -71,11 +71,14 @@ namespace _2DLogicGame.ClientSide.Levels
         {
             if (parLevelName == "Math") //Ak ide o level typu Math, potrebujeme vytvorit manazera Matematickeho Problemu
             {
-                aMathProblemManager = new MathProblemManager(aLogicGame); 
+                aMathProblemManager = new MathProblemManager(aLogicGame);
             }
 
             for (int i = 0; i < parBlockPositions.Count; i++)
             {
+
+                Vector2 tmpBlockPosition = new Vector2(parBlockPositions[i].Position.X * (aDefaultBlockDimension), parBlockPositions[i].Position.Y * (aDefaultBlockDimension));
+
                 if (parBlockPositions[i].BlockName == "waterBlock")
                 {
                     //Preto som to musel spravit takto, lebo v "XMLData", som pouzil Systemovy Vector2
@@ -83,7 +86,6 @@ namespace _2DLogicGame.ClientSide.Levels
                     //Preto k nim treba pripocitat aj velkost blokov
                     //A samozrejme netreba zabudnut aj na Skalovanie - to si preberieme priamo od aLogicGame
                     //Klasicky pouzivam Vector z MonoGame
-                    Vector2 tmpBlockPosition = new Vector2(parBlockPositions[i].Position.X * (aDefaultBlockDimension ), parBlockPositions[i].Position.Y * (aDefaultBlockDimension ));
 
                     //Water Block inizializujeme s pouzitim Atributu hry a pozicie bloku
                     WaterBlock tmpWaterBlock = new WaterBlock(aLogicGame, tmpBlockPosition);
@@ -92,8 +94,6 @@ namespace _2DLogicGame.ClientSide.Levels
                 }
                 else if (parBlockPositions[i].BlockName == "barrierBlock")
                 {
-                    Vector2 tmpBlockPosition = new Vector2(parBlockPositions[i].Position.X * (aDefaultBlockDimension), parBlockPositions[i].Position.Y * (aDefaultBlockDimension ));
-
                     //Water Block inizializujeme s pouzitim Atributu hry a pozicie bloku
                     BarrierBlock tmpBarrierBlock = new BarrierBlock(aLogicGame, tmpBlockPosition);
                     aBlockPositionDictionary.Add(tmpBlockPosition, tmpBarrierBlock);
@@ -101,7 +101,6 @@ namespace _2DLogicGame.ClientSide.Levels
                 }
                 else if (parBlockPositions[i].BlockName == "bridgeBlock")
                 {
-                    Vector2 tmpBlockPosition = new Vector2(parBlockPositions[i].Position.X * (aDefaultBlockDimension), parBlockPositions[i].Position.Y * (aDefaultBlockDimension));
                     BridgeBlock tmpBridgeBlock = new BridgeBlock(aLogicGame, tmpBlockPosition);
                     aBlockPositionDictionary.Add(tmpBlockPosition, tmpBridgeBlock);
                     aBlockList.Add(tmpBridgeBlock);
@@ -112,17 +111,15 @@ namespace _2DLogicGame.ClientSide.Levels
                         Int32.TryParse(parBlockPositions[i].AdditionalData, out tmpBridgeSubNumber);
                         aMathProblemManager.AddBridge(tmpBridgeBlock, tmpBridgeSubNumber);
                     }
-
                 }
                 else if (parBlockPositions[i].BlockName == "endBlock")
                 {
-                    Vector2 tmpBlockPosition = new Vector2(parBlockPositions[i].Position.X * (aDefaultBlockDimension), parBlockPositions[i].Position.Y * (aDefaultBlockDimension));
                     EndBlock tmpEndBlock = new EndBlock(aLogicGame, tmpBlockPosition);
                     aBlockPositionDictionary.Add(tmpBlockPosition, tmpEndBlock);
                     aBlockList.Add(tmpEndBlock);
-                } else if (parBlockPositions[i].BlockName == "mathGenerateBlock")
+                }
+                else if (parBlockPositions[i].BlockName == "mathGenerateBlock")
                 {
-                    Vector2 tmpBlockPosition = new Vector2(parBlockPositions[i].Position.X * (aDefaultBlockDimension), parBlockPositions[i].Position.Y * (aDefaultBlockDimension));
                     ButtonBlock tmpButtonBlock = new ButtonBlock(aLogicGame, tmpBlockPosition);
                     aBlockPositionDictionary.Add(tmpBlockPosition, tmpButtonBlock);
                     aBlockList.Add(tmpButtonBlock);
@@ -131,6 +128,12 @@ namespace _2DLogicGame.ClientSide.Levels
                     {
                         aMathProblemManager.AddButton(tmpButtonBlock);
                     }
+                }
+                else if (parBlockPositions[i].BlockName == "mathInputBlock")
+                {
+                    MathInputBlock tmpInputBlock = new MathInputBlock(aLogicGame, tmpBlockPosition);
+                    aBlockPositionDictionary.Add(tmpBlockPosition, tmpInputBlock);
+                    aBlockList.Add(tmpInputBlock);
                 }
                 else
                 {

@@ -3389,7 +3389,7 @@
           <X>12</X>
           <Y>15</Y>
         </Position>
-        <BlockName>Ignore</BlockName>
+        <BlockName>mathInputBlock</BlockName>
       </BlockPosition>
       <BlockPosition>
         <Position>
@@ -3620,7 +3620,7 @@
           <X>14</X>
           <Y>16</Y>
         </Position>
-        <BlockName>Ignore</BlockName>
+        <BlockName>mathInputBlock</BlockName>
       </BlockPosition>
       <BlockPosition>
         <Position>

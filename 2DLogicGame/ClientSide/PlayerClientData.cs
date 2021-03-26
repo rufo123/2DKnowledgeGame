@@ -34,14 +34,18 @@ namespace _2DLogicGame.ClientSide
         private bool aIsControlledByClient;
 
 
-
         /// <summary>
         /// Konstruktor - Inicializuje zakladne atributy
         /// </summary>
         /// <param name="parPlayerID">Parameter reprezentujuci ID Hraca - Typ int</param>
         /// <param name="parPlayerNickName">Parameter reprezentujuci Prezyvku Hraca - Typ string</param>
         /// <param name="parRemoteUniqueIdentifier">Parameter reprezentujuci Remote Unique Identifier Hraca - Typ long</param>
+        /// <param name="parSpeed">Paramter reprezentujuci rychlost - typ float</param>
         /// <param name="parIsMe">Parameter reprezentujuci ci ide o mna, teda toho hraca, ktory hra na tomto pocitaci... - Typ boolean</param>
+        /// <param name="parGame">Parameter reprezentujuci hru - typ LogicGame</param>
+        /// <param name="parPosition">Parameter reprezentujuci poziciu - typ Vector2</param>
+        /// <param name="parSize">Parametere reprezentujuci velkost - typ Vector2</param>
+        /// <param name="parDirection">Parameter reprezentujuci Smer - typ Entity.Direction - enum</param>
         public PlayerClientData(int parPlayerID, string parPlayerNickName, long parRemoteUniqueIdentifier, LogicGame parGame, Vector2 parPosition, Vector2 parSize, Direction parDirection = Direction.UP, float parSpeed = 200, bool parIsMe = false) : base(parGame, parPosition, parSize, parDirection, parSpeed)
         {
             aPlayerID = parPlayerID; //Priradime ID Hraca
@@ -65,6 +69,7 @@ namespace _2DLogicGame.ClientSide
 
             EntityScale = 2F;
         }
+
 
         public long RemoteUniqueIdentifier { get => aRemoteUniqueIdentifier; }
         public int PlayerID { get => aPlayerID; }

@@ -115,6 +115,11 @@ namespace _2DLogicGame.GraphicObjects
             get => aBlockCollisionType;
             set => aBlockCollisionType = value;
         }
+        public LogicGame LogicGame
+        {
+            get => aGame;
+            set => aGame = value;
+        }
 
         public string ImageLocation
         {

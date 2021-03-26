@@ -113,6 +113,9 @@ namespace _2DLogicGame
         }
 
 
+        /// <summary>
+        /// Metoda, ktora sluzi an to aby v zaklade precitala spravy prichadzajuce od Servera
+        /// </summary>
         public void ReadMessages()
         {
             while (aLogicGame.GameState != GameState.Exit)
@@ -405,6 +408,9 @@ namespace _2DLogicGame
             return aDictionaryPlayerData.Remove(parRemoteUniqueIdentifier);
         }
 
+        /// <summary>
+        /// Metoda, ktora ma za ulohu odoslat data o klientovi
+        /// </summary>
         public void SendClientData()
         {
             NetOutgoingMessage tmpOutMessPlayData = aClient.CreateMessage();
@@ -494,12 +500,19 @@ namespace _2DLogicGame
                                     break;
                                 case BlockCollisionType.Wall: //Prekazka typu Stena
                                     parLevelManager.GetBlockByPosition(tmpTilePositVector2).ChangeColor(true); /////////////// ZMAZAT
+
+                                    if (parLevelManager.GetBlockByPosition(tmpTilePositVector2) is MathInputBlock) //Najprv si porovname, či ziskaný block je typu ButtonBlock
+                                    {
+                                        MathInputBlock tmpMathInput = (MathInputBlock)parLevelManager.GetBlockByPosition(tmpTilePositVector2); //Ak je, mozeme ho pretypovat naspat - tkzv. DownCasting - Tu je to bezpecne, lebo vieme ze pojde urcite o ButtonBlock
+                                        tmpMathInput.SwitchNumber(false);
+                                    }
+
                                     if (tmpIsBlocked == false) //Preto je tu tato podmienka, aby sme zabranili tomu, ze ak sa uz Entita detegovala jednu koliziu, neprepise ju..
                                     {
                                         tmpIsBlocked = true;
                                         parEntity.IsBlocked = tmpIsBlocked;
+
                                     }
-                                   
                                     break;
                                 case BlockCollisionType.Slow: //Prekazka napr Voda
                                     if (tmpIsSlowed == false) //Preto je tu tato podmienka, aby sme zabranili tomu, ze ak sa uz Entita detegovala jednu napr. vodu, neprepise ju..
@@ -510,9 +523,7 @@ namespace _2DLogicGame
                                 case BlockCollisionType.Zap:
                                     break;
                                 case BlockCollisionType.Button:
-
                                     tmpButtonActivation = true;
-
                                     if (parLevelManager.GetBlockByPosition(tmpTilePositVector2) is ButtonBlock) //Najprv si porovname, či ziskaný block je typu ButtonBlock
                                     {
                                         ButtonBlock tmpButton = (ButtonBlock)parLevelManager.GetBlockByPosition(tmpTilePositVector2); //Ak je, mozeme ho pretypovat naspat - tkzv. DownCasting - Tu je to bezpecne, lebo vieme ze pojde urcite o ButtonBlock

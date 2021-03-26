@@ -36,6 +36,12 @@ namespace _2DLogicGame.ClientSide.MathProblem
         /// </summary>
         private char aOperator;
 
+        public char Operator
+        {
+            get => aOperator;
+            set => aOperator = value;
+        }
+
         public int FirstNumber
         {
             get => aFirstNumber;
@@ -67,24 +73,23 @@ namespace _2DLogicGame.ClientSide.MathProblem
         public void GenerateOperator()
         {
             Random tmpRand = new Random();
-            int tmpRandomNumber = tmpRand.Next(0, 3);
+            int tmpRandomNumber = tmpRand.Next(0, 100);
 
-            switch (tmpRandomNumber)
+            if (tmpRandomNumber < 10) // 10% Sanca na +
             {
-                case 0:
-                    aOperator = (char)MathOperation.Addition;
-                    break;
-                case 1:
-                    aOperator = (char)MathOperation.Subtraction;
-                    break;
-                case 2:
-                    aOperator = (char)MathOperation.Multiplication;
-                    break;
-                case 3:
-                    aOperator = (char)MathOperation.Division;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+                aOperator = (char)MathOperation.Addition;
+            }
+            else if (tmpRandomNumber < 20) //10% Sanca na -
+            {
+                aOperator = (char)MathOperation.Subtraction;
+            }
+            else if (tmpRandomNumber < 50) //30% Sanca na *
+            {
+                aOperator = (char)MathOperation.Multiplication;
+            }
+            else //50% Sanca na /
+            {
+                aOperator = (char)MathOperation.Division;
             }
         }
 

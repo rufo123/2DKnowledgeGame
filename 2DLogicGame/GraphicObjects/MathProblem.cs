@@ -65,8 +65,7 @@ namespace _2DLogicGame.GraphicObjects
 
         public void ChangeEquation(MathEquation parEquation)
         {
-            aFirstNumber = parEquation.FirstNumber;
-            aSecondNumber = parEquation.SecondNumber;
+            aEquation = parEquation;
         }
 
         public override void Initialize()
@@ -118,12 +117,12 @@ namespace _2DLogicGame.GraphicObjects
                 aLogicGame.SpriteBatch.Draw(aFrameTexture, aPosition, aFrameRectangle, tmpColor * 0.2F, 0F,
                     Vector2.Zero, 1F, SpriteEffects.None, 0.3F);
 
-                tmpNewBananaPosition.Y = aPosition.Y + 50;
+                tmpNewBananaPosition.Y = aPosition.Y + aSize.Y/6;
 
-                tmpOffset = ((20 - aFirstNumber) * (aBananaSize / 1.5F)) / 2;
+                tmpOffset = ((20 - aEquation.FirstNumber) * (aBananaSize / 1.5F)) / 2;
 
 
-                for (int i = 0; i < aFirstNumber; i++)
+                for (int i = 0; i < aEquation.FirstNumber; i++)
                 {
                     tmpNewBananaPosition.X = aPosition.X + tmpOffset + (aBananaSize / 1.5F) * i;
 
@@ -140,11 +139,11 @@ namespace _2DLogicGame.GraphicObjects
                         Vector2.Zero, 0.7F, SpriteEffects.None, 0.2F);
                 }
 
-                tmpNewBananaPosition.Y = aPosition.Y + 200;
+                tmpNewBananaPosition.Y = aPosition.Y + (aSize.Y/1.5F);
 
-                tmpOffset = ((20 - aSecondNumber) * (aBananaSize / 1.5F)) / 2;
+                tmpOffset = ((20 - aEquation.SecondNumber) * (aBananaSize / 1.5F)) / 2;
 
-                for (int i = 0; i < aSecondNumber; i++)
+                for (int i = 0; i < aEquation.SecondNumber; i++)
                 {
 
                     if (i % 2 == 0)
@@ -161,6 +160,13 @@ namespace _2DLogicGame.GraphicObjects
                     aLogicGame.SpriteBatch.Draw(aBananaTexture, tmpNewBananaPosition, aBananaRectangle, tmpColor, 0F,
                         Vector2.Zero, 0.7F, SpriteEffects.None, 0.2F);
                 }
+
+                Vector2 tmpNewOperatorPosition = new Vector2();
+
+                tmpNewOperatorPosition.Y = aPosition.Y + 100;
+                tmpNewOperatorPosition.X = (aPosition.X + aSize.X/2 - (aLogicGame.Font.LineSpacing * aLogicGame.Scale * 0.7F  / 2F) * 0.7F);
+
+                aLogicGame.SpriteBatch.DrawString(aLogicGame.Font, aEquation.Operator.ToString(), tmpNewOperatorPosition, Color.GreenYellow, 0F, Vector2.Zero, 0.7F, SpriteEffects.None, 0.2F);
             }
 
             //aLogicGame.SpriteBatch.DrawString(aLogicGame.Font, "Test", aPosition, Color.White, 0F, Vector2.Zero, 1F, SpriteEffects.None, 0F);

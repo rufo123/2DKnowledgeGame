@@ -56,15 +56,29 @@ namespace _2DLogicGame.ServerSide
         /// </summary>
         private float aDefaultSpeed = 0;
 
+        /// <summary>
+        /// Atribut, ktory reprezentujuce rychlost Entity - typ float
+        /// </summary>
         private float aVelocity;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje movement vektor, resp do ktorej strany sa ma Entita pohnut - typ vector2
+        /// </summary>
         private Vector2 aMovementVector;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje boolean o tom ci sa Entita pohybuje alebo nie - typ bool
+        /// </summary>
         private bool aIsMoving = false;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje skalu Entity oproti originalnej velkosti - typ float
+        /// </summary>
         private float aEntityScale = 1F;
-        public float EntityScale { get => aEntityScale; set => aEntityScale = value; }
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje ci entita narazila na prekazku, resp. nemoze sa pohnut - typ bool
+        /// </summary>
         public bool aIsBlocked = false;
 
 
@@ -73,7 +87,7 @@ namespace _2DLogicGame.ServerSide
         public bool IsMoving { get => aIsMoving; set => aIsMoving = value; }
         public Vector2 Size { get => aSize; set => aSize = value; }
         public bool IsBlocked { get => aIsBlocked; set => aIsBlocked = value; }
-
+        public float EntityScale { get => aEntityScale; set => aEntityScale = value; }
 
 
 
@@ -174,6 +188,11 @@ namespace _2DLogicGame.ServerSide
             }
         }
 
+        /// <summary>
+        /// Metoda, ktora vrati Vektor2, ktory reprezentuje kde by sa Entita pohla v danom smere v buducnosti
+        /// </summary>
+        /// <param name="parServerTickRate"></param>
+        /// <returns>Vrati Vektor2 - Suradnicu buducej pozicie Entity</returns>
         public Vector2 GetAfterMoveVector2(float parServerTickRate)
         {
             Vector2 tmpNewMovementVector2 = new Vector2(0,0);
