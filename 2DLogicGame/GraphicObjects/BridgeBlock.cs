@@ -26,7 +26,7 @@ namespace _2DLogicGame.GraphicObjects
 
         private int aTimer;
 
-        public BridgeBlock(LogicGame parGame, Vector2 parPosition, Texture2D parTexture = null) : base(parGame, parPosition, parTexture, parCollisionType: BlockCollisionType.None)
+        public BridgeBlock(LogicGame parGame, Vector2 parPosition, Texture2D parTexture = null) : base(parGame, parPosition, parTexture, parCollisionType: BlockCollisionType.Zap)
         {
             SetImageLocation("Sprites\\Blocks\\bridgeBlock");
             this.LayerDepth = LayerDepth - 0.1F;
@@ -47,6 +47,7 @@ namespace _2DLogicGame.GraphicObjects
         {
             //Kedze sa nam most objavi nad vodou, odstranime koliziu bloku pod mostom
             aWaterBlock.BlockCollisionType = BlockCollisionType.None;
+            this.BlockCollisionType = BlockCollisionType.Standable;
             aWantsToShow = true;
 
         }

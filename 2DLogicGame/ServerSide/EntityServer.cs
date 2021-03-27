@@ -81,6 +81,9 @@ namespace _2DLogicGame.ServerSide
         /// </summary>
         public bool aIsBlocked = false;
 
+        private Vector2 aHitBoxPos;
+
+        private Vector2 aHitBoxSize;
 
         public float Speed { get => aSpeed; set => aSpeed = value; }
         public Vector2 Position { get => aPosition; }
@@ -88,6 +91,8 @@ namespace _2DLogicGame.ServerSide
         public Vector2 Size { get => aSize; set => aSize = value; }
         public bool IsBlocked { get => aIsBlocked; set => aIsBlocked = value; }
         public float EntityScale { get => aEntityScale; set => aEntityScale = value; }
+        public Vector2 HitBoxPos { get => aHitBoxPos; set => aHitBoxPos = value; }
+        public Vector2 HitBoxSize { get => aHitBoxSize; set => aHitBoxSize = value; }
 
 
 
@@ -104,6 +109,8 @@ namespace _2DLogicGame.ServerSide
             aSize = parSize;
             aSpeed = parSpeed;
             aDefaultSpeed = aSpeed;
+            aHitBoxPos = parPosition;
+            aHitBoxSize = parPosition;
 
             aMovementVector = new Vector2(0, 0);
 

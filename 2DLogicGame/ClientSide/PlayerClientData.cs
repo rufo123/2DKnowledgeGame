@@ -67,7 +67,8 @@ namespace _2DLogicGame.ClientSide
                     break;
             }
 
-            EntityScale = 2F;
+            EntityScale = 1.5F;
+
         }
 
 

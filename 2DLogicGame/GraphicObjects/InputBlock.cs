@@ -8,7 +8,7 @@ using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace _2DLogicGame.GraphicObjects
 {
-    class MathInputBlock : Block
+    public class InputBlock : Block
     {
 
         private int aNumber;
@@ -31,13 +31,15 @@ namespace _2DLogicGame.GraphicObjects
             set => aSubmitted = value;
         }
 
-        public MathInputBlock(LogicGame parGame, Vector2 parPosition, Texture2D parTexture = null, bool parIsAnimated = false, bool parHasStates = false, int parCountOfFrames = 0, int parMinNumber = 0, int parMaxNumber = 20) : base(parGame, parPosition, parTexture, parIsAnimated, parHasStates, parCountOfFrames, parCollisionType: BlockCollisionType.Wall)
+        public InputBlock(LogicGame parGame, Vector2 parPosition, Texture2D parTexture = null, bool parIsAnimated = false, bool parHasStates = false, int parCountOfFrames = 0, int parMinNumber = 0, int parMaxNumber = 9) : base(parGame, parPosition, parTexture, parIsAnimated, parHasStates, parCountOfFrames, parCollisionType: BlockCollisionType.Wall)
         {
             aNumber = 0;
             aMinNumber = parMinNumber;
             aMaxNumber = parMaxNumber;
 
             SetImageLocation("Sprites\\Blocks\\mathInputBlock");
+
+            IsInteractible = true;
         }
 
         /// <summary>
@@ -73,6 +75,18 @@ namespace _2DLogicGame.GraphicObjects
             }
         }
 
+        public override void Interact()
+        {
+            base.Interact();
+
+            if (WantsToInteract)
+            {
+                SwitchNumber(false);
+            }
+
+            WantsToInteract = false;
+        }
+
         /// <summary>
         /// Metoda, ktora potvrdi cislo -> Napr ako vysledok prikladu
         /// </summary>
@@ -87,7 +101,7 @@ namespace _2DLogicGame.GraphicObjects
         public void ResetSubmission()
         {
             aSubmitted = false;
-            aSubmitted = false;
+            aNumber = 0;
         }
 
         public override void Draw(GameTime gameTime)

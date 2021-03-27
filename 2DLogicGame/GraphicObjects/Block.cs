@@ -17,7 +17,8 @@ namespace _2DLogicGame.GraphicObjects
         Wall = 1,
         Slow = 2,
         Zap = 3,
-        Button = 4
+        Button = 4,
+        Standable = 5
     }
 
 
@@ -91,6 +92,10 @@ namespace _2DLogicGame.GraphicObjects
 
         private float aVisibility = 1F;
 
+        private bool aIsInteractible;
+
+        private bool aWantsToInteract;
+
         /// <summary>
         /// Atribut, reprezentuje ci sa textura bloku nachadza v prvom stadiu - v pripade statickeho bloku bude vzdy true
         /// </summary>
@@ -104,6 +109,10 @@ namespace _2DLogicGame.GraphicObjects
         public float LayerDepth { get => aLayerDepth; set => aLayerDepth = value; }
 
         private bool aIsHidden = false;
+
+        public bool aEntityIsStandingOnTop = false;
+
+        private float aStandingOnTimer = 0F;
 
         /// <summary>
         /// Atribut, ktory reprezentuje informacie o tom, ci sa jedna o kolizny objekt alebo nie
@@ -140,7 +149,7 @@ namespace _2DLogicGame.GraphicObjects
 
         public float TimerStateChanged
         {
-            get => aTimerStateChanged; 
+            get => aTimerStateChanged;
             set => aTimerStateChanged = value;
         }
         public bool TextureIsOnFirstState
@@ -158,6 +167,25 @@ namespace _2DLogicGame.GraphicObjects
             get => aVisibility;
             set => aVisibility = value;
         }
+
+        public bool IsInteractible
+        {
+            get => aIsInteractible;
+            set => aIsInteractible = value;
+        }
+        public bool WantsToInteract
+        {
+            get => aWantsToInteract;
+            set => aWantsToInteract = value;
+        }
+
+        public bool EntityIsStandingOnTop
+        {
+            get => aEntityIsStandingOnTop;
+            set => aEntityIsStandingOnTop = value;
+        }
+
+
 
 
         /// <summary>
@@ -179,8 +207,15 @@ namespace _2DLogicGame.GraphicObjects
             aBlockCollisionType = parCollisionType;
             aTimerStateChanged = 0F;
             aTextureIsOnFirstState = true;
+            aIsInteractible = false;
+
+            aWantsToInteract = false;
+
+            aEntityIsStandingOnTop = false;
 
             aHasStates = parHasStates;
+
+            aStandingOnTimer = 0F;
 
             if (parIsAnimated == true) //V pripade, ze je blok animovany, je samozrejme ze ma aj urcite stadia
             {
@@ -192,6 +227,7 @@ namespace _2DLogicGame.GraphicObjects
                 aTexture = parTexture;
             }
         }
+
 
         public override void Initialize()
         {
@@ -264,6 +300,22 @@ namespace _2DLogicGame.GraphicObjects
             else if (aHasStates && aTimerStateChanged > 0F)
             {
                 aTimerStateChanged += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+            }
+
+            if (EntityIsStandingOnTop == true && aStandingOnTimer <= 0)
+            {
+                aStandingOnTimer += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+            }
+            else if (aStandingOnTimer > 0)
+            {
+                if (aStandingOnTimer > 50)
+                {
+                    EntityIsStandingOnTop = false;
+                }
+                else
+                {
+                    aStandingOnTimer += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+                }
             }
 
             base.Update(gameTime);
@@ -377,16 +429,37 @@ namespace _2DLogicGame.GraphicObjects
         /// Pomocna Debug Metoda - DEBUG ONLY - Zmazat
         /// </summary>
         /// <param name="par">DEBUG ONLY</param>
-        public void ChangeColor(bool par)
+        public void ChangeColor(bool parDebug, Color parColor)
         {
-            if (aColor == Color.White)
+            if (parDebug == true) //Debug
             {
-                aColor = Color.Red;
+                if (aColor == Color.White)
+                {
+                    aColor = Color.Red;
+                }
+                else
+                {
+                    aColor = Color.White;
+                }
             }
             else
             {
-                aColor = Color.White;
+                aColor = parColor;
+            }
+
+
+        }
+
+        /// <summary>
+        /// Originalna implementacia metody Interact, vo svojej podstate robi len to, ze nastavi ze chce block interagovat, zavola base a nasledne nastavi, ze blok uz nechce interagovat
+        /// </summary>
+        public virtual void Interact()
+        {
+            if (IsInteractible)
+            {
+                aWantsToInteract = true;
             }
         }
+
     }
 }

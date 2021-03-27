@@ -24,6 +24,7 @@ namespace _2DLogicGame.ServerSide
         /// </summary>
         private long aRemoteUniqueIdentifier;
 
+
         /// <summary>
         /// Konstruktor - Inicializuje zakladne atributy
         /// </summary>
@@ -36,7 +37,8 @@ namespace _2DLogicGame.ServerSide
             aPlayerNickName = parPlayerNickName; //Priradime Prezyvku Hraca
             aRemoteUniqueIdentifier = parRemoteUniqueIdentifier; //Priradime Unikatny Identifikator
 
-            EntityScale = 2F;
+            EntityScale = 1.5F;
+
         }
 
         public long RemoteUniqueIdentifier { get => aRemoteUniqueIdentifier; }

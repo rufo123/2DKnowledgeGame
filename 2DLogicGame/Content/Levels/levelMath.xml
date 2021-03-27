@@ -2983,7 +2983,7 @@
           <X>16</X>
           <Y>13</Y>
         </Position>
-        <BlockName>barrierBlock</BlockName>
+        <BlockName>Ignore</BlockName>
       </BlockPosition>
       <BlockPosition>
         <Position>
@@ -3200,7 +3200,7 @@
           <X>16</X>
           <Y>14</Y>
         </Position>
-        <BlockName>barrierBlock</BlockName>
+        <BlockName>Ignore</BlockName>
       </BlockPosition>
       <BlockPosition>
         <Position>
@@ -3389,7 +3389,7 @@
           <X>12</X>
           <Y>15</Y>
         </Position>
-        <BlockName>mathInputBlock</BlockName>
+        <BlockName>Ignore</BlockName>
       </BlockPosition>
       <BlockPosition>
         <Position>
@@ -3417,7 +3417,7 @@
           <X>16</X>
           <Y>15</Y>
         </Position>
-        <BlockName>barrierBlock</BlockName>
+        <BlockName>Ignore</BlockName>
       </BlockPosition>
       <BlockPosition>
         <Position>
@@ -3459,21 +3459,21 @@
           <X>22</X>
           <Y>15</Y>
         </Position>
-        <BlockName>Ignore</BlockName>
+        <BlockName>mathInputBlock</BlockName>
       </BlockPosition>
       <BlockPosition>
         <Position>
           <X>23</X>
           <Y>15</Y>
         </Position>
-        <BlockName>Ignore</BlockName>
+        <BlockName>mathInputBlock</BlockName>
       </BlockPosition>
       <BlockPosition>
         <Position>
           <X>24</X>
           <Y>15</Y>
         </Position>
-        <BlockName>Ignore</BlockName>
+        <BlockName>mathInputBlock</BlockName>
       </BlockPosition>
       <BlockPosition>
         <Position>
@@ -3620,7 +3620,7 @@
           <X>14</X>
           <Y>16</Y>
         </Position>
-        <BlockName>mathInputBlock</BlockName>
+        <BlockName>barrierBlock</BlockName>
       </BlockPosition>
       <BlockPosition>
         <Position>

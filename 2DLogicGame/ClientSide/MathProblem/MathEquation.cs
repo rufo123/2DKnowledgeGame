@@ -129,7 +129,7 @@ namespace _2DLogicGame.ClientSide.MathProblem
                 MathOperation.Addition => aFirstNumber + aSecondNumber,
                 MathOperation.Subtraction => aFirstNumber - aSecondNumber,
                 MathOperation.Multiplication => aFirstNumber * aSecondNumber,
-                MathOperation.Division => aFirstNumber / aSecondNumber,
+                MathOperation.Division => (int)Math.Round((double)aFirstNumber / aSecondNumber,0),
                 _ => throw new ArgumentOutOfRangeException()
             };
         }

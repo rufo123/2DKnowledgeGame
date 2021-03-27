@@ -91,6 +91,8 @@ namespace _2DLogicGame.ClientSide.Levels
                     WaterBlock tmpWaterBlock = new WaterBlock(aLogicGame, tmpBlockPosition);
                     aBlockPositionDictionary.Add(tmpBlockPosition, tmpWaterBlock);
                     aBlockList.Add(tmpWaterBlock);
+
+
                 }
                 else if (parBlockPositions[i].BlockName == "barrierBlock")
                 {
@@ -131,9 +133,14 @@ namespace _2DLogicGame.ClientSide.Levels
                 }
                 else if (parBlockPositions[i].BlockName == "mathInputBlock")
                 {
-                    MathInputBlock tmpInputBlock = new MathInputBlock(aLogicGame, tmpBlockPosition);
+                    InputBlock tmpInputBlock = new InputBlock(aLogicGame, tmpBlockPosition);
                     aBlockPositionDictionary.Add(tmpBlockPosition, tmpInputBlock);
                     aBlockList.Add(tmpInputBlock);
+
+                    if (aMathProblemManager != null && parLevelName == "Math") //Ak vieme ze pojde o level typu Math, odosleme MathProblem manazeru, informacie o InputBlokoch
+                    {
+                        aMathProblemManager.AddInput(tmpInputBlock);
+                    }
                 }
                 else
                 {

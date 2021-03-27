@@ -12,7 +12,8 @@ namespace _2DLogicGame.ServerSide.Blocks_ServerSide
             None = 0,
             Wall = 1,
             Slow = 2,
-            Zap = 3
+            Zap = 3,
+            Standable = 5
         }
 
         public class BlockServer 

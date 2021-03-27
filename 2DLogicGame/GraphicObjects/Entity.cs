@@ -4,7 +4,9 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Numerics;
 using System.Text;
+using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace _2DLogicGame.GraphicObjects
 {
@@ -94,7 +96,9 @@ namespace _2DLogicGame.GraphicObjects
 
         private Vector2 aMovementVector;
 
-        private bool isBlocked = false;
+        private bool parIsBlocked = false;
+
+        private Vector2 aDefaultPosition;
 
         /// <summary>
         /// Atribut reprezentujuci nasobnu velkost oproti originalu - typ float
@@ -112,6 +116,10 @@ namespace _2DLogicGame.GraphicObjects
         private bool aEntityNeedsInterpolation = false;
 
 
+
+
+
+
         // Confirm
         // Atributy
         // Od servera
@@ -124,8 +132,8 @@ namespace _2DLogicGame.GraphicObjects
         public bool AwaitingMovementMessage { get => aAwaitingMovementMessage; set => aAwaitingMovementMessage = value; }
         public bool IsTryingToMove { get => aIsTryingToMove; set => aIsTryingToMove = value; }
         public Vector2 MovementVector { get => aMovementVector; set => aMovementVector = value; }
+        public bool IsBlocked { get => parIsBlocked; set => parIsBlocked = value; }
 
-        public bool IsBlocked { get => isBlocked; set => isBlocked = value; }
 
 
 
@@ -145,6 +153,19 @@ namespace _2DLogicGame.GraphicObjects
             aSpeed = parSpeed;
             aDefaultSpeed = aSpeed;
 
+            aDefaultPosition = parPosition;
+
+            //Ak by bola Entita vyssia ako 64 blokov, nebude sa to ratat do vysky
+            /*if (aSize.Y > 64)
+            {
+                Vector2 tmpNewPosition = parPosition;
+                Vector2 tmpNewSize = parSize;
+                tmpNewPosition.Y -= tmpNewSize.Y - 64;
+                tmpNewSize.Y = 64;
+                aSize = tmpNewSize;
+                aPosition = tmpNewPosition;
+            }
+            */
         }
 
         public void SetDirection(Direction parDirection)
@@ -254,7 +275,7 @@ namespace _2DLogicGame.GraphicObjects
                 aMovementVector.Y = 0;
             }
 
-            if (isBlocked == false)
+            if (parIsBlocked == false)
             {
                 aVelocity = aSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
                 aPosition += aMovementVector * aVelocity;
@@ -486,6 +507,21 @@ namespace _2DLogicGame.GraphicObjects
 
             double tmpNewVelocity = aSpeed * parGameTime.ElapsedGameTime.TotalSeconds;
             return aPosition + (tmpNewMovementVector2 * aVelocity); //Zatvorky nemusia byt, pretoze nasobenie ma prednost...
+        }
+
+        /// <summary>
+        /// Metoda, ktora vrati Entitu, na prednastavenu poziciu
+        /// <param name="parDoZap">Parameter, reprezentujuci ci ma Entitu ReSpawnut alebo nie</param>
+        /// </summary>
+        public void ReSpawn(bool parDoZap)
+        {
+            if (parDoZap == true)
+            {
+                if (aDefaultPosition != null)
+                {
+                    aPosition = aDefaultPosition;
+                }
+            }
         }
 
 

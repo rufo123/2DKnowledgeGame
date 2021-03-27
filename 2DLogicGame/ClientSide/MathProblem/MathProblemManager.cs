@@ -24,6 +24,11 @@ namespace _2DLogicGame.GraphicObjects
         private Dictionary<int, List<BridgeBlock>> aDictionaryOfBridgeSubBlocks;
 
         /// <summary>
+        /// Dictionary, ktora obsahuje informacie o InputBlokoch, identifikovanych ci ide o jednotky, desiatky, alebo stovky.. -> Key, Value je teda InputBlock
+        /// </summary>
+        private Dictionary<int, InputBlock> aDictionaryInputBlocks;
+
+        /// <summary>
         /// Random generator
         /// </summary>
         private Random aRandom;
@@ -38,10 +43,16 @@ namespace _2DLogicGame.GraphicObjects
         /// </summary>
         private int aButtonCount = 0;
 
+        private int aNumberOrders;
+
+        private int aFinalNumber;
+
         /// <summary>
         /// Atribut, typu bool, ktory je pre Manazera klucovy a oznamuje mu, ze uz su udaje o leveli nacitane a moze robit svoju robotu
         /// </summary>
         private bool aCompletelyLoaded = false;
+
+        private int aMathPoints = 0;
 
         public bool CompletelyLoaded
         {
@@ -59,6 +70,9 @@ namespace _2DLogicGame.GraphicObjects
             aDictionaryOfBridgeSubBlocks = new Dictionary<int, List<BridgeBlock>>();
             aMathProblem = new MathProblem(parLogicGame, new Microsoft.Xna.Framework.Vector2(100, 200), new Microsoft.Xna.Framework.Vector2(855, 300), 5, 64);
             parLogicGame.Components.Add(aMathProblem);
+            aDictionaryInputBlocks = new Dictionary<int, InputBlock>();
+            aMathPoints = 0;
+            aNumberOrders = 100; //Na zaciatku zainicializujeme, ake najvyssie jednotky sa tu nachadzaju, v tomto pripade stovky
         }
 
         /// <summary>
@@ -96,6 +110,55 @@ namespace _2DLogicGame.GraphicObjects
 
         }
 
+        public void AddPoints()
+        {
+            aMathPoints++;
+        }
+
+        public void SetPoints(int parCountOfPoints)
+        {
+            aMathPoints = parCountOfPoints;
+        }
+
+        public void AddInput(InputBlock parInputBlock)
+        {
+            aDictionaryInputBlocks.Add(aNumberOrders, parInputBlock);
+
+            if (aNumberOrders > 0)
+            {
+                aNumberOrders /=
+                    10; //Vzdycky ideme o jedno menej, na zaciatku napr. stovky potom desiatky, potom jednotky a koniec napr.
+            }
+        }
+
+        public int GetFinalNumberFromInput()
+        {
+            if (aDictionaryInputBlocks != null)
+            {
+                int tmpReturnNumber = 0;
+                int tmpCounterOfOrders = (int)Math.Pow(10, aDictionaryInputBlocks.Count - 1);
+
+                while (tmpCounterOfOrders > aNumberOrders
+                ) //Pokial sa nedostaneme na koniec jednotiek, desiatok, stoviek....
+                {
+                    tmpReturnNumber += aDictionaryInputBlocks[tmpCounterOfOrders].Number * tmpCounterOfOrders; //Pripocitame cislo, ktore je uchovane v InputBloku
+
+                    if (tmpCounterOfOrders > 0)
+                    {
+
+                        tmpCounterOfOrders /= 10;
+                    }
+                }
+
+                return tmpReturnNumber;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
+
         /// <summary>
         /// Metoda, ktora na zaklade minima a maxima vygeneruje nahodne cislo z rozsahu
         /// </summary>
@@ -105,6 +168,23 @@ namespace _2DLogicGame.GraphicObjects
         public int GenerateNumberForEquation(int parMin, int parMax)
         {
             return aRandom.Next(parMin, parMax + 1);
+        }
+
+        /// <summary>
+        /// Metoda, ktora zmeni, vsetky cisla v inpute na 0 napr. pri zlom vstupe
+        /// </summary>
+        public void ResetInputNumbers()
+        {
+            int tmpMaxOrder = (int)Math.Pow(10, aDictionaryInputBlocks.Count - 1);
+
+            int tmpCountOrder = 1;
+
+            while (tmpCountOrder <= tmpMaxOrder)
+            {
+                aDictionaryInputBlocks[tmpCountOrder].ResetSubmission();
+                tmpCountOrder *= 10;
+            }
+
         }
 
         public override void Initialize()
@@ -129,15 +209,31 @@ namespace _2DLogicGame.GraphicObjects
                     {
                         if (aButtonList[i].IsTurnedOn == true)
                         {
-                            aMathProblem.ChangeEquation(aEquations[i+1]);
+                            aMathProblem.ChangeEquation(aEquations[i + 1]);
                             tmpIsAnyButtonTurnedOn = true;
                             aMathProblem.Shown = true;
-                            for (int j = 0; j < aDictionaryOfBridgeSubBlocks[i + 1].Count; j++)
+                        }
+
+                        if (aButtonList[i].IsPressed == true)
+                        {
+                            if (GetFinalNumberFromInput() == aEquations[i + 1].GetTotalRoundedToInteger())
                             {
-                                aDictionaryOfBridgeSubBlocks[i + 1][j].Show(); //Nezabudnut pridat podmienky na kontrolu
+                                for (int j = 0; j < aDictionaryOfBridgeSubBlocks[i + 1].Count; j++)
+                                {
+                                    aDictionaryOfBridgeSubBlocks[i + 1][j].Show(); //Nezabudnut pridat podmienky na kontrolu
+                                    
+                                }
+
+                                aButtonList[i].ChangeToSuccessState();
+                                tmpIsAnyButtonTurnedOn = false;
+                            }
+                            else
+                            {
+                                ResetInputNumbers();
                             }
 
-
+                            aButtonList[i].IsPressed = false;
+                            
                         }
                     }
                 }
@@ -150,5 +246,7 @@ namespace _2DLogicGame.GraphicObjects
 
             base.Update(gameTime);
         }
+
+
     }
 }

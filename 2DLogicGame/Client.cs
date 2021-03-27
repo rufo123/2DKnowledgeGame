@@ -11,10 +11,6 @@ using _2DLogicGame.ClientSide.Levels;
 
 namespace _2DLogicGame
 {
-
-
-
-
     public class Client
     {
 
@@ -339,7 +335,7 @@ namespace _2DLogicGame
                 {
                     if (aDictionaryPlayerData.Count <= 0) //Ak este ziaden hrac nie je ulozeny v databaze, vieme ze ide o mna
                     {
-                        aDictionaryPlayerData.Add(tmpRUID, new ClientSide.PlayerClientData(tmpID, tmpNickname, tmpRUID, aLogicGame, new Vector2(800, 800), new Vector2(49, 64), parIsMe: true)); //Pridame nove data o hracovi do uloziska, na zaklade Remote UID a pri udajoch o hracovi zadame, ze ide o nas
+                        aDictionaryPlayerData.Add(tmpRUID, new ClientSide.PlayerClientData(tmpID, tmpNickname, tmpRUID, aLogicGame, new Vector2(800, 800), new Vector2(40, 64), parIsMe: true)); //Pridame nove data o hracovi do uloziska, na zaklade Remote UID a pri udajoch o hracovi zadame, ze ide o nas
                         aPlayerController.SetPlayer(aDictionaryPlayerData[tmpRUID]);
                         aClientObjects.AddComponent(aDictionaryPlayerData[tmpRUID]);
                         aLogicGame.Components.Add(aPlayerController);
@@ -348,20 +344,20 @@ namespace _2DLogicGame
                     }
                     else
                     {
-                        aDictionaryPlayerData.Add(tmpRUID, new ClientSide.PlayerClientData(tmpID, tmpNickname, tmpRUID, aLogicGame, new Vector2(800, 800), new Vector2(49, 64))); //Pridame nove data o hracovi do uloziska
+                        aDictionaryPlayerData.Add(tmpRUID, new ClientSide.PlayerClientData(tmpID, tmpNickname, tmpRUID, aLogicGame, new Vector2(800, 800), new Vector2(40, 64))); //Pridame nove data o hracovi do uloziska
                         aClientObjects.AddComponent(aDictionaryPlayerData[tmpRUID]);
                     }
 
                     HandleChatMessage(tmpNickname, "Connected", ClientSide.Chat.ChatColors.Purple); //Odosleme spravu o tom, ze sa nejaky hrac pripojil
                     Debug.WriteLine("Klient - Connect - Data o Hracovi: " + tmpNickname + " boli pridane!");
-
+                    
                     return true;
                 }
                 else if (parRequestType == PacketInfoRequestType.Request) //Ak ide o Request Udajov o Inych Hracoch, teda ja som sa pripojil a chcem vediet, kto uz je pripojeny
                 {
                     if (tmpID != -1) //Ak sa nejedna o prazdnu spravu
                     {
-                        aDictionaryPlayerData.Add(tmpRUID, new ClientSide.PlayerClientData(tmpID, tmpNickname, tmpRUID, aLogicGame, new Vector2(800, 800), new Vector2(49, 64))); //Pridame hraca do uloziska
+                        aDictionaryPlayerData.Add(tmpRUID, new ClientSide.PlayerClientData(tmpID, tmpNickname, tmpRUID, aLogicGame, new Vector2(800, 800), new Vector2(40, 64))); //Pridame hraca do uloziska
                         aClientObjects.AddComponent(aDictionaryPlayerData[tmpRUID]);
                         HandleChatMessage(tmpNickname, "Is Already Here", ClientSide.Chat.ChatColors.Purple); //Odosleme spravu o tom, kto uz bol pripojeny - predomnou
                         Debug.WriteLine("Klient - Request - Data o Hracovi: " + tmpNickname + " boli pridane!");
@@ -455,12 +451,10 @@ namespace _2DLogicGame
 
             if (aDictionaryPlayerData != null && aDictionaryPlayerData.Count > 0 && aMyIdentifier != 0)
             {
-
                 if (parEntity == null) //Ak nezadame Entitu ako parameter, tak budeme predpokladat, ze sa jedna o nas - teda naseho hraca - nie spoluhraca
                 {
                     parEntity = aDictionaryPlayerData[aMyIdentifier];
                 }
-
                 //Bude reprezentovat, poziciu TILU, kde by sa teda hrac nachadzal - pozor nie bloku!, Tile reprezentuje OBLAST jedneho bloku tzn
                 //Napr. Block so suradnicami 0, 128 - Bude ekvivalentny Tilu so suradnicami 0, 2
                 //Ak mame teda specifikovanu velkost blokov o 64px...
@@ -470,11 +464,20 @@ namespace _2DLogicGame
                 float sizeOfPlayerX = parEntity.Size.X * parEntity.EntityScale;
                 float sizeOfPLayerY = parEntity.Size.Y * parEntity.EntityScale;
 
+                float tmpPositionOffsetY = 0;
+
+                if (sizeOfPLayerY > 64)
+                {
+                    tmpPositionOffsetY = sizeOfPLayerY - 64;
+                    sizeOfPLayerY = 64;
+                } //Pokial by bola vyska Entity vyssia ako velkost bloku, zbytok jeho tela, resp hlava nebude kolizna, bude vytrcat nad blokom...
+
                 int tmpTilePositionX = (int)Math.Floor(parEntity.GetAfterMoveVector2(parGameTime).X / tmpMapBlockDimSize); //Zaciatocna X-ova Tile Suradnica - Vlavo
-                int tmpTilePositionY = (int)Math.Floor(parEntity.GetAfterMoveVector2(parGameTime).Y / tmpMapBlockDimSize); //Zaciatocna Y-ova Tile Suradnica - Hore
+                int tmpTilePositionY = (int)Math.Floor((parEntity.GetAfterMoveVector2(parGameTime).Y + tmpPositionOffsetY) / tmpMapBlockDimSize); //Zaciatocna Y-ova Tile Suradnica - Hore
+
 
                 int tmpEndTilePositionX = (int)Math.Floor((parEntity.GetAfterMoveVector2(parGameTime).X + sizeOfPlayerX) / tmpMapBlockDimSize); //Koncova X-ova Tile Suradnica - Vpravo
-                int tmpEndTilePositionY = (int)Math.Floor((parEntity.GetAfterMoveVector2(parGameTime).Y + sizeOfPLayerY) / tmpMapBlockDimSize); //Koncova Y-ova Tile Suraadnica - Dole
+                int tmpEndTilePositionY = (int)Math.Floor((parEntity.GetAfterMoveVector2(parGameTime).Y + sizeOfPLayerY + tmpPositionOffsetY) / tmpMapBlockDimSize); //Koncova Y-ova Tile Suraadnica - Dole
 
                 //Debug.WriteLine(parEntity.GetAfterMoveVector2(parGameTime).X);
 
@@ -482,36 +485,38 @@ namespace _2DLogicGame
                 bool tmpIsBlocked = false;
                 bool tmpIsSlowed = false;
                 bool tmpButtonActivation = false;
-
-
-                
+                bool tmpEntityIsStandingOn = false;
+                bool tmpIsZapped = false;
 
                 for (int i = tmpTilePositionX; i <= tmpEndTilePositionX; i++) //For Cyklus pre X-ovu Suradnicu, kde by v buducnosti stala Entita
                 {
-                    for (int j = tmpTilePositionY; j <= tmpEndTilePositionY; j++) //FOr Cyklus pre Y-ovu Suradnicu, kde by v buducnosti stala Entita
+                    for (int j = tmpTilePositionY; j <= tmpEndTilePositionY; j++) //FOr Cyklus pre Y-ovu Suradnicu, kde by v buducnosti stala Entita 
                     {
 
                         Vector2 tmpTilePositVector2 = new Vector2(i * tmpMapBlockDimSize, j * tmpMapBlockDimSize);
                         if (parLevelManager.GetBlockByPosition(tmpTilePositVector2) != null) //Ak na takejto suradnici vobec nejaky blok existuje
                         {
+
+                            if (aLogicGame.CheckKeyPressedOnce(aLogicGame.ProceedKey))
+                            {
+                                if (parLevelManager.GetBlockByPosition(tmpTilePositVector2).IsInteractible) //Najprv si porovname, ci je mozne interagovat s danym blokom
+                                {
+                                    parLevelManager.GetBlockByPosition(tmpTilePositVector2).Interact();
+                                }
+                            }
+
+                            //Spravca Kolizie
                             switch (parLevelManager.GetBlockByPosition(tmpTilePositVector2).BlockCollisionType)
                             {
                                 case BlockCollisionType.None:
                                     break;
                                 case BlockCollisionType.Wall: //Prekazka typu Stena
-                                    parLevelManager.GetBlockByPosition(tmpTilePositVector2).ChangeColor(true); /////////////// ZMAZAT
-
-                                    if (parLevelManager.GetBlockByPosition(tmpTilePositVector2) is MathInputBlock) //Najprv si porovname, či ziskaný block je typu ButtonBlock
-                                    {
-                                        MathInputBlock tmpMathInput = (MathInputBlock)parLevelManager.GetBlockByPosition(tmpTilePositVector2); //Ak je, mozeme ho pretypovat naspat - tkzv. DownCasting - Tu je to bezpecne, lebo vieme ze pojde urcite o ButtonBlock
-                                        tmpMathInput.SwitchNumber(false);
-                                    }
+                                    parLevelManager.GetBlockByPosition(tmpTilePositVector2).ChangeColor(true, Color.White); /////////////// ZMAZAT
 
                                     if (tmpIsBlocked == false) //Preto je tu tato podmienka, aby sme zabranili tomu, ze ak sa uz Entita detegovala jednu koliziu, neprepise ju..
                                     {
                                         tmpIsBlocked = true;
                                         parEntity.IsBlocked = tmpIsBlocked;
-
                                     }
                                     break;
                                 case BlockCollisionType.Slow: //Prekazka napr Voda
@@ -521,6 +526,10 @@ namespace _2DLogicGame
                                     }
                                     break;
                                 case BlockCollisionType.Zap:
+                                    if (tmpIsZapped == false)
+                                    {
+                                        tmpIsZapped = true;
+                                    }
                                     break;
                                 case BlockCollisionType.Button:
                                     tmpButtonActivation = true;
@@ -528,20 +537,26 @@ namespace _2DLogicGame
                                     {
                                         ButtonBlock tmpButton = (ButtonBlock)parLevelManager.GetBlockByPosition(tmpTilePositVector2); //Ak je, mozeme ho pretypovat naspat - tkzv. DownCasting - Tu je to bezpecne, lebo vieme ze pojde urcite o ButtonBlock
                                         tmpButton.TurnOn(tmpButtonActivation, parGameTime); //Nasledne si zavolame metodu, ktora "zapne"
-
                                     }
-
                                     break;
+                                case BlockCollisionType.Standable:
+                                    tmpEntityIsStandingOn = true;
+                                    parLevelManager.GetBlockByPosition(tmpTilePositVector2).EntityIsStandingOnTop = true;
+                                        break;
                                 default:
                                     throw new ArgumentOutOfRangeException();
                             }
+                            //Spravca Interakcie
                         }
                     }
                 }
                 parEntity.IsBlocked = tmpIsBlocked;
-                parEntity.SlowDown(tmpIsSlowed); //Nastavi ci ma Entita spomalit alebo nie
 
-
+                if (!tmpEntityIsStandingOn) //Ak Entita nestoji na ziadnom podpornom bloku
+                {
+                    parEntity.SlowDown(tmpIsSlowed); //Nastavi ci ma Entita spomalit alebo nie
+                    parEntity.ReSpawn(tmpIsZapped);
+                }
             }
         }
 
@@ -561,9 +576,6 @@ namespace _2DLogicGame
             }
 
             aDictionaryPlayerData.Clear();
-
-
-
 
             if (aClient.ConnectionStatus == NetConnectionStatus.Disconnected)
             {

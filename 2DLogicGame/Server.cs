@@ -200,11 +200,19 @@ namespace _2DLogicGame
                     float sizeOfPlayerX = parEntity.Size.X * parEntity.EntityScale;
                     float sizeOfPLayerY = parEntity.Size.Y * parEntity.EntityScale;
 
+                    float tmpPositionOffsetY = 0;
+
+                    if (sizeOfPLayerY > 64)
+                    {
+                        tmpPositionOffsetY = sizeOfPLayerY - 64;
+                        sizeOfPLayerY = 64;
+                    } //Pokial by bola vyska Entity vyssia ako velkost bloku, zbytok jeho tela, resp hlava nebude kolizna, bude vytrcat nad blokom...
+
                     int tmpTilePositionX = (int)Math.Floor(parEntity.GetAfterMoveVector2(aTickRate).X / tmpMapBlockDimSize); //Zaciatocna X-ova Tile Suradnica - Vlavo
-                    int tmpTilePositionY = (int)Math.Floor(parEntity.GetAfterMoveVector2(aTickRate).Y / tmpMapBlockDimSize); //Zaciatocna Y-ova Tile Suradnica - Hore
+                    int tmpTilePositionY = (int)Math.Floor(parEntity.GetAfterMoveVector2(aTickRate).Y + tmpPositionOffsetY / tmpMapBlockDimSize); //Zaciatocna Y-ova Tile Suradnica - Hore - Posunuta o Velkost Entity, ak je vyssia ako 64 pixelov 
 
                     int tmpEndTilePositionX = (int)Math.Floor((parEntity.GetAfterMoveVector2(aTickRate).X + sizeOfPlayerX) / tmpMapBlockDimSize); //Koncova X-ova Tile Suradnica - Vpravo
-                    int tmpEndTilePositionY = (int)Math.Floor((parEntity.GetAfterMoveVector2(aTickRate).Y + sizeOfPLayerY) / tmpMapBlockDimSize); //Koncova Y-ova Tile Suraadnica - Dole
+                    int tmpEndTilePositionY = (int)Math.Floor((parEntity.GetAfterMoveVector2(aTickRate).Y + sizeOfPLayerY + tmpPositionOffsetY) / tmpMapBlockDimSize); //Koncova Y-ova Tile Suraadnica - Dole
 
                     // Debug.WriteLine(parEntity.GetAfterMoveVector2(aTickRate).X);
 
@@ -488,7 +496,7 @@ namespace _2DLogicGame
             { //Ak je na Serveri volne Miesto
 
                 int tmpNewPlayerID = aDictionaryPlayerData.Count + 1; //Zainicializujeme si nove ID Hraca
-                aDictionaryPlayerData.Add(parRemoteUniqueIdentifier, new ServerSide.PlayerServerData(tmpNewPlayerID, parPlayerNickname, parRemoteUniqueIdentifier, new ServerSide.Vector2(800, 800), new ServerSide.Vector2(49, 64))); //Do Dictionary si pridame noveho Hraca s Novym ID a vytvorime objekt typu PlayerServerData podobne spolu s ID a Prezyvkou Hraca
+                aDictionaryPlayerData.Add(parRemoteUniqueIdentifier, new ServerSide.PlayerServerData(tmpNewPlayerID, parPlayerNickname, parRemoteUniqueIdentifier, new ServerSide.Vector2(800, 800), new ServerSide.Vector2(40, 64))); //Do Dictionary si pridame noveho Hraca s Novym ID a vytvorime objekt typu PlayerServerData podobne spolu s ID a Prezyvkou Hraca
 
                 Debug.WriteLine("Server - Hrac bol pridany!" + " Nickname: " + parPlayerNickname + " ID " + tmpNewPlayerID + " RID " + parRemoteUniqueIdentifier);
 
