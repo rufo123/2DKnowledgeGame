@@ -58,10 +58,12 @@ namespace _2DLogicGame
 
         private long aMSPerFrame = 1000 / aTickRate;
 
+        private LevelManager aLevelManager;
+
 
         public bool Connected { get => aConnected; set => aConnected = value; }
 
-        public Client(string parAppName, LogicGame parGame, ClientSide.Chat.Chat parChatManager, ComponentCollection parClientObjects, PlayerController parPlayController, string parNickName = "Player", string parIP = "127.0.0.1")
+        public Client(string parAppName, LogicGame parGame, ClientSide.Chat.Chat parChatManager, ComponentCollection parClientObjects, PlayerController parPlayController, LevelManager parLevelManager, string parNickName = "Player", string parIP = "127.0.0.1")
         {
 
             aIP = parIP;
@@ -91,6 +93,8 @@ namespace _2DLogicGame
 
             aClient.Connect(host: aIP, port: aPort, hailMessage: tmpOutgoingMessage); //Pripojime klienta na zadaneho hosta, port a spravu, ktoru chceme odoslat spolu s inicializaciou
 
+
+            aLevelManager = parLevelManager;
 
             aDictionaryPlayerData = new Dictionary<long, ClientSide.PlayerClientData>(aMaxPlayers);
 
@@ -155,11 +159,11 @@ namespace _2DLogicGame
                             Debug.WriteLine("Klient - Klient sa uspesne pripojil!");
                             RequestConnectedClients();
                         }
-
                         break;
                     case NetIncomingMessageType.UnconnectedData:
                         break;
                     case NetIncomingMessageType.ConnectionApproval:
+
                         break;
                     case NetIncomingMessageType.Data:
 
@@ -193,6 +197,18 @@ namespace _2DLogicGame
                             {
 
                             }
+                            //Server si nasladne vyziada data o leveli, napriklad pri prvom leveli potrebuje vlastne vediet ake Matematicke rovnice bude riesit...
+                            RequestLevelData();
+                        }
+
+                        if (tmpReceivedByte == (byte)PacketMessageType.RequestLevelInitData)
+                        {
+                            HandleLevelInitDataFromServer(tmpIncommingMessage);
+                        }
+
+                        if (tmpReceivedByte == (byte) PacketMessageType.LevelData)
+                        {
+                            aLevelManager.HandleLevelData(tmpIncommingMessage);
                         }
 
                         if (tmpReceivedByte == (byte)PacketMessageType.Disconnect)
@@ -315,6 +331,13 @@ namespace _2DLogicGame
             aClient.SendMessage(tmpOutgoingMessage, NetDeliveryMethod.ReliableOrdered);
         }
 
+        public void RequestLevelData()
+        {
+            NetOutgoingMessage tmpOutgoingMessage = aClient.CreateMessage();
+            tmpOutgoingMessage.Write((byte)PacketMessageType.RequestLevelInitData);
+            aClient.SendMessage(tmpOutgoingMessage, NetDeliveryMethod.ReliableOrdered);
+        }
+
         /// <summary>
         /// Metoda, pomocou, ktorej sa pridava hrac do uloziska - Dictionary
         /// </summary>
@@ -340,6 +363,7 @@ namespace _2DLogicGame
                         aClientObjects.AddComponent(aDictionaryPlayerData[tmpRUID]);
                         aLogicGame.Components.Add(aPlayerController);
                         aMyIdentifier = tmpRUID;
+                        aDictionaryPlayerData[aMyIdentifier].Connected = true;
 
                     }
                     else
@@ -350,7 +374,7 @@ namespace _2DLogicGame
 
                     HandleChatMessage(tmpNickname, "Connected", ClientSide.Chat.ChatColors.Purple); //Odosleme spravu o tom, ze sa nejaky hrac pripojil
                     Debug.WriteLine("Klient - Connect - Data o Hracovi: " + tmpNickname + " boli pridane!");
-                    
+
                     return true;
                 }
                 else if (parRequestType == PacketInfoRequestType.Request) //Ak ide o Request Udajov o Inych Hracoch, teda ja som sa pripojil a chcem vediet, kto uz je pripojeny
@@ -487,6 +511,7 @@ namespace _2DLogicGame
                 bool tmpButtonActivation = false;
                 bool tmpEntityIsStandingOn = false;
                 bool tmpIsZapped = false;
+                bool tmpEntityInteracted = false;
 
                 for (int i = tmpTilePositionX; i <= tmpEndTilePositionX; i++) //For Cyklus pre X-ovu Suradnicu, kde by v buducnosti stala Entita
                 {
@@ -497,12 +522,16 @@ namespace _2DLogicGame
                         if (parLevelManager.GetBlockByPosition(tmpTilePositVector2) != null) //Ak na takejto suradnici vobec nejaky blok existuje
                         {
 
-                            if (aLogicGame.CheckKeyPressedOnce(aLogicGame.ProceedKey))
+                            if (parEntity.WantsToInteract)
                             {
+
                                 if (parLevelManager.GetBlockByPosition(tmpTilePositVector2).IsInteractible) //Najprv si porovname, ci je mozne interagovat s danym blokom
                                 {
                                     parLevelManager.GetBlockByPosition(tmpTilePositVector2).Interact();
+
+                                    tmpEntityInteracted = true;
                                 }
+
                             }
 
                             //Spravca Kolizie
@@ -542,7 +571,7 @@ namespace _2DLogicGame
                                 case BlockCollisionType.Standable:
                                     tmpEntityIsStandingOn = true;
                                     parLevelManager.GetBlockByPosition(tmpTilePositVector2).EntityIsStandingOnTop = true;
-                                        break;
+                                    break;
                                 default:
                                     throw new ArgumentOutOfRangeException();
                             }
@@ -550,6 +579,12 @@ namespace _2DLogicGame
                         }
                     }
                 }
+
+                if (tmpEntityInteracted)
+                {
+                    parEntity.WantsToInteract = false;
+                }
+
                 parEntity.IsBlocked = tmpIsBlocked;
 
                 if (!tmpEntityIsStandingOn) //Ak Entita nestoji na ziadnom podpornom bloku
@@ -558,6 +593,29 @@ namespace _2DLogicGame
                     parEntity.ReSpawn(tmpIsZapped);
                 }
             }
+        }
+
+
+        public void SendLevelManagerData(LevelManager parLevelManager)
+        {
+            NetOutgoingMessage tmpOutgoingMessage = aClient.CreateMessage();
+            tmpOutgoingMessage.Write((byte)PacketMessageType.LevelData);
+
+            if (parLevelManager.LevelUpdateIsReady)
+            {
+                parLevelManager.PrepareLevelDataToSend(tmpOutgoingMessage);
+            }
+
+            aClient.SendMessage(tmpOutgoingMessage, NetDeliveryMethod.ReliableOrdered);
+        }
+
+        /// <summary>
+        /// Metoda, ktora prijma inicializacne data o leveli od Servera
+        /// <param name="parIncomingMessage">Parameter, ktory reprezentuje prichadzajucu spravu - typ NetIncommingMessage</param>
+        /// </summary>
+        public void HandleLevelInitDataFromServer(NetIncomingMessage parIncomingMessage)
+        {
+            aLevelManager.HandleLevelInitData(parIncomingMessage, aLevelManager.LevelName);
         }
 
 
@@ -586,6 +644,8 @@ namespace _2DLogicGame
 
             Debug.WriteLine("Shutting Down Client");
         }
+
+
 
 
     }

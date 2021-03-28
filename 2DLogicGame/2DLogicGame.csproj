@@ -15,6 +15,9 @@
     <None Remove="libs\**" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Remove="ServerSide\LevelMath_Server\MathProblemServerClientData.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <None Remove="Content\Stick-Regular.ttf" />
     <None Remove="Icon.ico" />
     <None Remove="Icon.bmp" />

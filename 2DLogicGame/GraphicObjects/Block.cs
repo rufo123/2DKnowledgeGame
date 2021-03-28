@@ -317,7 +317,6 @@ namespace _2DLogicGame.GraphicObjects
                     aStandingOnTimer += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
                 }
             }
-
             base.Update(gameTime);
         }
 

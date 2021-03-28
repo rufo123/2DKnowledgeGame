@@ -8,7 +8,9 @@ public enum PacketMessageType {
     Disconnect = 2,
     ChatMessage = 3,
     RequestConnClientsData = 4,
-    Movement = 5
+    Movement = 5,
+    LevelData = 6,
+    RequestLevelInitData = 7
 }
 
 public enum PacketInfoRequestType { 

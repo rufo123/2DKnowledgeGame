@@ -1,35 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
+using System.Diagnostics;
 using System.Text;
 using _2DLogicGame.ClientSide.MathProblem;
-using Lidgren.Network;
-using Microsoft.Xna.Framework;
+using _2DLogicGame.ServerSide.Blocks_ServerSide;
+using _2DLogicGame.ServerSide.LevelMath_Server;
 
-namespace _2DLogicGame.GraphicObjects
+namespace _2DLogicGame.ServerSide.LevelMath_Server
 {
-    public class MathProblemManager : GameComponent
+    public class MathProblemServerManager
     {
         /// <summary>
         /// Dictionary, ktora obsahuje udaje o matematickych rovniciach - Key: Int - Identifikator Rovnice, Value - MathEquation
         /// </summary>
-        private Dictionary<int, MathEquation> aEquations;
+        private Dictionary<int, MathEquationServer> aEquations;
+
 
         /// <summary>
         /// List, ktory obsahuje udaje o ButtonBlokoch
         /// </summary>
-        private List<ButtonBlock> aButtonList;
+        private List<ButtonBlockServer> aButtonList;
 
         /// <summary>
         /// Dictionay, ktora obsahuje List BridgeBlokov identifikovanych identifikacnym cislom - Key: int - Identifikator Bloku Mostu, Value: - List<BridgeBlock>
         /// </summary>
-        private Dictionary<int, List<BridgeBlock>> aDictionaryOfBridgeSubBlocks;
+        private Dictionary<int, List<BridgeBlockServer>> aDictionaryOfBridgeSubBlocks;
 
         /// <summary>
         /// Dictionary, ktora obsahuje informacie o InputBlokoch, identifikovanych ci ide o jednotky, desiatky, alebo stovky.. -> Key, Value je teda InputBlock
         /// </summary>
-        private Dictionary<int, InputBlock> aDictionaryInputBlocks;
-
+        private Dictionary<int, InputBlockServer> aDictionaryInputBlocks;
 
         /// <summary>
         /// Random generator
@@ -37,9 +37,14 @@ namespace _2DLogicGame.GraphicObjects
         private Random aRandom;
 
         /// <summary>
+        /// Reprezentuje, predosle cislo, ktore sa nachadzalo ako sucet input blokov...
+        /// </summary>
+        private int aOldSumNumber;
+
+        /// <summary>
         /// Matematicky Problem
         /// </summary>
-        private MathProblem aMathProblem;
+      //  private MathProblem aMathProblem;
 
         /// <summary>
         /// Kolko tlacitok aktivujicich Matematicky Problem sa nachadza v leveli
@@ -72,30 +77,23 @@ namespace _2DLogicGame.GraphicObjects
             get => aCompletelyLoaded;
             set => aCompletelyLoaded = value;
         }
-        public Dictionary<int, MathEquation> Equations
+        public Dictionary<int, MathEquationServer> Equations
         {
             get => aEquations;
             set => aEquations = value;
         }
-        public Dictionary<int, InputBlock> DictionaryInputBlocks
-        {
-            get => aDictionaryInputBlocks;
-            set => aDictionaryInputBlocks = value;
-        }
 
-
-        public MathProblemManager(LogicGame parLogicGame) : base(parLogicGame)
+        public MathProblemServerManager()
         {
             aCompletelyLoaded = false;
-            aEquations = new Dictionary<int, MathEquation>();
-            aButtonList = new List<ButtonBlock>();
+            aEquations = new Dictionary<int, MathEquationServer>();
+            aButtonList = new List<ButtonBlockServer>();
             aRandom = new Random();
-            aDictionaryOfBridgeSubBlocks = new Dictionary<int, List<BridgeBlock>>();
-            aMathProblem = new MathProblem(parLogicGame, new Microsoft.Xna.Framework.Vector2(100, 200), new Microsoft.Xna.Framework.Vector2(855, 300), 5, 64);
-            parLogicGame.Components.Add(aMathProblem);
-            aDictionaryInputBlocks = new Dictionary<int, InputBlock>();
+            aDictionaryOfBridgeSubBlocks = new Dictionary<int, List<BridgeBlockServer>>();
+            aDictionaryInputBlocks = new Dictionary<int, InputBlockServer>();
             aMathPoints = 0;
             aNumberOrders = 100; //Na zaciatku zainicializujeme, ake najvyssie jednotky sa tu nachadzaju, v tomto pripade stovky
+            aOldSumNumber = GetFinalNumberFromInput();
         }
 
         /// <summary>
@@ -103,12 +101,13 @@ namespace _2DLogicGame.GraphicObjects
         /// Zaroven si metoda pocita, kolko tlacidiel uz asociovala
         /// </summary>
         /// <param name="parButton">Parameter reprezentujuci tlacidlo - typ ButtonBlock</param>
-        public void AddButton(ButtonBlock parButton)
+        public void AddButton(ButtonBlockServer parButton)
         {
             aButtonCount++;
             aButtonList.Add(parButton);
             int tmpMinNumber = GenerateNumberForEquation(1, 20);
             int tmpMaxNumber = GenerateNumberForEquation(1, 20);
+            aEquations.Add(aButtonCount, new MathEquationServer(tmpMinNumber, tmpMaxNumber));
 
         }
 
@@ -118,7 +117,7 @@ namespace _2DLogicGame.GraphicObjects
         /// </summary>
         /// <param name="parBridge"></param>
         /// <param name="parBridgePartNumber"></param>
-        public void AddBridge(BridgeBlock parBridge, int parBridgePartNumber)
+        public void AddBridge(BridgeBlockServer parBridge, int parBridgePartNumber)
         {
             if (aDictionaryOfBridgeSubBlocks.ContainsKey(parBridgePartNumber)) //Ak sa dany kluc nachadza v Dictionary, len pridame cast mostu
             {
@@ -126,10 +125,9 @@ namespace _2DLogicGame.GraphicObjects
             }
             else
             {
-                aDictionaryOfBridgeSubBlocks.Add(parBridgePartNumber, new List<BridgeBlock>()); //Pokial sa tam dany kluc nenachadza, vytvorime novy List
+                aDictionaryOfBridgeSubBlocks.Add(parBridgePartNumber, new List<BridgeBlockServer>()); //Pokial sa tam dany kluc nenachadza, vytvorime novy List
                 aDictionaryOfBridgeSubBlocks[parBridgePartNumber].Add(parBridge); //A nasledne do listu pridame danu cast mostu
             }
-
         }
 
         public void AddPoints()
@@ -142,7 +140,7 @@ namespace _2DLogicGame.GraphicObjects
             aMathPoints = parCountOfPoints;
         }
 
-        public void AddInput(InputBlock parInputBlock)
+        public void AddInput(InputBlockServer parInputBlock)
         {
             aDictionaryInputBlocks.Add(aNumberOrders, parInputBlock);
 
@@ -171,39 +169,14 @@ namespace _2DLogicGame.GraphicObjects
                         tmpCounterOfOrders /= 10;
                     }
                 }
+
                 return tmpReturnNumber;
             }
             else
             {
                 return 0;
             }
-        }
 
-        public bool SetNumberToInput(int parNewNumber)
-        {
-            if (aDictionaryInputBlocks != null)
-            {
-                int tmpReturnNumber = 0;
-                int tmpCounterOfOrders = (int)Math.Pow(10, aDictionaryInputBlocks.Count - 1);
-
-                while (tmpCounterOfOrders > aNumberOrders) //Pokial sa nedostaneme na koniec jednotiek, desiatok, stoviek....
-                {
-                    aDictionaryInputBlocks[tmpCounterOfOrders].Number = (int)(parNewNumber / tmpCounterOfOrders); //Pripocitame cislo, ktore je uchovane v InputBloku
-
-                    if (tmpCounterOfOrders > 0)
-                    {
-                        parNewNumber %= tmpCounterOfOrders;
-                        tmpCounterOfOrders /= 10;
-                        
-                    }
-                }
-                
-                return true;
-            }
-            else
-            {
-                return false;
-            }
 
         }
 
@@ -236,52 +209,8 @@ namespace _2DLogicGame.GraphicObjects
 
         }
 
-        public override void Initialize()
-        {
-            base.Initialize();
-        }
 
-        /// <summary>
-        /// Metoda - Update -> Ak je uz level kompletne nacitany, porovnava ci je tlacitko stlacene ak ano, zobrazi k nemu prislusnu Matematicku Rovnicu 
-        /// </summary>
-        /// <param name="gameTime"></param>
-        public override void Update(GameTime gameTime)
-        {
-            bool tmpIsAnyButtonTurnedOn = false;
-
-            if (aCompletelyLoaded) //Ak nam Level Manager oznami, ze je Level kompletne nacitany
-            {
-                if (aButtonList != null && aButtonList.Count > 0 && aDictionaryOfBridgeSubBlocks != null && aDictionaryOfBridgeSubBlocks.Count > 0 && aEquations != null)
-                {//Pokial Existuje List tlacidielk, obsahuje nejake tlacitka a podobne aj s Dictionary
-
-                    for (int i = 0; i < aButtonList.Count; i++)
-                    {
-                        if (aButtonList[i].IsTurnedOn == true)
-                        {
-                            aMathProblem.ChangeEquation(aEquations[i + 1]);
-                            tmpIsAnyButtonTurnedOn = true;
-                            aMathProblem.Shown = true;
-                        }
-
-                        if (aButtonList[i].IsPressed == true)
-                        {
-                            //aUpdateIsReady = true;
-                            
-                        }
-                    }
-                }
-            }
-
-            if (tmpIsAnyButtonTurnedOn == false)
-            {
-                aMathProblem.Shown = false;
-            }
-
-            base.Update(gameTime);
-        }
-
-
-     /*   public void SetMathProblemData(MathProblemServerClientData parMathProblemData)
+        /*    public void SetMathProblemData(MathProblemServerClientData parMathProblemData)
         {
             if (parMathProblemData.IsEquationCorrect == true)
             {
@@ -289,25 +218,62 @@ namespace _2DLogicGame.GraphicObjects
                 {
                     aDictionaryOfBridgeSubBlocks[parMathProblemData.CurrentButtonPressed + 1][j].Show();
                 }
-
                 aButtonList[parMathProblemData.CurrentButtonPressed].ChangeToSuccessState();
             }
             else
             {
                 ResetInputNumbers();
             }
-        } */
-
-        public NetOutgoingMessage GetMathProblemData(NetOutgoingMessage parNetOutgoingMessage)
-        {
-            //    parNetOutgoingMessage
-            //tmpNewData.CurrentButtonPressed = aIdOfPressedButton;
-           // aUpdateIsReady = false; //Update uz je v tomto momente odovzdany
-
-            //return tmpNewData;
-            return null;
         }
 
+        public MathProblemServerClientData GetMathProblemData()
+        {
+            MathProblemServerClientData tmpNewData = new MathProblemServerClientData();
+            tmpNewData.CurrentButtonPressed = aIdOfPressedButton;
+            aUpdateIsReady = false; //Update uz je v tomto momente odovzdany
+            return tmpNewData;
+        }
+        */
+
+        /// <summary>
+        /// Metoda, ktora sa stara o napr spravu interakcie medzi inputom a vysledkom
+        /// </summary>
+        public void Update()
+        {
+
+            //if (aCompletelyLoaded) //Ak nam Level Manager oznami, ze je Level kompletne nacitany
+            //{
+
+            for (int i = 0; i < aButtonList.Count; i++)
+            {
+
+                if (aButtonList[i].WantsToInteract == true)
+                {
+
+                    if (GetFinalNumberFromInput() == aEquations[i + 1].GetTotalRoundedToInteger()) //Ak je vysledok spravny
+                    {
+                        Debug.WriteLine("Vysledok spravny!");
+                        aButtonList[i].WantsToInteract = false;
+                        aButtonList[i].ChangeToSuccessState();
+                    }
+                    else
+                    {
+                        ResetInputNumbers();
+                        aButtonList[i].WantsToInteract = false;
+                    }
+
+                }
+
+                if (GetFinalNumberFromInput() != aOldSumNumber)
+                {
+                    aUpdateIsReady = true;
+                    aOldSumNumber = GetFinalNumberFromInput();
+                }
+
+            }
+            //}
+
+        }
 
     }
 }

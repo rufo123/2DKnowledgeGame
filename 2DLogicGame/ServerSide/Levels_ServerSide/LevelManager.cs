@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using _2DLogicGame.ServerSide.Blocks_ServerSide;
+using Lidgren.Network;
 using XMLData;
 
 
@@ -24,16 +25,35 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
         /// </summary>
         private LevelMap aLevelMap;
 
+
         /// <summary>
         /// Boolean, ktory reprezentuje, ci je Level Nacitany alebo nie
         /// </summary>
         private bool aIsLevelInitalized = false;
+
+        /// <summary>
+        /// Atribut reprezentuje nazov levelu
+        /// </summary>
+        private string aLevelName;
+
+        public string LevelName
+        {
+            get => aLevelName;
+            set => aLevelName = value;
+        }
+        public LevelMap LevelMap
+        {
+            get => aLevelMap;
+            set => aLevelMap = value;
+        }
 
         public bool IsLevelInitalized
         {
             get => aIsLevelInitalized;
             set => aIsLevelInitalized = value;
         }
+
+
 
 
         public LevelManager(LogicGame parLogicGame)
@@ -62,6 +82,7 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
             if (tmpLevel != null) //Ak sa nam uspesne podarilo nacitat XML subor s levelom
             {
                 aLevelBlockData = tmpLevel.BlockDataList; //Pridatime Data o Blokoch do Listu
+                aLevelName = tmpLevel.LevelName;
                 return true;
             }
 
@@ -73,10 +94,29 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
         {
             LoadBlockXmlData(parLevelXmlPath: parLevelXmlPath); //Nacitame do Listu data o blokoch
 
-            aLevelMap.InitMap(aLevelBlockData); //Inicializujeme si Data o Blokoch
+
+            aLevelMap.InitMap(aLevelBlockData, aLevelName); //Inicializujeme si Data o Blokoch
 
             aIsLevelInitalized = true;
         }
+
+        /// <summary>
+        /// Metoda, ktora nacita level, pomocou zadamneho cisla, levelu, ak existuje nacita sa, pokial nie nenacita sa
+        /// </summary>
+        /// <param name="parLevelNumber"></param>
+        public void InitLevelByNumber(int parLevelNumber)
+        {
+            switch (parLevelNumber)
+            {
+                case 1:
+                    InitLevel("Levels\\levelMath");
+
+                    break;
+                default:
+                    break;
+            }
+        }
+
 
         /// <summary>
         /// Metoda, ktora vrati velkost blokov v mape
@@ -103,6 +143,37 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
             aLevelMap.GetBlocksPositionDictionary().TryGetValue(parBlockPositionVector, out tmpBlock);
             return tmpBlock;
 
+
+        }
+
+        public bool IsUpdateNeeded()
+        {
+            switch (aLevelName)
+            {
+                case "Math":
+                    return aLevelMap.GetMathProblemNaManager().UpdateIsReady;
+                    break;
+                default:
+                    break;
+            }
+
+            return false;
+        }
+
+        public NetOutgoingMessage PrepareLevelDataForUpload(NetOutgoingMessage parOutgoingMessage)
+        {
+            switch (aLevelName)
+            {
+                case "Math": //Budeme vediet na isto ze ide o level typu Math
+                    parOutgoingMessage.WriteVariableInt32(aLevelMap.GetMathProblemNaManager().GetFinalNumberFromInput());
+                    aLevelMap.GetMathProblemNaManager().UpdateIsReady = false;
+                    break;
+                default:
+                    return null;
+                    break;
+            }
+
+            return parOutgoingMessage;
         }
 
     }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Threading;
+using _2DLogicGame.ClientSide.MathProblem;
 using _2DLogicGame.ServerSide;
 using _2DLogicGame.ServerSide.Blocks_ServerSide;
 using _2DLogicGame.ServerSide.Levels_ServerSide;
@@ -72,6 +73,21 @@ namespace _2DLogicGame
         /// </summary>
         private LevelManager aLevelManager;
 
+        /// <summary>
+        /// Vlakno, ktore bude zabezpecovat, to, ze ak niekto nestoji na bloku, nebude si to ani nejaky blok mysliet
+        /// </summary>
+        private Thread aStandableBlocksHandlerThread;
+
+        /// <summary>
+        /// List, ktory bude obsahovat, bloky, ktore este neboli aktualizovane o informaciu, ze na nich nic nestoji
+        /// </summary>
+        private List<BlockServer> aStandableBlocksList;
+
+        /// <summary>
+        /// Thread, ktory sa stara o internu funkcnost levelov
+        /// </summary>
+        private Thread aLevelManagerThread;
+
 
         public bool Started
         {
@@ -114,7 +130,7 @@ namespace _2DLogicGame
 
             aDictionaryPlayerData = new Dictionary<long, ServerSide.PlayerServerData>(aMaxPlayers);
 
-            aLevelManager.InitLevel("Levels\\levelMath");
+            aLevelManager.InitLevelByNumber(1);
 
             aStopWatch = new Stopwatch();
 
@@ -123,7 +139,17 @@ namespace _2DLogicGame
             aMovementThread = new Thread(new ThreadStart(this.MovementHandler));
             aMovementThread.Start();
 
+            aStandableBlocksList = new List<BlockServer>();
+
+            aStandableBlocksHandlerThread = new Thread(new ThreadStart(this.StandableBlocksHandler));
+            aStandableBlocksHandlerThread.Start();
+
+            aLevelManagerThread = new Thread(new ThreadStart(this.LevelUpdateHandler));
+            aLevelManagerThread.Start();
+
         }
+
+
 
         /// <summary>
         /// Metoda, ktora sluzi na riadenie pohybu klienotv na serveri
@@ -131,7 +157,7 @@ namespace _2DLogicGame
         public void MovementHandler()
         {
 
-            if (aStopWatch.IsRunning != true) 
+            if (aStopWatch.IsRunning != true)
             {
                 aStopWatch.Start(); //Zapneme casovac
             }
@@ -147,21 +173,22 @@ namespace _2DLogicGame
 
                 if (aDictionaryPlayerData.Count > 0) //Ak je niekto pripojeny na server
                 {
-                    foreach (KeyValuePair<long, ServerSide.PlayerServerData> dictItem in aDictionaryPlayerData.ToList() //ToList -> Nakopiruje cely Dictionary do Listu... 
+                    foreach (KeyValuePair<long, ServerSide.PlayerServerData> dictItem in
+                        aDictionaryPlayerData.ToList() //ToList -> Nakopiruje cely Dictionary do Listu... 
                     ) //Prejdeme vsetky data v Dictionary
                     {
-                        
+
                         CollisionHandler(aLevelManager, dictItem.Value);
 
-                        dictItem.Value.Move((float)(aTickRate)); 
+                        dictItem.Value.Move((float)(aTickRate));
                         var elapsed = aStopWatch.ElapsedMilliseconds;
                     }
 
                 }
 
                 //Pripravi na odoslanie klientom
+                
 
-         
 
                 tmpTimeToSleep = unchecked((int)(tmpStartTime + aMSPerFrame - aStopWatch.ElapsedMilliseconds));
                 if (tmpTimeToSleep < 0) //Poistime si aby cas, ktory ma vlakno spat nebol zaporny
@@ -176,6 +203,91 @@ namespace _2DLogicGame
 
         }
 
+        public void LevelUpdateHandler()
+        {
+            if (aStopWatch.IsRunning != true)
+            {
+                aStopWatch.Start(); //Zapneme casovac
+            }
+
+            int tmpTimeToSleep = 0; //Inicializujeme si premennu - reprezentujucu, kolko ma server "spat"
+
+            while (aLogicGame.GameState != GameState.Exit)
+            {
+                if (aDictionaryPlayerData != null && aDictionaryPlayerData.Count > 0)
+                {
+
+                    long tmpStartTime = aStopWatch.ElapsedMilliseconds; //Nastavime zaciatocny cas
+
+
+                    switch (aLevelManager.LevelName)
+                    {
+                        case "Math":
+                            aLevelManager.LevelMap.GetMathProblemNaManager().Update();
+                            break;
+                        default:
+                            break;
+                    }
+
+                    if (aLevelManager.IsUpdateNeeded())
+                    {
+                        NetOutgoingMessage tmpOutgoingMessage = aServer.CreateMessage();
+                        tmpOutgoingMessage.Write((byte)PacketMessageType.LevelData);
+                        tmpOutgoingMessage = aLevelManager.PrepareLevelDataForUpload(tmpOutgoingMessage);
+                        aServer.SendToAll(tmpOutgoingMessage, NetDeliveryMethod.ReliableOrdered);
+                    }
+
+
+                    tmpTimeToSleep = unchecked((int)(tmpStartTime + aMSPerFrame - aStopWatch.ElapsedMilliseconds));
+                    if (tmpTimeToSleep < 0) //Poistime si aby cas, ktory ma vlakno spat nebol zaporny
+                    {
+                        tmpTimeToSleep = 0;
+                    }
+
+
+                    Thread.Sleep(tmpTimeToSleep); //Pokus o implementaciu konstantneho TICKRATU
+                }
+            }
+        }
+
+        public void StandableBlocksHandler()
+        {
+
+            if (aStopWatch.IsRunning != true)
+            {
+                aStopWatch.Start(); //Zapneme casovac
+            }
+
+            int tmpTimeToSleep = 0; //Inicializujeme si premennu - reprezentujucu, kolko ma server "spat"
+            while (aLogicGame.GameState != GameState.Exit)
+            {
+                if (aDictionaryPlayerData != null && aDictionaryPlayerData.Count > 0)
+                {
+
+                    long tmpStartTime = aStopWatch.ElapsedMilliseconds; //Nastavime zaciatocny cas
+
+                    for (int i = 0; i < aStandableBlocksList.Count; i++)
+                    {
+                        if (aStandableBlocksList[i] != null)
+                        {
+                            aStandableBlocksList[i].SomethingIsStandingOnTop = false;
+                            aStandableBlocksList.Remove(aStandableBlocksList[i]);
+                        }
+                    }
+
+                    tmpTimeToSleep = unchecked((int)(tmpStartTime + aMSPerFrame - aStopWatch.ElapsedMilliseconds));
+                    if (tmpTimeToSleep < 0) //Poistime si aby cas, ktory ma vlakno spat nebol zaporny
+                    {
+                        tmpTimeToSleep = 0;
+                    }
+
+
+                    Thread.Sleep(tmpTimeToSleep); //Pokus o implementaciu konstantneho TICKRATU
+                }
+            }
+        }
+
+
 
         /// <summary>
         /// Metoda, ktora spravuje koliziu
@@ -186,7 +298,7 @@ namespace _2DLogicGame
         public void CollisionHandler(LevelManager parLevelManager, EntityServer parEntity)
         {
 
-            if (aDictionaryPlayerData != null && aDictionaryPlayerData.Count > 0 )
+            if (aDictionaryPlayerData != null && aDictionaryPlayerData.Count > 0)
             {
 
                 //Prejdeme vsetky data v Dictionary
@@ -209,54 +321,107 @@ namespace _2DLogicGame
                     } //Pokial by bola vyska Entity vyssia ako velkost bloku, zbytok jeho tela, resp hlava nebude kolizna, bude vytrcat nad blokom...
 
                     int tmpTilePositionX = (int)Math.Floor(parEntity.GetAfterMoveVector2(aTickRate).X / tmpMapBlockDimSize); //Zaciatocna X-ova Tile Suradnica - Vlavo
-                    int tmpTilePositionY = (int)Math.Floor(parEntity.GetAfterMoveVector2(aTickRate).Y + tmpPositionOffsetY / tmpMapBlockDimSize); //Zaciatocna Y-ova Tile Suradnica - Hore - Posunuta o Velkost Entity, ak je vyssia ako 64 pixelov 
+                    int tmpTilePositionY = (int)Math.Floor((parEntity.GetAfterMoveVector2(aTickRate).Y + tmpPositionOffsetY) / tmpMapBlockDimSize); //Zaciatocna Y-ova Tile Suradnica - Hore - Posunuta o Velkost Entity, ak je vyssia ako 64 pixelov 
 
                     int tmpEndTilePositionX = (int)Math.Floor((parEntity.GetAfterMoveVector2(aTickRate).X + sizeOfPlayerX) / tmpMapBlockDimSize); //Koncova X-ova Tile Suradnica - Vpravo
                     int tmpEndTilePositionY = (int)Math.Floor((parEntity.GetAfterMoveVector2(aTickRate).Y + sizeOfPLayerY + tmpPositionOffsetY) / tmpMapBlockDimSize); //Koncova Y-ova Tile Suraadnica - Dole
+
+                    //Debug.WriteLine(tmpTilePositionY + " " + tmpEndTilePositionY);
 
                     // Debug.WriteLine(parEntity.GetAfterMoveVector2(aTickRate).X);
 
                     // float tmpNumberOfOccupiedBlocks = tmpWidth * tmpHeight;}}
                     bool tmpIsBlocked = false;
                     bool tmpIsSlowed = false;
+                    bool tmpButtonActivation = false;
+                    bool tmpEntityIsStandingOn = false;
+                    bool tmpIsZapped = false;
+                    bool tmpEntityInteracted = false;
 
                     for (int i = tmpTilePositionX; i <= tmpEndTilePositionX; i++) //For Cyklus pre X-ovu Suradnicu, kde by v buducnosti stala Entita
                     {
-                        for (int j = tmpTilePositionY; j <= tmpEndTilePositionY; j++) //FOr Cyklus pre Y-ovu Suradnicu, kde by v buducnosti stala Entita
+                        for (int j = tmpTilePositionY; j <= tmpEndTilePositionY; j++) //FOr Cyklus pre Y-ovu Suradnicu, kde by v buducnosti stala Entita 
                         {
+
                             Vector2 tmpTilePositVector2 = new Vector2(i * tmpMapBlockDimSize, j * tmpMapBlockDimSize);
                             if (parLevelManager.GetBlockByPosition(tmpTilePositVector2) != null) //Ak na takejto suradnici vobec nejaky blok existuje
                             {
+
+                                if (parEntity.WantsToInteract)
+                                {
+                                    if (parLevelManager.GetBlockByPosition(tmpTilePositVector2).IsInteractible) //Najprv si porovname, ci je mozne interagovat s danym blokom
+                                    {
+                                        parLevelManager.GetBlockByPosition(tmpTilePositVector2).Interact();
+
+                                        tmpEntityInteracted = true;
+                                    }
+
+                                }
+
+                                //Spravca Kolizie
 
                                 switch (parLevelManager.GetBlockByPosition(tmpTilePositVector2).BlockCollisionType)
                                 {
                                     case BlockCollisionType.None:
                                         break;
-                                    case BlockCollisionType.Wall: //Ak je prekazka typu WALL - Dojde ku kolizii
-                                        if (tmpIsBlocked == false) //Preto je tu tato podmienka, aby sme zabranili tomu, ze ak sa uz Entita detegovala jednu koliziu, neprepise ju..
+                                    case BlockCollisionType.Wall: //Prekazka typu Stena
+
+                                        if (tmpIsBlocked == false
+                                        ) //Preto je tu tato podmienka, aby sme zabranili tomu, ze ak sa uz Entita detegovala jednu koliziu, neprepise ju..
                                         {
                                             tmpIsBlocked = true;
                                             parEntity.IsBlocked = tmpIsBlocked;
                                         }
 
                                         break;
-                                    case BlockCollisionType.Slow: //Ak je prekazka typu SLOW - Napr Voda - Spomali sa Entita
-                                        if (tmpIsSlowed == false) //Preto je tu tato podmienka, aby sme zabranili tomu, ze ak sa uz Entita detegovala jednu napr. vodu, neprepise ju..
+                                    case BlockCollisionType.Slow: //Prekazka napr Voda
+                                        if (tmpIsSlowed == false
+                                        ) //Preto je tu tato podmienka, aby sme zabranili tomu, ze ak sa uz Entita detegovala jednu napr. vodu, neprepise ju..
                                         {
                                             tmpIsSlowed = true;
                                         }
 
                                         break;
                                     case BlockCollisionType.Zap:
+                                        if (tmpIsZapped == false)
+                                        {
+                                            tmpIsZapped = true;
+                                        }
+
+                                        break;
+                                    case BlockCollisionType.Button:
+                                        tmpButtonActivation = true;
+                                        aStandableBlocksList.Add(parLevelManager.GetBlockByPosition(tmpTilePositVector2));
+                                        parLevelManager.GetBlockByPosition(tmpTilePositVector2).SomethingIsStandingOnTop = true;
+
+                                        break;
+                                    case BlockCollisionType.Standable:
+                                        tmpEntityIsStandingOn = true;
+                                        aStandableBlocksList.Add(parLevelManager.GetBlockByPosition(tmpTilePositVector2));
+                                        parLevelManager.GetBlockByPosition(tmpTilePositVector2).SomethingIsStandingOnTop = true;
                                         break;
                                     default:
                                         throw new ArgumentOutOfRangeException();
                                 }
+
+                                //Spravca Interakcie
                             }
                         }
                     }
+
                     parEntity.IsBlocked = tmpIsBlocked;
-                    parEntity.SlowDown(tmpIsSlowed);
+
+                    if (tmpEntityInteracted)
+                    {
+                        parEntity.WantsToInteract = false;
+
+                    }
+
+                    if (!tmpEntityIsStandingOn) //Ak Entita nestoji na ziadnom podpornom bloku
+                    {
+                        parEntity.SlowDown(tmpIsSlowed); //Nastavi ci ma Entita spomalit alebo nie
+                                                         //  parEntity.ReSpawn(tmpIsZapped);
+                    }
                 }
             }
         }
@@ -367,6 +532,8 @@ namespace _2DLogicGame
                                 tmpIncommingMessage.SenderConnection.Deny("Pripojenie sa nezdarilo - Server je Plny"); //Povolime resp "Approvneme" Pripojenie
                             }
 
+
+
                         }
                         else
                         {
@@ -424,10 +591,40 @@ namespace _2DLogicGame
                             tmpOutMovMessage.Write((byte)PacketMessageType.Movement);
                             tmpOutMovMessage.WriteVariableInt64(tmpIncommingMessage.SenderConnection.RemoteUniqueIdentifier);
                             tmpOutMovMessage = aDictionaryPlayerData[tmpIncommingMessage.SenderConnection.RemoteUniqueIdentifier].PrepareDataForUpload(tmpOutMovMessage);
-                            aServer.SendToAll(tmpOutMovMessage, NetDeliveryMethod.ReliableOrdered); 
+                            aServer.SendToAll(tmpOutMovMessage, NetDeliveryMethod.ReliableOrdered);
+                        }
+                        else if (tmpReceivedByte == (byte)PacketMessageType.LevelData)
+                        {
+
+                            Debug.WriteLine("Prisla level Sprava od " + tmpIncommingMessage.SenderConnection.RemoteUniqueIdentifier);
+                            /*   public void SendLevelManagerData(LevelManager parLevelManager)
+                               {
+                                   NetOutgoingMessage tmpOutgoingMessage = aClient.CreateMessage();
+                                   tmpOutgoingMessage.Write((byte)PacketMessageType.LevelData);
+
+                                   if (parLevelManager.LevelUpdateIsReady)
+                                   {
+                                       parLevelManager.PrepareLevelDataToSend(tmpOutgoingMessage);
+                                   }
+
+                                   aClient.SendMessage(tmpOutgoingMessage, NetDeliveryMethod.ReliableOrdered);
+                               }
+                            */
+
+
+                        }
+                        else if (tmpReceivedByte == (byte)PacketMessageType.RequestLevelInitData)
+                        {
+
+                            NetOutgoingMessage tmpOutMovMessage = aServer.CreateMessage();
+                            tmpOutMovMessage.Write((byte)PacketMessageType.RequestLevelInitData);
+
+                            //true, lebo pojde o inicializacne data
+                            tmpOutMovMessage = SendDataAboutLevel(true, tmpOutMovMessage);
+                            aServer.SendMessage(tmpOutMovMessage, tmpIncommingMessage.SenderConnection, NetDeliveryMethod.ReliableOrdered);
                         }
 
-                       
+
 
 
                         break;
@@ -528,6 +725,46 @@ namespace _2DLogicGame
         }
 
         /// <summary>
+        /// Metoda, ktora odosiela Klientom data o Leveli
+        /// </summary>
+        /// <param name="parInitData">Parameter, pomocou, ktoreho sa da specifikovat, ci ide o Inicializacne data alebo nie</param>
+        /// <param name="parOutgoingMessage">Parameter - Odchadzajuca sprava - typ NetOurgoingMessage</param>
+        public NetOutgoingMessage SendDataAboutLevel(bool parInitData, NetOutgoingMessage parOutgoingMessage)
+        {
+
+            if (parInitData)
+            {
+                switch (aLevelManager.LevelName)
+                {
+                    case "Math":
+                        parOutgoingMessage.WriteVariableInt32(aLevelManager.LevelMap.GetMathProblemNaManager().Equations.Count);
+
+                        for (int i = 0; i < aLevelManager.LevelMap.GetMathProblemNaManager().Equations.Count; i++)
+                        {
+                            parOutgoingMessage.WriteVariableInt32(aLevelManager.LevelMap.GetMathProblemNaManager().Equations[i + 1].FirstNumber);
+                            parOutgoingMessage.WriteVariableInt32(aLevelManager.LevelMap.GetMathProblemNaManager().Equations[i + 1].SecondNumber);
+                            parOutgoingMessage.Write((byte)aLevelManager.LevelMap.GetMathProblemNaManager().Equations[i + 1].Operator);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else
+            {
+                switch (aLevelManager.LevelName)
+                {
+                    case "Math":
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            return parOutgoingMessage;
+        }
+
+        /// <summary>
         /// Odoberie Data o Hracovi z Udajovej struktury typu Dictionary na zaklade Kluca - Remote Unique Indentifier
         /// </summary>
         /// <param name="parRemoveUniqueIdentifier">Parameter - Remote Unique Identifier - Typu Long</param>
@@ -576,6 +813,8 @@ namespace _2DLogicGame
             aServer = null;
 
             aMovementThread.Join();
+
+            aStandableBlocksHandlerThread.Join();
 
             Debug.WriteLine("Shutting Down Server");
 

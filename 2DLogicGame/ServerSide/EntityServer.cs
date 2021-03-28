@@ -85,6 +85,9 @@ namespace _2DLogicGame.ServerSide
 
         private Vector2 aHitBoxSize;
 
+        private bool aWantsToInteract = false;
+
+
         public float Speed { get => aSpeed; set => aSpeed = value; }
         public Vector2 Position { get => aPosition; }
         public bool IsMoving { get => aIsMoving; set => aIsMoving = value; }
@@ -92,7 +95,8 @@ namespace _2DLogicGame.ServerSide
         public bool IsBlocked { get => aIsBlocked; set => aIsBlocked = value; }
         public float EntityScale { get => aEntityScale; set => aEntityScale = value; }
         public Vector2 HitBoxPos { get => aHitBoxPos; set => aHitBoxPos = value; }
-        public Vector2 HitBoxSize { get => aHitBoxSize; set => aHitBoxSize = value; }
+        public Vector2 HitBoxSize { get => aHitBoxSize; set => aHitBoxSize = value; } 
+        public bool WantsToInteract { get => aWantsToInteract; set => aWantsToInteract = value; }
 
 
 
@@ -254,6 +258,8 @@ namespace _2DLogicGame.ServerSide
                 aPosition.Y = parMessage.ReadFloat();
             }
 
+            aWantsToInteract = parMessage.ReadBoolean();
+
         }
 
         /// <summary>
@@ -271,6 +277,7 @@ namespace _2DLogicGame.ServerSide
             parMessage.Write(IsMoving);
             parMessage.Write(aPosition.X);
             parMessage.Write(aPosition.Y);
+            parMessage.Write(aWantsToInteract);
 
             return parMessage;
 

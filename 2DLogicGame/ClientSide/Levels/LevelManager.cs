@@ -6,9 +6,12 @@ using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
+using _2DLogicGame.ClientSide.MathProblem;
 using _2DLogicGame.GraphicObjects;
 using Assimp;
+using Lidgren.Network;
 using Microsoft.Xna.Framework.Content.Pipeline.Serialization.Intermediate;
+using SharpFont;
 using XMLData;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 
@@ -48,10 +51,22 @@ namespace _2DLogicGame.ClientSide.Levels
         /// </summary>
         private string aLevelName;
 
+        private bool aLevelUpdateIsReady = false;
+
         public bool IsLevelInitalized
         {
             get => aIsLevelInitalized;
             set => aIsLevelInitalized = value;
+        }
+        public bool LevelUpdateIsReady
+        {
+            get => aLevelUpdateIsReady;
+            set => aLevelUpdateIsReady = value;
+        }
+        public string LevelName
+        {
+            get => aLevelName;
+            set => aLevelName = value;
         }
 
         /// <summary>
@@ -65,6 +80,8 @@ namespace _2DLogicGame.ClientSide.Levels
             aPlayScreenComponentCollection = parPlayingScreenComponentCollection;
             aLevelBlockData = new List<BlockData>();
             aLevelMap = new LevelMap(parLogicGame);
+            aLevelUpdateIsReady = false;
+
         }
 
         /// <summary>
@@ -124,7 +141,6 @@ namespace _2DLogicGame.ClientSide.Levels
             {
                 case 1:
                     InitLevel("Levels\\levelMath");
-
                     break;
                 default:
                     break;
@@ -161,6 +177,72 @@ namespace _2DLogicGame.ClientSide.Levels
             aLevelMap.GetBlocksPositionDictionary().TryGetValue(parBlockPositionVector, out tmpBlock);
             return tmpBlock;
         }
+
+        public bool CheckForUpdate()
+        {
+            bool tmpIsUpdateNeeded = false;
+
+            switch (aLevelName)
+            {
+                case "Math":
+                    tmpIsUpdateNeeded = aLevelMap.GetMathProblemNaManager().UpdateIsReady;
+                    break;
+                default:
+                    break;
+            }
+
+            aLevelUpdateIsReady = tmpIsUpdateNeeded;
+
+            return tmpIsUpdateNeeded;
+        }
+
+        public NetOutgoingMessage PrepareLevelDataToSend(NetOutgoingMessage parNetOutgoingMessage)
+        {
+            switch (aLevelName)
+            {
+                case "Math":
+                    parNetOutgoingMessage.Write("NumberSum");
+                    parNetOutgoingMessage.WriteVariableInt32(aLevelMap.GetMathProblemNaManager().GetFinalNumberFromInput());
+                    break;
+                default:
+                    break;
+            }
+            return parNetOutgoingMessage;
+        }
+
+        public void HandleLevelData(NetIncomingMessage parMessage)
+        {
+            switch (aLevelName)
+            {
+                case "Math":
+                    aLevelMap.GetMathProblemNaManager().SetNumberToInput(parMessage.ReadVariableInt32());
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        public void HandleLevelInitData(NetIncomingMessage parMessage, string parLevelName)
+        {
+            switch (parLevelName)
+            {
+                case "Math":
+                    int tmpCountOfEquations = parMessage.ReadVariableInt32();
+                    for (int i = 0; i < tmpCountOfEquations; i++)
+                    {
+                        int tmpFirstNumber = parMessage.ReadVariableInt32();
+                        int tmpSecondNumber = parMessage.ReadVariableInt32();
+                        char tmpOperator = (char)(parMessage.ReadByte());
+
+                        this.aLevelMap.GetMathProblemNaManager().Equations.Add(i+1, new MathEquation(tmpFirstNumber, tmpSecondNumber, tmpOperator));
+                    }
+
+                    break;
+                default:
+                    break;
+            }
+        }
+
 
     }
 }

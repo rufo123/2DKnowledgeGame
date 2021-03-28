@@ -100,6 +100,14 @@ namespace _2DLogicGame.GraphicObjects
 
         private Vector2 aDefaultPosition;
 
+        private bool aWantsToInteract = false;
+
+        public bool WantsToInteract
+        {
+            get => aWantsToInteract;
+            set => aWantsToInteract = value;
+        }
+
         /// <summary>
         /// Atribut reprezentujuci nasobnu velkost oproti originalu - typ float
         /// </summary>
@@ -383,6 +391,7 @@ namespace _2DLogicGame.GraphicObjects
                 parMessage.Write(aIsTryingToMove);
                 parMessage.Write(aPosition.X);
                 parMessage.Write(aPosition.Y);
+                parMessage.Write(aWantsToInteract);
 
                 aAwaitingMovementMessage = true;
 
@@ -416,6 +425,8 @@ namespace _2DLogicGame.GraphicObjects
 
                 aRemotePosition.X = parMessage.ReadFloat();
                 aRemotePosition.Y = parMessage.ReadFloat();
+
+                aWantsToInteract = parMessage.ReadBoolean();
 
                 if (aRemotePosition != aPosition) //Zavola sa korekcia pozicie
                 {
@@ -461,12 +472,14 @@ namespace _2DLogicGame.GraphicObjects
             aRemotePosition.X = parMessage.ReadFloat();
             aRemotePosition.Y = parMessage.ReadFloat();
 
+            bool tmpInteract = parMessage.ReadBoolean();
+
             if (aRemotePosition != aPosition) //Ak suradnice nie su rovnake, zavola sa pokus o interpolaciu - Kedze ide o Klientom ovladanu Entitu, kvoli jemnosti...
             {
                 aEntityNeedsInterpolation = true; //Zatial nevyuzite
             }
-
-            if (tmpDownMov != aIsTryingToMove || tmpDir != aDirection)
+            //|| tmpInteract != aWantsToInteract
+            if (tmpDownMov != aIsTryingToMove || tmpDir != aDirection )
             {
                 aMovingDataErrored = true;
                 return false;

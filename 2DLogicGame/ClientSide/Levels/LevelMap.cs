@@ -181,5 +181,15 @@ namespace _2DLogicGame.ClientSide.Levels
             }
         }
 
+        public MathProblemManager GetMathProblemNaManager()
+        {
+            if (aMathProblemManager != null)
+            {
+                return aMathProblemManager;
+            }
+
+            return null;
+        }
+
     }
 }

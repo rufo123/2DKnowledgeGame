@@ -77,7 +77,6 @@ namespace _2DLogicGame.GraphicObjects
             { 
                 return !TextureIsOnFirstState;
             }
-
         }
 
         public void ChangeToSuccessState()

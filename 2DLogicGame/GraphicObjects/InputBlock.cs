@@ -75,6 +75,9 @@ namespace _2DLogicGame.GraphicObjects
             }
         }
 
+        /// <summary>
+        /// Metoda, ktora overriduje originalnu, metodu a pripocitava cislo reprezentovane v InputBloku, nasledne nastavi, ze uz nechce nic s blokom interagovat
+        /// </summary>
         public override void Interact()
         {
             base.Interact();

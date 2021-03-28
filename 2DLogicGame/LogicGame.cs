@@ -187,7 +187,7 @@ namespace _2DLogicGame
                         {
                             SwitchScene(aMainMenu, aPlayingScreen);
                             aServerClass = new Server("Test", this);
-                            aClientClass = new Client("Test", this, aChat, aPlayingScreen, aPlayerController);
+                            aClientClass = new Client("Test", this, aChat, aPlayingScreen, aPlayerController, aLevelManager);
 
                             aServerReadThread = new Thread(new ThreadStart(aServerClass.ReadMessages));
                             aServerReadThread.Start();
@@ -197,7 +197,6 @@ namespace _2DLogicGame
 
                             aLevelManager.InitLevelByNumber(1);
 
-                            
 
                         }
                         else if (aMenu.TaskToExecute == MenuTasksToBeExecuted.Play_Start)
@@ -207,7 +206,7 @@ namespace _2DLogicGame
 
                             string tmpIP = "127.0.0.1";
 
-                            aClientClass = new Client("Test", this, aChat, aPlayingScreen, aPlayerController, "Tester", tmpIP);
+                            aClientClass = new Client("Test", this, aChat, aPlayingScreen, aPlayerController, aLevelManager, "Tester", tmpIP);
 
                             aClientReadThread = new Thread(new ThreadStart(aClientClass.ReadMessages));
                             aClientReadThread.Start();
@@ -234,7 +233,7 @@ namespace _2DLogicGame
             //Riadenie kolizie s podmienkou existencie Klienta, LevelManazera a vytvoreneho levelu
             if (aClientClass != null && aLevelManager != null && aLevelManager.IsLevelInitalized && aPlayerController != null)
             {
-                aPlayerController.MoveRequest(gameTime);
+                aPlayerController.ControlRequest(gameTime);
                 aClientClass.CollisionHandler(gameTime, aLevelManager);
                 aPlayerController.ControlPlayerMovement(gameTime);
 
@@ -261,8 +260,17 @@ namespace _2DLogicGame
 
                     aClientClass.SendChatMessage(tst);
 
-                    
+                }
+            }
 
+            //Kontrola ci LevelManager nepotrebuje odoslat update
+            if (aLevelManager != null && aClientClass != null)
+            {
+                aLevelManager.CheckForUpdate();
+
+                if (aLevelManager.LevelUpdateIsReady)
+                {
+                    aClientClass.SendLevelManagerData(aLevelManager);
                 }
             }
 
@@ -273,10 +281,6 @@ namespace _2DLogicGame
                 aClientClass.TeammateMovementHandler(gameTime, aLevelManager);
                 
             }
-
-           
-
-
 
 
             PreviousPressedKey = CurrentPressedKey;
@@ -289,7 +293,7 @@ namespace _2DLogicGame
          
 
 
-            //MoveRequest
+            //ControlRequest
 
 
 

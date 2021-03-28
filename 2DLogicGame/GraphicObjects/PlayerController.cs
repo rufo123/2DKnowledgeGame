@@ -22,6 +22,8 @@ namespace _2DLogicGame.GraphicObjects
 
         private bool aUpdateNeeded = false;
 
+        private bool aUpdateInteractBeingSent = false;
+
         public bool UpdateNeeded { get => aUpdateNeeded; set => aUpdateNeeded = value; }
 
         private bool aOldMoving = false;
@@ -44,6 +46,7 @@ namespace _2DLogicGame.GraphicObjects
             aGame = parGame;
             aPlayer = parPlayer;
             aOldKeyboardState = new KeyboardState(Keys.None);
+            aUpdateInteractBeingSent = false;
         }
 
         public override void Initialize()
@@ -61,14 +64,14 @@ namespace _2DLogicGame.GraphicObjects
 
 
         /// <summary>
-        /// Metoda, ktora si vyziada, resp zmeni Smer a odosle informaciu, ze sa hrac snazi alebo nesnazi pohnut
+        /// Metoda, ktora si vyziada, resp zmeni Smer a odosle informaciu, ze sa hrac snazi alebo nesnazi pohnut ako dalsie odosle aj informaciu o tom ci sa hrac snazi s niecim interagovat
         /// </summary>
-        public void MoveRequest(GameTime parGameTime)
+        public void ControlRequest(GameTime parGameTime)
         {
 
             this.aGameTime = parGameTime; //Nacitame aj GameTime
 
-            if (aPlayer != null)
+            if (aPlayer != null && aPlayer.Connected)
             {
                 KeyboardState tmpNewKeyBoardState = Keyboard.GetState();
 
@@ -137,6 +140,7 @@ namespace _2DLogicGame.GraphicObjects
                 }
 
 
+
                 aOldKeyPressed = tmpCurrentKeyPresed;
                 aOldKeyboardState = tmpNewKeyBoardState;
                 aOldMoving = aPlayer.IsTryingToMove;
@@ -157,6 +161,13 @@ namespace _2DLogicGame.GraphicObjects
                 if (aOldMoving == true && aPlayer.IsBlocked == true) //Ak sa pred tym hrac pohyboval, a teraz je v stave zablokovany
                 {
                     aUpdateNeeded = true;
+                }
+
+                if (aGame.CheckKeyPressedOnce(aGame.ProceedKey) && aPlayer.WantsToInteract == false) //Ak je stlacene tlacitko interakcie, k zruseniu WantToInteract prebehne priemo po interakcii
+                {
+                    aPlayer.WantsToInteract = true;
+                    aUpdateNeeded = true;
+                    Debug.WriteLine("Tuk - True");
                 }
 
                 aPlayer.Move(gameTime: parGameTime);

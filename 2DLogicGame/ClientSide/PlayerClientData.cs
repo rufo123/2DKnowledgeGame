@@ -33,6 +33,12 @@ namespace _2DLogicGame.ClientSide
         /// </summary>
         private bool aIsControlledByClient;
 
+        /// <summary>
+        /// Hodnota, boolean, ktora reprezentuje, ci je hrac naozaj pripojeny na server, resp server to pripojenie aj potvrdil.
+        /// </summary>
+        private bool aConnected;
+
+
 
         /// <summary>
         /// Konstruktor - Inicializuje zakladne atributy
@@ -52,6 +58,7 @@ namespace _2DLogicGame.ClientSide
             aPlayerNickName = parPlayerNickName; //Priradime Prezyvku Hraca
             aRemoteUniqueIdentifier = parRemoteUniqueIdentifier; //Priradime Unikatny Identifikator
             aIsControlledByClient = parIsMe; //Atribut ci sa jedna o mna - Klienta
+            aConnected = false;
             SetImage("Sprites\\Entities\\postavaFrames");
 
             switch (parPlayerID)
@@ -66,14 +73,13 @@ namespace _2DLogicGame.ClientSide
                     Color = Color.Black;
                     break;
             }
-
             EntityScale = 1.5F;
 
         }
 
-
         public long RemoteUniqueIdentifier { get => aRemoteUniqueIdentifier; }
         public int PlayerID { get => aPlayerID; }
-        public string PlayerNickName { get => aPlayerNickName; set => aPlayerNickName = value; }
+        public string PlayerNickName { get => aPlayerNickName; set => aPlayerNickName = value; } 
+        public bool Connected { get => aConnected; set => aConnected = value; }
     }
 }
