@@ -83,7 +83,7 @@ namespace _2DLogicGame.ServerSide.Blocks_ServerSide
 
             if (WantsToInteract)
             {
-              // SwitchNumber(false);
+                SwitchNumber(false);
             }
 
             WantsToInteract = false;

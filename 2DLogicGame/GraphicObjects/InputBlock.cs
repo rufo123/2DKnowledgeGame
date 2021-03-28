@@ -84,7 +84,7 @@ namespace _2DLogicGame.GraphicObjects
 
             if (WantsToInteract)
             {
-                SwitchNumber(false);
+                //    SwitchNumber(false); -> Switchovanie prebieha na serveri, napr. v Leveli Math server odosiela cislo .. Cize asi zakomentovat ditto aj s SwitchNumber...
             }
 
             WantsToInteract = false;
