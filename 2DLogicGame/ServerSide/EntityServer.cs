@@ -87,6 +87,9 @@ namespace _2DLogicGame.ServerSide
 
         private bool aWantsToInteract = false;
 
+        private Vector2 aDefaultPosition;
+
+
 
         public float Speed { get => aSpeed; set => aSpeed = value; }
         public Vector2 Position { get => aPosition; }
@@ -95,8 +98,9 @@ namespace _2DLogicGame.ServerSide
         public bool IsBlocked { get => aIsBlocked; set => aIsBlocked = value; }
         public float EntityScale { get => aEntityScale; set => aEntityScale = value; }
         public Vector2 HitBoxPos { get => aHitBoxPos; set => aHitBoxPos = value; }
-        public Vector2 HitBoxSize { get => aHitBoxSize; set => aHitBoxSize = value; } 
+        public Vector2 HitBoxSize { get => aHitBoxSize; set => aHitBoxSize = value; }
         public bool WantsToInteract { get => aWantsToInteract; set => aWantsToInteract = value; }
+        public Vector2 DefaultPosition { get => aDefaultPosition; set => aDefaultPosition = value; }
 
 
 
@@ -115,7 +119,7 @@ namespace _2DLogicGame.ServerSide
             aDefaultSpeed = aSpeed;
             aHitBoxPos = parPosition;
             aHitBoxSize = parPosition;
-
+            aDefaultPosition = new Vector2(parPosition.X, parPosition.Y);
             aMovementVector = new Vector2(0, 0);
 
         }
@@ -206,7 +210,7 @@ namespace _2DLogicGame.ServerSide
         /// <returns>Vrati Vektor2 - Suradnicu buducej pozicie Entity</returns>
         public Vector2 GetAfterMoveVector2(float parServerTickRate)
         {
-            Vector2 tmpNewMovementVector2 = new Vector2(0,0);
+            Vector2 tmpNewMovementVector2 = new Vector2(0, 0);
 
             switch (aDirection)
             {
@@ -269,7 +273,6 @@ namespace _2DLogicGame.ServerSide
         /// <returns></returns>
         public NetOutgoingMessage PrepareDataForUpload(NetOutgoingMessage parMessage)
         {
-
             parMessage.Write((byte)aDirection);
             parMessage.WriteVariableInt32((int)aMovementVector.X);
             parMessage.WriteVariableInt32((int)aMovementVector.Y);
@@ -281,7 +284,19 @@ namespace _2DLogicGame.ServerSide
 
             return parMessage;
 
+        }
 
+        public void ReSpawn(bool parRespawn)
+        {
+            if (parRespawn && aDefaultPosition != null)
+            {
+                aPosition.X = aDefaultPosition.X;
+                aPosition.Y = aDefaultPosition.Y;
+
+
+
+                Debug.WriteLine("Default - " + aDefaultPosition.X + " " + aDefaultPosition.Y);
+            }
         }
 
 

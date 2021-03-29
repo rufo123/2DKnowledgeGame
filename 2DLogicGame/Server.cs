@@ -178,7 +178,7 @@ namespace _2DLogicGame
                     ) //Prejdeme vsetky data v Dictionary
                     {
 
-                        CollisionHandler(aLevelManager, dictItem.Value);
+                        CollisionHandler(aLevelManager, dictItem.Value, dictItem.Key);
 
                         dictItem.Value.Move((float)(aTickRate));
                         var elapsed = aStopWatch.ElapsedMilliseconds;
@@ -187,7 +187,7 @@ namespace _2DLogicGame
                 }
 
                 //Pripravi na odoslanie klientom
-                
+
 
 
                 tmpTimeToSleep = unchecked((int)(tmpStartTime + aMSPerFrame - aStopWatch.ElapsedMilliseconds));
@@ -237,6 +237,26 @@ namespace _2DLogicGame
                         aServer.SendToAll(tmpOutgoingMessage, NetDeliveryMethod.ReliableOrdered);
                     }
 
+                    if (aLevelManager.WinCheck() && aLevelManager.WinInfoRequested == false) //Ak doslo k vyhre a este sme sme neprebrali informacie o vyhre
+                    {
+                        aLevelManager.WinInfoRequested = true;
+                        NetOutgoingMessage tmpNetOutgoingMessage = aServer.CreateMessage();
+                        tmpNetOutgoingMessage.Write((byte)PacketMessageType.LevelWonChanged);
+                        tmpNetOutgoingMessage = aLevelManager.PrepareLevelChangeMessage(tmpNetOutgoingMessage);
+                        aServer.SendToAll(tmpNetOutgoingMessage, NetDeliveryMethod.ReliableOrdered);
+                        aLevelManager.ChangeToNextLevel();
+
+                    }
+
+                    if (aLevelManager.DefaultPosChanged == true)
+                    {
+                        NetOutgoingMessage tmpNetOutgoingMessage = aServer.CreateMessage();
+                        tmpNetOutgoingMessage.Write((byte)PacketMessageType.DefaultPosChanged);
+                        tmpNetOutgoingMessage = aLevelManager.PrepareDefaultPositionUpdate(tmpNetOutgoingMessage);
+                        aServer.SendToAll(tmpNetOutgoingMessage, NetDeliveryMethod.ReliableOrdered);
+                        aLevelManager.DefaultPosChanged = false;
+
+                    }
 
                     tmpTimeToSleep = unchecked((int)(tmpStartTime + aMSPerFrame - aStopWatch.ElapsedMilliseconds));
                     if (tmpTimeToSleep < 0) //Poistime si aby cas, ktory ma vlakno spat nebol zaporny
@@ -288,14 +308,14 @@ namespace _2DLogicGame
         }
 
 
-
         /// <summary>
         /// Metoda, ktora spravuje koliziu
         /// </summary>
         /// <param name="parGameTime">Parameter Casu Hry - Typ GameTime</param>
         /// <param name="parLevelManager">Parameter Level Managera - Typ LevelManager</param>
         /// <param name="parEntity">Parameter Reprezentuje Entitu - Typ Entity</param>
-        public void CollisionHandler(LevelManager parLevelManager, EntityServer parEntity)
+        /// <param name="parRUID">Parameter, reprezentuje Identifikator Entity - napr RUID Hraca</param>
+        public void CollisionHandler(LevelManager parLevelManager, EntityServer parEntity, long parID)
         {
 
             if (aDictionaryPlayerData != null && aDictionaryPlayerData.Count > 0)
@@ -370,7 +390,7 @@ namespace _2DLogicGame
                                         ) //Preto je tu tato podmienka, aby sme zabranili tomu, ze ak sa uz Entita detegovala jednu koliziu, neprepise ju..
                                         {
                                             tmpIsBlocked = true;
-                                            parEntity.IsBlocked = tmpIsBlocked;
+
                                         }
 
                                         break;
@@ -421,7 +441,17 @@ namespace _2DLogicGame
                     {
                         parEntity.SlowDown(tmpIsSlowed); //Nastavi ci ma Entita spomalit alebo nie
                                                          //  parEntity.ReSpawn(tmpIsZapped);
+                        parEntity.ReSpawn(tmpIsZapped);
+
+                        if (tmpIsZapped)
+                        {
+                            SendMovementInfo(parID); //Doslo k dost zavaznym zmenam, preto odosleme klientom informacie
+
+                        }
                     }
+
+                    parEntity.IsBlocked = tmpIsBlocked;
+
                 }
             }
         }
@@ -586,12 +616,10 @@ namespace _2DLogicGame
                             aDictionaryPlayerData[tmpIncommingMessage.SenderConnection.RemoteUniqueIdentifier].HandleReceivedData(tmpIncommingMessage);
 
                             //Odosle spat
+                            SendMovementInfo(tmpIncommingMessage.SenderConnection.RemoteUniqueIdentifier);
 
-                            NetOutgoingMessage tmpOutMovMessage = aServer.CreateMessage();
-                            tmpOutMovMessage.Write((byte)PacketMessageType.Movement);
-                            tmpOutMovMessage.WriteVariableInt64(tmpIncommingMessage.SenderConnection.RemoteUniqueIdentifier);
-                            tmpOutMovMessage = aDictionaryPlayerData[tmpIncommingMessage.SenderConnection.RemoteUniqueIdentifier].PrepareDataForUpload(tmpOutMovMessage);
-                            aServer.SendToAll(tmpOutMovMessage, NetDeliveryMethod.ReliableOrdered);
+
+
                         }
                         else if (tmpReceivedByte == (byte)PacketMessageType.LevelData)
                         {
@@ -692,10 +720,22 @@ namespace _2DLogicGame
             if (aDictionaryPlayerData.Count < 2)
             { //Ak je na Serveri volne Miesto
 
-                int tmpNewPlayerID = aDictionaryPlayerData.Count + 1; //Zainicializujeme si nove ID Hraca
-                aDictionaryPlayerData.Add(parRemoteUniqueIdentifier, new ServerSide.PlayerServerData(tmpNewPlayerID, parPlayerNickname, parRemoteUniqueIdentifier, new ServerSide.Vector2(800, 800), new ServerSide.Vector2(40, 64))); //Do Dictionary si pridame noveho Hraca s Novym ID a vytvorime objekt typu PlayerServerData podobne spolu s ID a Prezyvkou Hraca
+                int tmpNewPlayerId = aDictionaryPlayerData.Count + 1; //Zainicializujeme si nove ID Hraca
 
-                Debug.WriteLine("Server - Hrac bol pridany!" + " Nickname: " + parPlayerNickname + " ID " + tmpNewPlayerID + " RID " + parRemoteUniqueIdentifier);
+                Vector2 tmpDefaultPlayerPosition = new Vector2(800, 800);
+
+                if (this.aLevelManager.PlayerDefaultPositions[tmpNewPlayerId] != null)
+                {
+                    tmpDefaultPlayerPosition = this.aLevelManager.PlayerDefaultPositions[tmpNewPlayerId];
+                }
+
+                PlayerServerData tmpNewPlayer = new ServerSide.PlayerServerData(tmpNewPlayerId, parPlayerNickname, parRemoteUniqueIdentifier, tmpDefaultPlayerPosition, new ServerSide.Vector2(40, 64));
+
+
+                aDictionaryPlayerData.Add(parRemoteUniqueIdentifier, tmpNewPlayer);  //Do Dictionary si pridame noveho Hraca s Novym ID a vytvorime objekt typu PlayerServerData podobne spolu s ID a Prezyvkou Hraca
+                aLevelManager.DictionaryPlayerDataWithKeyId.Add(tmpNewPlayerId, tmpNewPlayer);
+
+                Debug.WriteLine("Server - Hrac bol pridany!" + " Nickname: " + parPlayerNickname + " ID " + tmpNewPlayerId + " RID " + parRemoteUniqueIdentifier);
 
                 return true;
             } //Ak je Server plny
@@ -765,6 +805,19 @@ namespace _2DLogicGame
         }
 
         /// <summary>
+        /// Metoda, ktora sa stara o odoslanie dat o pohybe/interakcii hraca
+        /// </summary>
+        /// <param name="parRemoteUniqueIdentifier">Parameter - typu long - Informacia pre klienta od koho su vlastne informacie o Pohybe/Interakcii</param>
+        public void SendMovementInfo(long parRemoteUniqueIdentifier)
+        {
+            NetOutgoingMessage tmpOutMovMessage = aServer.CreateMessage();
+            tmpOutMovMessage.Write((byte)PacketMessageType.Movement);
+            tmpOutMovMessage.WriteVariableInt64(parRemoteUniqueIdentifier);
+            tmpOutMovMessage = aDictionaryPlayerData[parRemoteUniqueIdentifier].PrepareDataForUpload(tmpOutMovMessage);
+            aServer.SendToAll(tmpOutMovMessage, NetDeliveryMethod.ReliableOrdered);
+        }
+
+        /// <summary>
         /// Odoberie Data o Hracovi z Udajovej struktury typu Dictionary na zaklade Kluca - Remote Unique Indentifier
         /// </summary>
         /// <param name="parRemoveUniqueIdentifier">Parameter - Remote Unique Identifier - Typu Long</param>
@@ -784,6 +837,21 @@ namespace _2DLogicGame
 
             long tmpRemoteUniqueIdentifier = parMessage.SenderConnection.RemoteUniqueIdentifier;
             aDictionaryPlayerData.Remove(tmpRemoteUniqueIdentifier);
+
+            if (aDictionaryPlayerData.Count > 0) //Ak je niekto pripojeny na server
+            {
+                foreach (KeyValuePair<long, ServerSide.PlayerServerData> dictItem in aDictionaryPlayerData.ToList() //ToList -> Nakopiruje cely Dictionary do Listu... 
+                ) //Prejdeme vsetky data v Dictionary
+                {
+                    if (dictItem.Key == tmpRemoteUniqueIdentifier)
+                    {
+                        aLevelManager.DictionaryPlayerDataWithKeyId.Remove(dictItem.Value.PlayerID);
+                    }
+                }
+
+            }
+
+
 
             // parMessage.SenderConnection.Disconnect("Disconnect Requested");
 

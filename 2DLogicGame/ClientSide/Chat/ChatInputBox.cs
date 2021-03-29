@@ -124,7 +124,6 @@ namespace _2DLogicGame.ClientSide.Chat
                 // aLogicGame.SpriteBatch.Begin();
                 aLogicGame.SpriteBatch.Draw(aChatInputTexture2D, aPositionVector ,aChatInputRectangle, Color.White, 0F, Vector2.Zero, 1F,  SpriteEffects.None, 0.1F); //Vykrasli ChatInputBox pomocou Textury, Rectangle a farby - Color.White zachovava povodne farby
 
-
                 float tmpNextStringSize = (aLogicGame.Font.MeasureString(aMessageToSend).X * aFontScale) + aLogicGame.Font.LineSpacing; //Reprezentuje buducu moznu velkost Stringu s ohladom na Skalovanie
                 float tmpPreviousStringSize = ((aLogicGame.Font.MeasureString(aMessageToSend).X * (aFontScale + aFontEnlargingConstant)) + aLogicGame.Font.LineSpacing); //Reprezentuje predoslu velkost Stringu s ohladom na Skalovanie
 
@@ -192,6 +191,7 @@ namespace _2DLogicGame.ClientSide.Chat
             aChatInputTexture2D = aLogicGame.Content.Load<Texture2D>("Sprites\\Backgrounds\\chatInputBackground");
             base.LoadContent();
         }
+
 
         /// <summary>
         /// Handle sluziaci na Text Input - Parametre vyplyvaju z Window.TextInputu...

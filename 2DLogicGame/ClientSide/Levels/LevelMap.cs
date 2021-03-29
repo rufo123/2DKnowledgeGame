@@ -62,6 +62,27 @@ namespace _2DLogicGame.ClientSide.Levels
             aBlockList = new List<DrawableGameComponent>(31 * 16);
         }
 
+        public void DestroyMap(string parOldLevelName)
+        {
+            aBlockPositionDictionary.Clear();
+            aBlockList.Clear();
+
+            switch (parOldLevelName)
+            {
+                case "Math":
+                    if (aMathProblemManager != null)
+                    {
+                        aLogicGame.Components.Remove(aMathProblemManager);
+                        aMathProblemManager.RemoveRedundantThings();
+                        aMathProblemManager = null;
+                    }
+
+                    break;
+                default:
+                    break;
+            }
+        }
+
         /// <summary>
         /// Metoda, ktora Inicializuje mapu pomocou zadaneho Listu dat o Blokoch - typ List<BlockData>
         /// </summary>
@@ -69,9 +90,14 @@ namespace _2DLogicGame.ClientSide.Levels
         /// <param name="parLevelName"></param>
         public void InitMap(List<BlockData> parBlockPositions, string parLevelName)
         {
-            if (parLevelName == "Math") //Ak ide o level typu Math, potrebujeme vytvorit manazera Matematickeho Problemu
+
+            switch (parLevelName)
             {
-                aMathProblemManager = new MathProblemManager(aLogicGame);
+                case "Math": //Ak ide o level typu Math, potrebujeme vytvorit manazera Matematickeho Problemu
+                    aMathProblemManager = new MathProblemManager(aLogicGame);
+                    break;
+                default:
+                    break;
             }
 
             for (int i = 0; i < parBlockPositions.Count; i++)
@@ -103,9 +129,12 @@ namespace _2DLogicGame.ClientSide.Levels
                 }
                 else if (parBlockPositions[i].BlockName == "bridgeBlock")
                 {
-                    BridgeBlock tmpBridgeBlock = new BridgeBlock(aLogicGame, tmpBlockPosition);
+                    WaterBlock tmpWaterBlock = new WaterBlock(aLogicGame, tmpBlockPosition);
+                    BridgeBlock tmpBridgeBlock = new BridgeBlock(aLogicGame, tmpBlockPosition, tmpWaterBlock);
                     aBlockPositionDictionary.Add(tmpBlockPosition, tmpBridgeBlock);
+
                     aBlockList.Add(tmpBridgeBlock);
+                    aBlockList.Add(tmpWaterBlock);
 
                     if (aMathProblemManager != null && parLevelName == "Math" && parBlockPositions[i].AdditionalData != null) //Ak vieme ze pojde o level typu Math, odosleme MathProblem manazeru, informacie o Bridge Blokoch
                     {

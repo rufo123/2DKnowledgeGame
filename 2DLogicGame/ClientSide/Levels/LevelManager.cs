@@ -10,6 +10,7 @@ using _2DLogicGame.ClientSide.MathProblem;
 using _2DLogicGame.GraphicObjects;
 using Assimp;
 using Lidgren.Network;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content.Pipeline.Serialization.Intermediate;
 using SharpFont;
 using XMLData;
@@ -51,6 +52,35 @@ namespace _2DLogicGame.ClientSide.Levels
         /// </summary>
         private string aLevelName;
 
+        /// <summary>
+        /// Atribut, reprezentuje ci je poziadavka na zmenu levelu alebo nie - typu boolean 
+        /// </summary>
+        private bool aLevelChangeRequested;
+
+        /// <summary>
+        /// Atribut, ktory sluzi ako doplnujuca informacia Level Change Requestu o tom na aky level sa ma zmenit momentalny level
+        /// </summary>
+        private int aLevelNumberRequested;
+
+        /// <summary>
+        /// Atribut, ktory reprezentuje pomocny casovac, napr. vyuzivany pri vypocte casu
+        /// </summary>
+        private float aHelperTimer;
+
+        /// <summary>
+        /// Atribut, Dictionary, reprezentuje Suradnice hracov podla ich ID
+        /// </summary>
+        private Dictionary<int, Vector2> aPlayerDefaultPositionsDictionary;
+
+        /// <summary>
+        /// Dictionary obsahujúca Hráčov, ku ktorým sa bude pristupovať pomocou Remote Unique Identifikator - Typ PlayerServer
+        /// Aktualizuje podla Triedy Client
+        /// </summary>
+        private Dictionary<long, ClientSide.PlayerClientData> aDictionaryPlayerData; //Zatial ani nevyuzite, mozno aj zmazat
+
+
+        private LevelTransformScreen aLevelTransformScreen;
+
         private bool aLevelUpdateIsReady = false;
 
         public bool IsLevelInitalized
@@ -68,6 +98,11 @@ namespace _2DLogicGame.ClientSide.Levels
             get => aLevelName;
             set => aLevelName = value;
         }
+        public Dictionary<int, Vector2> PlayerDefaultPositions
+        {
+            get => aPlayerDefaultPositionsDictionary;
+            set => aPlayerDefaultPositionsDictionary = value;
+        }
 
         /// <summary>
         /// Konstruktor LevelManageru -
@@ -81,7 +116,12 @@ namespace _2DLogicGame.ClientSide.Levels
             aLevelBlockData = new List<BlockData>();
             aLevelMap = new LevelMap(parLogicGame);
             aLevelUpdateIsReady = false;
-
+            aPlayerDefaultPositionsDictionary = new Dictionary<int, Vector2>(2);
+            aLevelChangeRequested = false;
+            aLevelNumberRequested = 0;
+            aHelperTimer = 0F;
+            aLevelTransformScreen = new LevelTransformScreen(parLogicGame);
+            aPlayScreenComponentCollection.AddComponent(aLevelTransformScreen);
         }
 
         /// <summary>
@@ -109,6 +149,17 @@ namespace _2DLogicGame.ClientSide.Levels
             {
                 aLevelBlockData = tmpLevel.BlockDataList; //Pridatime Data o Blokoch do Listu
                 aLevelName = tmpLevel.LevelName;
+
+                if (tmpLevel.DefaultPlayerPositionList != null)
+                {
+                    for (int i = 0; i < tmpLevel.DefaultPlayerPositionList.Count; i++)
+                    {
+                        Vector2 tmpNewVector2 = new Vector2(tmpLevel.DefaultPlayerPositionList[i].PositionX * GetMapBlocksDimensionSize(), tmpLevel.DefaultPlayerPositionList[i].PositionY * GetMapBlocksDimensionSize());
+                        aPlayerDefaultPositionsDictionary.Add(i + 1, tmpNewVector2);
+
+                    }
+                }
+
                 return true;
             }
 
@@ -129,6 +180,12 @@ namespace _2DLogicGame.ClientSide.Levels
             aPlayScreenComponentCollection.AddComponents(aLevelMap.GetBLockList());
 
             aIsLevelInitalized = true;
+
+            aLogicGame.CameraX = -48 * aLogicGame.Scale;
+
+            aLevelTransformScreen.CameraOffset = aLogicGame.CameraX;
+
+
         }
 
         /// <summary>
@@ -142,9 +199,38 @@ namespace _2DLogicGame.ClientSide.Levels
                 case 1:
                     InitLevel("Levels\\levelMath");
                     break;
+                case 2:
+                    LevelName = "NONE";
+                    break;
                 default:
                     break;
             }
+        }
+        
+
+        /// <summary>
+        /// Metoda, ktora ovlada zmenu Levelu
+        /// </summary>
+        /// <param name="parLevelNumber">Parameter, ktory reprezentuje menu levelu na zmenenie</param>
+        public void ChangeLevel(int parLevelNumber)
+        {
+            aPlayScreenComponentCollection.RemoveComponents(aLevelMap.GetBLockList());
+            aLevelMap.DestroyMap(aLevelName);
+            aPlayerDefaultPositionsDictionary.Clear();
+            InitLevelByNumber(parLevelNumber);
+            //Samozrejme, ked uz doslo k zmene levu, oznamime ze uz nie je treba takato zmena
+            aLevelNumberRequested = 0; 
+            aLevelChangeRequested = false;
+        }
+
+        /// <summary>
+        /// Metoda, ktora nastavi LevelManageru, request na zmenu levelu - Preto, aby mohlo dojst aj k nejakym grafickym zmenam.. napr fade out - fade in...
+        /// </summary>
+        /// <param name="parLevelNumber">Parameter - cislo levelu, na ktory sa ma zmenit</param>
+        public void SetRequestOfLevelChange(int parLevelNumber)
+        {
+            aLevelChangeRequested = true;
+            aLevelNumberRequested = parLevelNumber;
         }
 
         /// <summary>
@@ -203,6 +289,7 @@ namespace _2DLogicGame.ClientSide.Levels
                 case "Math":
                     parNetOutgoingMessage.Write("NumberSum");
                     parNetOutgoingMessage.WriteVariableInt32(aLevelMap.GetMathProblemNaManager().GetFinalNumberFromInput());
+
                     break;
                 default:
                     break;
@@ -210,15 +297,61 @@ namespace _2DLogicGame.ClientSide.Levels
             return parNetOutgoingMessage;
         }
 
-        public void HandleLevelData(NetIncomingMessage parMessage)
+        public void HandleLevelData(NetIncomingMessage parMessage, bool parAmIFirstPlayer)
         {
             switch (aLevelName)
             {
                 case "Math":
                     aLevelMap.GetMathProblemNaManager().SetNumberToInput(parMessage.ReadVariableInt32());
+                    Feedback tmpFeedBack = (Feedback)parMessage.ReadByte();
+                    switch (tmpFeedBack)
+                    {
+                        case Feedback.NotSubmitted:
+                            break;
+                        case Feedback.SubmitSucceeded:
+                            int tmpIdOfButton = parMessage.ReadVariableInt32();
+                            bool tmpShowButton = parAmIFirstPlayer;
+                            if (tmpIdOfButton >= 0)
+                            {
+                                aLevelMap.GetMathProblemNaManager().ButtonSucceeded(tmpIdOfButton, tmpShowButton);
+                            }
+                            break;
+                        case Feedback.SubmitFailed:
+                            aLevelMap.GetMathProblemNaManager().ResetInputNumbers();
+                            break;
+                        case Feedback.AllSolved:
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
                     break;
                 default:
                     break;
+            }
+        }
+
+
+        /// <summary>
+        /// Pomocna metoda, ktora sa stara o aktualizacie dolezitych data
+        /// </summary>
+        public void Update(GameTime parGameTime)
+        {
+            if (aLevelChangeRequested && aLevelTransformScreen.NeedsFadeOut == false && aLevelTransformScreen.NeedsFadeIn)
+            {
+                aLevelTransformScreen.NeedsFadeIn = false;
+                aLevelTransformScreen.NeedsFadeOut = true;
+            }
+
+            if (aLevelChangeRequested)
+            {
+                if (aLevelTransformScreen.NeedsFadeOut == false )
+                {
+                    ChangeLevel(aLevelNumberRequested);
+
+                    aLevelTransformScreen.NeedsFadeIn = true;
+                }
+
+
             }
         }
 
@@ -233,7 +366,6 @@ namespace _2DLogicGame.ClientSide.Levels
                         int tmpFirstNumber = parMessage.ReadVariableInt32();
                         int tmpSecondNumber = parMessage.ReadVariableInt32();
                         char tmpOperator = (char)(parMessage.ReadByte());
-
                         this.aLevelMap.GetMathProblemNaManager().Equations.Add(i+1, new MathEquation(tmpFirstNumber, tmpSecondNumber, tmpOperator));
                     }
 

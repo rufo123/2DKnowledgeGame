@@ -91,6 +91,8 @@ namespace _2DLogicGame.ServerSide
             return new Vector2(tmpMultX, tmpMultY);
         }
 
+
+
         /// <summary>
         /// Operator Nasobenia ScaleFactor a Vektor
         /// </summary>
@@ -151,7 +153,15 @@ namespace _2DLogicGame.ServerSide
         /// <returns>Vrati Vector - Vysledok Rovnosti</returns>
         public static bool operator ==(Vector2 parHodn1, Vector2 parHodn2)
         {
-            return parHodn1.X == parHodn2.X || parHodn2.X == parHodn2.Y;
+
+            if ((parHodn1 is null && !(parHodn2 is null)) || (parHodn2 is null && !(parHodn1 is null)))
+            {
+                return false;
+            }
+            else
+            {
+                return parHodn2 is { } && parHodn1 is { } && (parHodn1.X == parHodn2.X || parHodn2.X == parHodn2.Y);
+            }
 
         }
 
@@ -163,9 +173,17 @@ namespace _2DLogicGame.ServerSide
         /// <returns>Vrati Vector - Vysledok Nerovnosti</returns>
         public static bool operator !=(Vector2 parHodn1, Vector2 parHodn2)
         {
-            return parHodn1.X != parHodn2.X || parHodn2.X != parHodn2.Y;
+            if ((parHodn1 is null && !(parHodn2 is null)) || (parHodn2 is null && !(parHodn1 is null)))
+            {
+                return true;
+            }
+            else
+            {
+                return parHodn1 is { } && parHodn2 is { } && (parHodn1.X != parHodn2.X || parHodn2.X != parHodn2.Y);
+            }
+
+
+
         }
-
-
     }
 }

@@ -36,11 +36,11 @@ namespace LevelCreator
         public Creator()
         {
 
-            aBlockDictionary = new Dictionary<char, BlockData>();
-
             XMLData.LevelMaker tmpNewLevel = new XMLData.LevelMaker();
 
-           //tmpNewLevel.BlockPositionDictionary = new Dictionary<Vector2, string>();
+            aBlockDictionary = new Dictionary<char, BlockData>();
+
+            tmpNewLevel.DefaultPlayerPositionList = new List<PlayerPosition>();
 
             tmpNewLevel.BlockDataList = new List<BlockData>();
 
@@ -63,6 +63,8 @@ namespace LevelCreator
             }
 
             Console.WriteLine("Subor " + tmpFilePath + " uspesne nacitany!");
+
+            int tmpPlayerIdCounter = 1; //Pomocne pocitadlo ID Hracov - Pouzite pri definovani prednastavenych suradnic
 
 
             using (StreamReader tmpFileStream = new StreamReader(tmpFilePath))
@@ -114,10 +116,26 @@ namespace LevelCreator
 
                     // tmpNewLevel.BlockPositionDictionary.Add(new Vector2(aPositionX, aPositionY), aBlockDictionary[tmpReadChar]); //Pocitam s tym, ze pozicie nebudu rovnake
 
+                  
+
+
                     BlockData tmpBlockData = new BlockData();
                     tmpBlockData.BlockName = aBlockDictionary[tmpReadChar].BlockName;
                     tmpBlockData.Position = new Vector2(aPositionX, aPositionY);
                     tmpBlockData.AdditionalData = aBlockDictionary[tmpReadChar].AdditionalData;
+
+                    if (tmpReadChar == 'S' || tmpReadChar == 's') //Oznacenie - Spawn Hraca
+                    {
+                        Console.WriteLine("Bol detegovany spawn hraca");
+                        Console.WriteLine("Pridavam Suradnicu " + aPositionX + " " + aPositionY + " ako prednastaveny bod znovuzrodenia pre hraca - " + tmpPlayerIdCounter);
+
+                        PlayerPosition tmpPlayerPosition = new PlayerPosition();
+                        tmpPlayerPosition.PositionX = aPositionX;
+                        tmpPlayerPosition.PositionY = aPositionY;
+
+                        tmpNewLevel.DefaultPlayerPositionList.Add(tmpPlayerPosition); //Tu netreba zabudnut na to, ze hrac 1 - bude ulozeny na poziicii 0
+                        tmpPlayerIdCounter++;
+                    }
 
                     tmpNewLevel.BlockDataList.Add(tmpBlockData);
                     aPositionX++; //Po nacitani bloku, zvysime X-ovu suradnicu

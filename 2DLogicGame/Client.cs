@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using _2DLogicGame.ClientSide.Levels;
+using SharpDX.D3DCompiler;
 
 namespace _2DLogicGame
 {
@@ -60,14 +61,13 @@ namespace _2DLogicGame
 
         private LevelManager aLevelManager;
 
-
         public bool Connected { get => aConnected; set => aConnected = value; }
 
         public Client(string parAppName, LogicGame parGame, ClientSide.Chat.Chat parChatManager, ComponentCollection parClientObjects, PlayerController parPlayController, LevelManager parLevelManager, string parNickName = "Player", string parIP = "127.0.0.1")
         {
 
             aIP = parIP;
-
+            
             aLogicGame = parGame;
 
             aChatManager = parChatManager;
@@ -98,6 +98,8 @@ namespace _2DLogicGame
 
             aDictionaryPlayerData = new Dictionary<long, ClientSide.PlayerClientData>(aMaxPlayers);
 
+            // aLevelManager.DictionaryPlayerData = aDictionaryPlayerData; //Pridame aj referenciu o hracoch LevelManagerovi -> Zatial nevyuzite mozno pri Respawne?
+
             aPlayerController = parPlayController;
 
             if (aClient.ConnectionStatus == NetConnectionStatus.Connected)
@@ -123,7 +125,7 @@ namespace _2DLogicGame
                 aStopWatch.Start();
                 long tmpStartTime = aStopWatch.ElapsedMilliseconds;
                 int tmpTimeToSleep;
-
+                
 
                 // aClient.MessageReceivedEvent.WaitOne();
                 NetIncomingMessage tmpIncommingMessage;
@@ -208,7 +210,14 @@ namespace _2DLogicGame
 
                         if (tmpReceivedByte == (byte) PacketMessageType.LevelData)
                         {
-                            aLevelManager.HandleLevelData(tmpIncommingMessage);
+                            if (aDictionaryPlayerData[aMyIdentifier].PlayerID == 1)
+                            {
+                                aLevelManager.HandleLevelData(tmpIncommingMessage, true);
+                            }
+                            else
+                            {
+                                aLevelManager.HandleLevelData(tmpIncommingMessage, false);
+                            }
                         }
 
                         if (tmpReceivedByte == (byte)PacketMessageType.Disconnect)
@@ -237,6 +246,15 @@ namespace _2DLogicGame
                             }
                             aDictionaryPlayerData[tmpRUID].PrepareDownloadedData(tmpIncommingMessage, aPlayerController.GameTime); //Ide o data o spoluhracoch
 
+                        }
+                        if (tmpReceivedByte == (byte) PacketMessageType.LevelWonChanged)
+                        {
+                            HandleLevelChange(tmpIncommingMessage.ReadVariableInt32());
+                            
+                        }
+                        if (tmpReceivedByte == (byte) PacketMessageType.DefaultPosChanged)
+                        {
+                            HandlePositionChange(tmpIncommingMessage);
                         }
 
                         break;
@@ -358,7 +376,7 @@ namespace _2DLogicGame
                 {
                     if (aDictionaryPlayerData.Count <= 0) //Ak este ziaden hrac nie je ulozeny v databaze, vieme ze ide o mna
                     {
-                        aDictionaryPlayerData.Add(tmpRUID, new ClientSide.PlayerClientData(tmpID, tmpNickname, tmpRUID, aLogicGame, new Vector2(800, 800), new Vector2(40, 64), parIsMe: true)); //Pridame nove data o hracovi do uloziska, na zaklade Remote UID a pri udajoch o hracovi zadame, ze ide o nas
+                        aDictionaryPlayerData.Add(tmpRUID, new ClientSide.PlayerClientData(tmpID, tmpNickname, tmpRUID, aLogicGame, aLevelManager.PlayerDefaultPositions[tmpID], new Vector2(40, 64), parIsMe: true)); //Pridame nove data o hracovi do uloziska, na zaklade Remote UID a pri udajoch o hracovi zadame, ze ide o nas
                         aPlayerController.SetPlayer(aDictionaryPlayerData[tmpRUID]);
                         aClientObjects.AddComponent(aDictionaryPlayerData[tmpRUID]);
                         aLogicGame.Components.Add(aPlayerController);
@@ -368,7 +386,7 @@ namespace _2DLogicGame
                     }
                     else
                     {
-                        aDictionaryPlayerData.Add(tmpRUID, new ClientSide.PlayerClientData(tmpID, tmpNickname, tmpRUID, aLogicGame, new Vector2(800, 800), new Vector2(40, 64))); //Pridame nove data o hracovi do uloziska
+                        aDictionaryPlayerData.Add(tmpRUID, new ClientSide.PlayerClientData(tmpID, tmpNickname, tmpRUID, aLogicGame, aLevelManager.PlayerDefaultPositions[tmpID], new Vector2(40, 64))); //Pridame nove data o hracovi do uloziska
                         aClientObjects.AddComponent(aDictionaryPlayerData[tmpRUID]);
                     }
 
@@ -381,7 +399,7 @@ namespace _2DLogicGame
                 {
                     if (tmpID != -1) //Ak sa nejedna o prazdnu spravu
                     {
-                        aDictionaryPlayerData.Add(tmpRUID, new ClientSide.PlayerClientData(tmpID, tmpNickname, tmpRUID, aLogicGame, new Vector2(800, 800), new Vector2(40, 64))); //Pridame hraca do uloziska
+                        aDictionaryPlayerData.Add(tmpRUID, new ClientSide.PlayerClientData(tmpID, tmpNickname, tmpRUID, aLogicGame, aLevelManager.PlayerDefaultPositions[tmpID], new Vector2(40, 64))); //Pridame hraca do uloziska
                         aClientObjects.AddComponent(aDictionaryPlayerData[tmpRUID]);
                         HandleChatMessage(tmpNickname, "Is Already Here", ClientSide.Chat.ChatColors.Purple); //Odosleme spravu o tom, kto uz bol pripojeny - predomnou
                         Debug.WriteLine("Klient - Request - Data o Hracovi: " + tmpNickname + " boli pridane!");
@@ -590,7 +608,8 @@ namespace _2DLogicGame
                 if (!tmpEntityIsStandingOn) //Ak Entita nestoji na ziadnom podpornom bloku
                 {
                     parEntity.SlowDown(tmpIsSlowed); //Nastavi ci ma Entita spomalit alebo nie
-                    parEntity.ReSpawn(tmpIsZapped);
+                    parEntity.ReSpawn(tmpIsZapped, parGameTime);
+
                 }
             }
         }
@@ -616,6 +635,46 @@ namespace _2DLogicGame
         public void HandleLevelInitDataFromServer(NetIncomingMessage parIncomingMessage)
         {
             aLevelManager.HandleLevelInitData(parIncomingMessage, aLevelManager.LevelName);
+        }
+
+        /// <summary>
+        /// Metoda, ktora spravuje zmenu Levelu na novy 
+        /// </summary>
+        /// <param name="parNewLevelNumber">Parameter reprezentujuci cislo noveho levelu - typ int</param>
+        public void HandleLevelChange(int parNewLevelNumber)
+        {
+            aLevelManager.SetRequestOfLevelChange(parNewLevelNumber);
+        }
+
+        /// <summary>
+        /// Metoda, ktora sa stara o spracovanie novych prednastavenych pozicii
+        /// </summary>
+        /// <param name="parIncomingMessage">Parameter spravy - typ NetIncommingMessage - buffer</param>
+        public void HandlePositionChange(NetIncomingMessage parIncomingMessage)
+        {
+
+            for (int i = 0; i < aMaxPlayers; i++)
+            {
+                int tmpPlayerID = parIncomingMessage.ReadVariableInt32();
+                float tmpPosX = parIncomingMessage.ReadFloat();
+                float tmpPosY = parIncomingMessage.ReadFloat();
+                Vector2 tmpNewVector2 = new Vector2(tmpPosX, tmpPosY);
+
+                foreach (KeyValuePair<long, ClientSide.PlayerClientData> dictItem in aDictionaryPlayerData.ToList())
+                {
+                    //Prejdeme vsetky data v Dictionary
+                    {
+                        if (dictItem.Value.PlayerID == tmpPlayerID)
+                        {
+                            dictItem.Value.DefaultPosition = tmpNewVector2;
+                            dictItem.Value.EntityNeedsRespawn = true; //Oznamime tiez, ze Entita potrebuje Respawn
+                        }
+                    }
+                }
+
+            } //Viem, ze tu pojde o cyklus v cykle, ale maximalny pocet hracov je 2, prechadzame vzdy tiez o velkosti 2, takze sa urobia maximalne 4 ukony
+
+
         }
 
 

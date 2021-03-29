@@ -8,13 +8,20 @@ using _2DLogicGame.ServerSide.LevelMath_Server;
 
 namespace _2DLogicGame.ServerSide.LevelMath_Server
 {
+    public enum Feedback
+    {
+        NotSubmitted = 0,
+        SubmitSucceeded = 1,
+        SubmitFailed = 2,
+        AllSolved = 3
+    }
+
     public class MathProblemServerManager
     {
         /// <summary>
         /// Dictionary, ktora obsahuje udaje o matematickych rovniciach - Key: Int - Identifikator Rovnice, Value - MathEquation
         /// </summary>
         private Dictionary<int, MathEquationServer> aEquations;
-
 
         /// <summary>
         /// List, ktory obsahuje udaje o ButtonBlokoch
@@ -32,6 +39,11 @@ namespace _2DLogicGame.ServerSide.LevelMath_Server
         private Dictionary<int, InputBlockServer> aDictionaryInputBlocks;
 
         /// <summary>
+        /// List, ktory obsahuje EndBlocky - bude sluzit na detekciu, ci na danych blokoch stoja hraci, ak ano, mozu postupit do dalsieho levelu
+        /// </summary>
+        private List<EndBlockServer> aEndBlockList;
+
+        /// <summary>
         /// Random generator
         /// </summary>
         private Random aRandom;
@@ -40,11 +52,6 @@ namespace _2DLogicGame.ServerSide.LevelMath_Server
         /// Reprezentuje, predosle cislo, ktore sa nachadzalo ako sucet input blokov...
         /// </summary>
         private int aOldSumNumber;
-
-        /// <summary>
-        /// Matematicky Problem
-        /// </summary>
-      //  private MathProblem aMathProblem;
 
         /// <summary>
         /// Kolko tlacitok aktivujicich Matematicky Problem sa nachadza v leveli
@@ -56,6 +63,12 @@ namespace _2DLogicGame.ServerSide.LevelMath_Server
         private int aFinalNumber;
 
         private bool aUpdateIsReady;
+
+        private int aIdOfLastButtonSucceeded;
+
+        private int aCountOfSucceededButtons;
+        
+        private Feedback aProblemFeedback;
 
         public bool UpdateIsReady
         {
@@ -83,6 +96,18 @@ namespace _2DLogicGame.ServerSide.LevelMath_Server
             set => aEquations = value;
         }
 
+        public Feedback ProblemFeedback
+        {
+            get => aProblemFeedback;
+            set => aProblemFeedback = value;
+        }
+
+                public int IdOfLastButtonSucceeded
+        {
+            get => aIdOfLastButtonSucceeded;
+            set => aIdOfLastButtonSucceeded = value;
+        }
+
         public MathProblemServerManager()
         {
             aCompletelyLoaded = false;
@@ -91,9 +116,13 @@ namespace _2DLogicGame.ServerSide.LevelMath_Server
             aRandom = new Random();
             aDictionaryOfBridgeSubBlocks = new Dictionary<int, List<BridgeBlockServer>>();
             aDictionaryInputBlocks = new Dictionary<int, InputBlockServer>();
-            aMathPoints = 0;
+            aEndBlockList = new List<EndBlockServer>();
+            aMathPoints = 0; //Debug zmenit na 0
             aNumberOrders = 100; //Na zaciatku zainicializujeme, ake najvyssie jednotky sa tu nachadzaju, v tomto pripade stovky
             aOldSumNumber = GetFinalNumberFromInput();
+            aProblemFeedback = Feedback.NotSubmitted;
+            aIdOfLastButtonSucceeded = -1;
+            aCountOfSucceededButtons = 0;
         }
 
         /// <summary>
@@ -129,6 +158,15 @@ namespace _2DLogicGame.ServerSide.LevelMath_Server
                 aDictionaryOfBridgeSubBlocks[parBridgePartNumber].Add(parBridge); //A nasledne do listu pridame danu cast mostu
             }
         }
+
+        public void AddEndBlock(EndBlockServer parEndBlockServer)
+        {
+            if (aEndBlockList != null && aEndBlockList.Count < 2)
+            {
+                aEndBlockList.Add(parEndBlockServer);
+            }
+        }
+
 
         public void AddPoints()
         {
@@ -209,22 +247,26 @@ namespace _2DLogicGame.ServerSide.LevelMath_Server
 
         }
 
-
-        /*    public void SetMathProblemData(MathProblemServerClientData parMathProblemData)
+        /// <summary>
+        /// Metoda, ktora sa vykona vtedy, ak prisla zo servera informacia o uspesnosti niektoreho prikladu
+        /// </summary>
+        /// <param name="parButtonID">Parameter reprezentujuci, tlacitko, ktoreho stav sa ma zmenit na Succeeded - typ int</param>
+        /// <param name="parShowBridge">Parameter reprezentujuci, ci sa maju zobrazit aj bloky mostu - typ bool</param>
+        public void ButtonSucceeded(int parButtonID)
         {
-            if (parMathProblemData.IsEquationCorrect == true)
+            if (parButtonID >= 0)
             {
-                for (int j = 0; j < aDictionaryOfBridgeSubBlocks[parMathProblemData.CurrentButtonPressed + 1].Count; j++)
-                {
-                    aDictionaryOfBridgeSubBlocks[parMathProblemData.CurrentButtonPressed + 1][j].Show();
-                }
-                aButtonList[parMathProblemData.CurrentButtonPressed].ChangeToSuccessState();
+                aButtonList[parButtonID].ChangeToSuccessState();
+
+                    for (int j = 0; j < aDictionaryOfBridgeSubBlocks[parButtonID + 1].Count; j++)
+                    {
+                        aDictionaryOfBridgeSubBlocks[parButtonID + 1][j].Show();
+                    }
             }
-            else
-            {
-                ResetInputNumbers();
-            }
+
         }
+
+        /*
 
         public MathProblemServerClientData GetMathProblemData()
         {
@@ -249,28 +291,56 @@ namespace _2DLogicGame.ServerSide.LevelMath_Server
 
                 if (aButtonList[i].WantsToInteract == true)
                 {
-
                     if (GetFinalNumberFromInput() == aEquations[i + 1].GetTotalRoundedToInteger()) //Ak je vysledok spravny
                     {
                         Debug.WriteLine("Vysledok spravny!");
                         aButtonList[i].WantsToInteract = false;
                         aButtonList[i].ChangeToSuccessState();
+                        this.ButtonSucceeded(i);
+                        aIdOfLastButtonSucceeded = i;
+                        aProblemFeedback = Feedback.SubmitSucceeded;
+                        aCountOfSucceededButtons++;
+                        aUpdateIsReady = true;
+                        aMathPoints++; //Pripocitame bod, za spravne vyrieseny priklad
                     }
                     else
                     {
                         ResetInputNumbers();
                         aButtonList[i].WantsToInteract = false;
+                        aProblemFeedback = Feedback.SubmitFailed;
+                        aUpdateIsReady = true;
                     }
-
                 }
 
                 if (GetFinalNumberFromInput() != aOldSumNumber)
                 {
+                    aProblemFeedback = Feedback.NotSubmitted;
                     aUpdateIsReady = true;
                     aOldSumNumber = GetFinalNumberFromInput();
                 }
 
             }
+
+            if (aMathPoints >= 5)
+            {
+                int tmpCountOfStandingPlayers = 0;
+                
+                for (int j = 0; j < aEndBlockList.Count; j++)
+                {
+                    if (aEndBlockList[j].SomethingIsStandingOnTop)
+                    {
+                        tmpCountOfStandingPlayers++;
+                    }
+                }
+
+                if (tmpCountOfStandingPlayers >= 2) //Debug Len jeden
+                {
+                    Debug.WriteLine("Server - Vyhra");
+                    aProblemFeedback = Feedback.AllSolved;
+                    //Odtialto si nasledne Server sam preberie informaciu i vyhre
+                }
+            }
+
             //}
 
         }

@@ -102,11 +102,24 @@ namespace _2DLogicGame.GraphicObjects
 
         private bool aWantsToInteract = false;
 
+        private bool aEntityNeedsRespawn;
+
         public bool WantsToInteract
         {
             get => aWantsToInteract;
             set => aWantsToInteract = value;
         }
+        public Vector2 DefaultPosition
+        {
+            get => aDefaultPosition;
+            set => aDefaultPosition = value;
+        }
+        public bool EntityNeedsRespawn
+        {
+            get => aEntityNeedsRespawn;
+            set => aEntityNeedsRespawn = value;
+        }
+
 
         /// <summary>
         /// Atribut reprezentujuci nasobnu velkost oproti originalu - typ float
@@ -122,6 +135,7 @@ namespace _2DLogicGame.GraphicObjects
         private bool aEntityNeedsPosCorrect = false;
 
         private bool aEntityNeedsInterpolation = false;
+
 
 
 
@@ -162,6 +176,8 @@ namespace _2DLogicGame.GraphicObjects
             aDefaultSpeed = aSpeed;
 
             aDefaultPosition = parPosition;
+
+            aEntityNeedsRespawn = false;
 
             //Ak by bola Entita vyssia ako 64 blokov, nebude sa to ratat do vysky
             /*if (aSize.Y > 64)
@@ -460,6 +476,22 @@ namespace _2DLogicGame.GraphicObjects
 
         //Nakoniec INterpolacia Scrapped
 
+        /// <summary>
+        /// Taka velmi jednoducha forma korekcia suradnic.. s podporou pripustnej chyby - vyuzita pri klientovi
+        /// </summary>
+        /// <param name="parGameTime"></param>
+        public void InterpolationErrorCheck()
+        {
+            float tmpAllowedErrorOffset = 50F; //Znamena - 
+
+            if (Math.Abs(aPosition.X - aRemotePosition.X) >= tmpAllowedErrorOffset || (Math.Abs(aPosition.Y - aRemotePosition.Y) >= tmpAllowedErrorOffset))
+            {
+                aPosition = aRemotePosition;
+                aEntityNeedsInterpolation = false;
+            } 
+        }
+
+
 
         public bool DownloadedDataErrorDetection(NetIncomingMessage parMessage)
         {
@@ -476,7 +508,7 @@ namespace _2DLogicGame.GraphicObjects
 
             if (aRemotePosition != aPosition) //Ak suradnice nie su rovnake, zavola sa pokus o interpolaciu - Kedze ide o Klientom ovladanu Entitu, kvoli jemnosti...
             {
-                aEntityNeedsInterpolation = true; //Zatial nevyuzite
+                InterpolationErrorCheck(); //Odosleme aby doslo k takej jednoduchej interpolacii, skontroluje sa ci suradnice su rovnake, ak nie zmeni sa pozicia v pripade daneho offsetu chyby
             }
             //|| tmpInteract != aWantsToInteract
             if (tmpDownMov != aIsTryingToMove || tmpDir != aDirection )
@@ -526,28 +558,36 @@ namespace _2DLogicGame.GraphicObjects
         /// Metoda, ktora vrati Entitu, na prednastavenu poziciu
         /// <param name="parDoZap">Parameter, reprezentujuci ci ma Entitu ReSpawnut alebo nie</param>
         /// </summary>
-        public void ReSpawn(bool parDoZap)
+        public void ReSpawn(bool parDoZap, GameTime parGameTime)
         {
             if (parDoZap == true)
             {
                 if (aDefaultPosition != null)
                 {
                     aPosition = aDefaultPosition;
+                    PositionCorrection(parGameTime); //Kedze ide o respawn zavolame si aj PositionCorrect -> Vyziadame si od servera aby skontroloval ci nase suradnice su spravne
                 }
+
             }
         }
 
 
 
-        public override void Update(GameTime gameTime)
+        public override void Update(GameTime parGameTime)
         {
             if (aEntityNeedsPosCorrect == true)
             {
-                PositionCorrection(gameTime);
+                PositionCorrection(parGameTime);
+            }
+
+            if (aEntityNeedsRespawn)
+            {
+                ReSpawn(true, parGameTime); //True - Entitu Respawneme, a posleme jej aj gameTime
+                aEntityNeedsRespawn = false;
             }
 
 
-            base.Update(gameTime);
+            base.Update(parGameTime);
         }
 
         public override void Initialize()

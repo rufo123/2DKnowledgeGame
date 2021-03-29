@@ -26,30 +26,30 @@ namespace _2DLogicGame.GraphicObjects
 
         private int aTimer;
 
-        public BridgeBlock(LogicGame parGame, Vector2 parPosition, Texture2D parTexture = null) : base(parGame, parPosition, parTexture, parCollisionType: BlockCollisionType.Zap)
+        public BridgeBlock(LogicGame parGame, Vector2 parPosition, WaterBlock parWaterBlock, Texture2D parTexture = null) : base(parGame, parPosition, parTexture, parCollisionType: BlockCollisionType.Zap)
         {
             SetImageLocation("Sprites\\Blocks\\bridgeBlock");
             this.LayerDepth = LayerDepth - 0.1F;
 
             //Pridame, pod most aj blok vody
             aGame = parGame;
-            aWaterBlock = new WaterBlock(parGame, parPosition);
-
+            aWaterBlock = parWaterBlock;
             IsHidden = true;
             aWantsToShow = false;
             Visibility = 0F;
             aTimer = 0;
-
-            parGame.Components.Add(aWaterBlock); //Mozeme si dovolit rovno takto pridat komponent do hry
         }
 
-        public void Show()
+        public void Show(bool parStayHidden)
         {
             //Kedze sa nam most objavi nad vodou, odstranime koliziu bloku pod mostom
             aWaterBlock.BlockCollisionType = BlockCollisionType.None;
             this.BlockCollisionType = BlockCollisionType.Standable;
-            aWantsToShow = true;
 
+            if (parStayHidden) //Pokial pride poziadavka, ze most sa ma aj vykreslit
+            {
+                aWantsToShow = true;
+            }
         }
 
         public override void Update(GameTime gameTime)

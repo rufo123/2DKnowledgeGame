@@ -10,7 +10,9 @@ public enum PacketMessageType {
     RequestConnClientsData = 4,
     Movement = 5,
     LevelData = 6,
-    RequestLevelInitData = 7
+    RequestLevelInitData = 7,
+    LevelWonChanged = 8, //Level bol vyhrany a ide sa zmenit
+    DefaultPosChanged = 9
 }
 
 public enum PacketInfoRequestType { 

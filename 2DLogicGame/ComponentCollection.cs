@@ -56,6 +56,29 @@ namespace _2DLogicGame
             }
         }
 
+        public void RemoveComponent(DrawableGameComponent parComponent)
+        {
+            if (aComponentList != null && aComponentList.Contains(parComponent))
+            {
+                aComponentList.Remove(parComponent);
+            }
+        }
+
+        public void RemoveComponents(List<DrawableGameComponent> parComponents)
+        {
+            if (aComponentList != null)
+            {
+                for (int i = 0; i < parComponents.Count; i++)
+                {
+                    if (aComponentList.Contains(parComponents[i]))
+                    {
+                        aComponentList.Remove(parComponents[i]);
+                        aGame.Components.Remove(parComponents[i]);
+                    }
+                }
+            }
+        }
+
         public void SetVisibility(bool parVisible)
         {
 

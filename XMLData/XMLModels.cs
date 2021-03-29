@@ -18,6 +18,11 @@ namespace XMLData
         public string LevelName { get; set; } //Auto property - LevelName
 
         /// <summary>
+        /// Auto Property - Oznacujuca Prednastavenu Suradnicu hrac - List Suradnice X a Y, pozor list zacina na 0, ale ID hracov na 1
+        /// </summary>
+        public List<PlayerPosition> DefaultPlayerPositionList { get; set; } //Auto
+
+        /// <summary>
         /// Auto Property - Oznacujuca Dictionary: Key - Pozicia, Value - BlockName
         /// </summary>
         /// Pozn. Kvoli ContentSerializeru, musela byt pridana referencia na projekt s hrou
@@ -42,5 +47,14 @@ namespace XMLData
         [ContentSerializer(Optional = true)]
         [XmlElement(elementName: "AdditionalData")]
         public string AdditionalData;
+    }
+
+    public class PlayerPosition
+    {
+        [XmlElement(elementName: "X")] 
+        public int PositionX;
+
+        [XmlElement(elementName: "Y")] 
+        public int PositionY;
     }
 }

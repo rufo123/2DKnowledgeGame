@@ -30,6 +30,11 @@ namespace _2DLogicGame.ClientSide.Chat
         private Vector2 aPositionVector;
 
         /// <summary>
+        /// Atribut Pozicie - Prednastaveny Vektor Pozicie - Typ Vector2
+        /// </summary>
+        private Vector2 aPositionVectorDefault;
+
+        /// <summary>
         /// Atribut Chat Output Rectanglu - Typ Rectangle
         /// </summary>
         private Rectangle aChatOutputRectagle;
@@ -100,6 +105,7 @@ namespace _2DLogicGame.ClientSide.Chat
             aWindowHeight = parHeight;
             aWindowWidth = parWidth;
             aMessageStorage = new List<string>(10);
+            aPositionVectorDefault = new Vector2(aPositionVector.X, aPositionVector.Y);
         }
 
         public override void Draw(GameTime gameTime)
@@ -219,9 +225,22 @@ namespace _2DLogicGame.ClientSide.Chat
             }
         }
 
+        /// <summary>
+        /// V hre ja pusunuta kamera, preto na toto treba dbat aj pri Chate
+        /// </summary>
+        public void AddChatOffset(float parChatOffsetX)
+        {
+            aPositionVector.X -= parChatOffsetX;
+        }
+
         
         public override void Update(GameTime gameTime)
         {
+
+            if (aPositionVector.X != aPositionVectorDefault.X - aLogicGame.CameraX) //Chat musi pocitat aj s Offsetom Kamery, v nasom pripade nam staci pracovat s Offset suradnicou X, ine sa nebudu menit
+            {
+                aPositionVector.X = aPositionVectorDefault.X - aLogicGame.CameraX;
+            }
 
             if ((aMessageStorage.Count + 1) * aSpacing > aWindowHeight) //Pozrieme sa ci sa spravy zmestia do Receive Boxu - Velkostne - Ak nie vstupime do vnutra podmienky
             {

@@ -81,5 +81,6 @@ namespace _2DLogicGame.ClientSide
         public int PlayerID { get => aPlayerID; }
         public string PlayerNickName { get => aPlayerNickName; set => aPlayerNickName = value; } 
         public bool Connected { get => aConnected; set => aConnected = value; }
+
     }
 }

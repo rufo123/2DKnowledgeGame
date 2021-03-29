@@ -58,10 +58,7 @@ namespace _2DLogicGame
 
         private int aBackBufferHeight = 720; //720
 
-
-
-
-
+        private float aCameraX;
 
         private float aScale = 1F;
 
@@ -79,7 +76,7 @@ namespace _2DLogicGame
         public RenderTarget2D RenderTarget { get => aRenderTarget; }
         public GraphicsDeviceManager Graphics { get => _graphics; set => _graphics = value; }
         public float Scale { get => aScale; }
-
+        public float CameraX { get => aCameraX; set => aCameraX = value; }
         // public int RenderTargetWidth { get => aRenderTargetWidth;  }
 
         // public int RenderTargetHeight { get => aRenderTargetHeight; }
@@ -98,6 +95,7 @@ namespace _2DLogicGame
             IsMouseVisible = true;
             this.IsFixedTimeStep = false;
             this.TargetElapsedTime = TimeSpan.FromSeconds(1D / 30D);
+            aCameraX = 0;
         }
 
 
@@ -130,19 +128,13 @@ namespace _2DLogicGame
             aLevelManager = new LevelManager(this, aPlayingScreen);
 
 
-            
-
-            
-
-
-
             base.Initialize();
 
             Graphics.PreferredBackBufferWidth = aBackBufferWidth;
             Graphics.PreferredBackBufferHeight = aBackBufferHeight;
-            Graphics.ApplyChanges();
+            
 
-          
+            Graphics.ApplyChanges();
 
 
             aScale = 1F / (1080F / _graphics.GraphicsDevice.Viewport.Height);
@@ -182,7 +174,7 @@ namespace _2DLogicGame
                     case GameState.MainMenu:
                         break;
                     case GameState.Playing:
-
+                        
                         if (aMenu.TaskToExecute == MenuTasksToBeExecuted.Host_Start)
                         {
                             SwitchScene(aMainMenu, aPlayingScreen);
@@ -196,7 +188,7 @@ namespace _2DLogicGame
                             aClientReadThread.Start();
 
                             aLevelManager.InitLevelByNumber(1);
-
+                            
 
                         }
                         else if (aMenu.TaskToExecute == MenuTasksToBeExecuted.Play_Start)
@@ -204,7 +196,8 @@ namespace _2DLogicGame
 
                             SwitchScene(aMainMenu, aPlayingScreen);
 
-                            string tmpIP = "127.0.0.1";
+                            // string tmpIP = "127.0.0.1";
+                            string tmpIP = "25.81.200.231";
 
                             aClientClass = new Client("Test", this, aChat, aPlayingScreen, aPlayerController, aLevelManager, "Tester", tmpIP);
 
@@ -212,7 +205,7 @@ namespace _2DLogicGame
                             aClientReadThread.Start();
 
                             aLevelManager.InitLevel("Levels\\levelMath");
-
+                            
                             
                         }
                         
@@ -263,10 +256,18 @@ namespace _2DLogicGame
                 }
             }
 
+         /*   if (this.CheckKeyPressedOnce(Keys.X))
+            {
+                aLevelManager.SetRequestOfLevelChange(2);
+            } */ //Debug Screen Transferu
+
             //Kontrola ci LevelManager nepotrebuje odoslat update
             if (aLevelManager != null && aClientClass != null)
             {
                 aLevelManager.CheckForUpdate();
+
+                //Skontrolujem ci aj LevelManager nepotrebuje nieco aktualizovat
+                aLevelManager.Update(parGameTime: gameTime);
 
                 if (aLevelManager.LevelUpdateIsReady)
                 {
@@ -341,7 +342,7 @@ namespace _2DLogicGame
 
 
 
-            SpriteBatch.Begin(samplerState: SamplerState.PointClamp, depthStencilState: DepthStencilState.None, rasterizerState: RasterizerState.CullNone ,sortMode: SpriteSortMode.BackToFront, blendState: BlendState.AlphaBlend);
+            SpriteBatch.Begin(samplerState: SamplerState.PointClamp, depthStencilState: DepthStencilState.None, rasterizerState: RasterizerState.CullNone ,sortMode: SpriteSortMode.BackToFront, blendState: BlendState.AlphaBlend, transformMatrix: Matrix.CreateTranslation(aCameraX, 0, 0));
             base.Draw(gameTime);
 
             SpriteBatch.End();
