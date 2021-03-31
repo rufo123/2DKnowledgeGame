@@ -8,25 +8,54 @@ namespace _2DLogicGame.ClientSide.Levels
 {
     class LevelTransformScreen : DrawableGameComponent
     {
-
+        /// <summary>
+        /// Atribut, reprezentujuci zaciatocnu poziciu obrazovky - typ Vector2
+        /// </summary>
         private Vector2 aPositionScreenVector2;
 
+        /// <summary>
+        /// Atribut, reprezentujuci, velkost obrazovky - typ Vector2
+        /// </summary>
         private Vector2 aSizeScreenVector2;
 
+        /// <summary>
+        /// Atribut, reprezentujuci Texturu - typ Texture2D
+        /// </summary>
         private Texture2D aScreenTexture;
 
+        /// <summary>
+        /// Atribut, reprezentujuci Stvorec Screenu - typ Rectangle
+        /// </summary>
         private Rectangle aScreenRectangle;
 
+        /// <summary>
+        /// Atribut, reprezentujuci Hru - typ LogicGame
+        /// </summary>
         private LogicGame aGame;
 
+        /// <summary>
+        /// Atribut, reprezentujuci viditelnost textury - typ float
+        /// </summary>
         private float aVisibility;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje, ci je potrebne vyblednutie obrazovky - typ bool
+        /// </summary>
         private bool aNeedsFadeOut;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje, ci je potrebne ztmavnutie obrazovky - typ bool
+        /// </summary>
         private bool aNeedsFadeIn;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje casovac pri tranzicii - typ float
+        /// </summary>
         private float aTransitionTimer;
 
+        /// <summary>
+        /// Atribut, pomocny, ktory pomaha posunut TransformScreen jemne do prava, aby pokryl celu obrazovky, zahrnujuc offset kamery - typ float
+        /// </summary>
         private float aCameraOffset;
 
         public float CameraOffset
@@ -47,11 +76,20 @@ namespace _2DLogicGame.ClientSide.Levels
             set => aNeedsFadeIn = value;
         }
 
+        /// <summary>
+        /// Konstruktor, LevelTransformScreenu - Inicializuje sa Hra a TransitionTimer sa nastavi na 0F
+        /// </summary>
+        /// <param name="parGame">Parameter, reprezentujuci hru</param>
         public LevelTransformScreen(LogicGame parGame) : base(parGame)
         {
             aGame = parGame;
             aTransitionTimer = 0F;
         }
+
+
+        /// <summary>
+        /// Metoda - Inicializacia - Inicializuje sa Pozicia, ScreenSize, CameraOffset sa nastavi na 0F a NeedsFadeIn sa nastavi na true, ako keby bolo treba vyblednutie, ale uz obrazovka vyblednuta bude, tak sa nic nestane.
+        /// </summary>
         public override void Initialize()
         {
             aPositionScreenVector2 = new Vector2(aGame.GraphicsDevice.Viewport.X, aGame.GraphicsDevice.Viewport.Y); //Zaciatocna pozicia ViewPortu
@@ -61,6 +99,9 @@ namespace _2DLogicGame.ClientSide.Levels
             base.Initialize();
         }
 
+        /// <summary>
+        /// Metoda - LoadContent - Nacita Texturu, Rectangle a Texturu vyplni ciernou farbou
+        /// </summary>
         protected override void LoadContent()
         {
             aScreenTexture = new Texture2D(aGame.GraphicsDevice, (int)aSizeScreenVector2.X, (int)aSizeScreenVector2.Y);
@@ -84,11 +125,14 @@ namespace _2DLogicGame.ClientSide.Levels
 
         public override void Update(GameTime gameTime)
         {
-
             base.Update(gameTime);
         }
 
 
+        /// <summary>
+        /// Metoda - Draw - Ak je potrebne vyblednutie, pracuje s Timerom a postupne vybledne celu obrazovku, podobne aj s zatmavenim
+        /// </summary>
+        /// <param name="gameTime"></param>
         public override void Draw(GameTime gameTime)
         {
             if (aNeedsFadeOut)    //Fade Out - Do Tmava
@@ -126,9 +170,7 @@ namespace _2DLogicGame.ClientSide.Levels
             tmpNewPosition.X -= aCameraOffset;
 
             aGame.SpriteBatch.Draw(aScreenTexture, tmpNewPosition, aScreenRectangle, Color.Black * aVisibility, 0F, Vector2.Zero, 1F, SpriteEffects.None, 0F);
-           
-
-
+            
             base.Draw(gameTime);
         }
 

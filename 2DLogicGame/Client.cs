@@ -615,19 +615,6 @@ namespace _2DLogicGame
         }
 
 
-        public void SendLevelManagerData(LevelManager parLevelManager)
-        {
-            NetOutgoingMessage tmpOutgoingMessage = aClient.CreateMessage();
-            tmpOutgoingMessage.Write((byte)PacketMessageType.LevelData);
-
-            if (parLevelManager.LevelUpdateIsReady)
-            {
-                parLevelManager.PrepareLevelDataToSend(tmpOutgoingMessage);
-            }
-
-            aClient.SendMessage(tmpOutgoingMessage, NetDeliveryMethod.ReliableOrdered);
-        }
-
         /// <summary>
         /// Metoda, ktora prijma inicializacne data o leveli od Servera
         /// <param name="parIncomingMessage">Parameter, ktory reprezentuje prichadzajucu spravu - typ NetIncommingMessage</param>

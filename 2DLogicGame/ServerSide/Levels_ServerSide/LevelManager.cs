@@ -182,9 +182,12 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
                     InitLevel("Levels\\levelMath");
                     aCurrentLevelNumber = 1;
                     break;
-                default:
-                    aLevelName = "NONE";
+                case 2:
+                    InitLevel("Levels\\levelSwap");
                     aCurrentLevelNumber = 2;
+                    break;
+                default:
+                    LevelName = "NONE";
                     break;
             }
         }
@@ -237,11 +240,6 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
             }
 
             return false;
-        }
-
-        public void ChangeLevel(int parLevelNumber)
-        {
-
         }
 
         public bool WinCheck()

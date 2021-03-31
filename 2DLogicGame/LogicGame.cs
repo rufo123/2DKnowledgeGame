@@ -196,17 +196,17 @@ namespace _2DLogicGame
 
                             SwitchScene(aMainMenu, aPlayingScreen);
 
-                            // string tmpIP = "127.0.0.1";
-                            string tmpIP = "25.81.200.231";
+                             string tmpIP = "127.0.0.1";
+                             // string tmpIP = "25.81.200.231";}
 
                             aClientClass = new Client("Test", this, aChat, aPlayingScreen, aPlayerController, aLevelManager, "Tester", tmpIP);
 
                             aClientReadThread = new Thread(new ThreadStart(aClientClass.ReadMessages));
                             aClientReadThread.Start();
 
-                            aLevelManager.InitLevel("Levels\\levelMath");
-                            
-                            
+                            aLevelManager.InitLevelByNumber(1);
+
+
                         }
                         
                         break;
@@ -256,23 +256,14 @@ namespace _2DLogicGame
                 }
             }
 
-         /*   if (this.CheckKeyPressedOnce(Keys.X))
-            {
-                aLevelManager.SetRequestOfLevelChange(2);
-            } */ //Debug Screen Transferu
 
             //Kontrola ci LevelManager nepotrebuje odoslat update
             if (aLevelManager != null && aClientClass != null)
             {
-                aLevelManager.CheckForUpdate();
 
                 //Skontrolujem ci aj LevelManager nepotrebuje nieco aktualizovat
                 aLevelManager.Update(parGameTime: gameTime);
 
-                if (aLevelManager.LevelUpdateIsReady)
-                {
-                    aClientClass.SendLevelManagerData(aLevelManager);
-                }
             }
 
 

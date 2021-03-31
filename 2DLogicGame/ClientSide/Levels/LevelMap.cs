@@ -62,6 +62,10 @@ namespace _2DLogicGame.ClientSide.Levels
             aBlockList = new List<DrawableGameComponent>(31 * 16);
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o odstranenie mapy - okrem toho ze precisti data o blokoch/poziciach z udajovych struktur, kazdy level ma aj specialne mazanie
+        /// </summary>
+        /// <param name="parOldLevelName">Parameter, reprezentujuci meno predosleho levelu</param>
         public void DestroyMap(string parOldLevelName)
         {
             aBlockPositionDictionary.Clear();
@@ -76,7 +80,6 @@ namespace _2DLogicGame.ClientSide.Levels
                         aMathProblemManager.RemoveRedundantThings();
                         aMathProblemManager = null;
                     }
-
                     break;
                 default:
                     break;
@@ -210,7 +213,11 @@ namespace _2DLogicGame.ClientSide.Levels
             }
         }
 
-        public MathProblemManager GetMathProblemNaManager()
+        /// <summary>
+        /// Metoda, ktora vrati Manager Matematickeho Problemu
+        /// </summary>
+        /// <returns></returns>
+        public MathProblemManager GetMathProblemManager()
         {
             if (aMathProblemManager != null)
             {

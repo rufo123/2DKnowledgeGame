@@ -141,7 +141,7 @@ namespace _2DLogicGame
 
             aStandableBlocksList = new List<BlockServer>();
 
-            aStandableBlocksHandlerThread = new Thread(new ThreadStart(this.StandableBlocksHandler));
+             aStandableBlocksHandlerThread = new Thread(new ThreadStart(this.StandableBlocksHandler));
             aStandableBlocksHandlerThread.Start();
 
             aLevelManagerThread = new Thread(new ThreadStart(this.LevelUpdateHandler));
@@ -214,11 +214,11 @@ namespace _2DLogicGame
 
             while (aLogicGame.GameState != GameState.Exit)
             {
+
+                long tmpStartTime = aStopWatch.ElapsedMilliseconds; //Nastavime zaciatocny cas
+
                 if (aDictionaryPlayerData != null && aDictionaryPlayerData.Count > 0)
                 {
-
-                    long tmpStartTime = aStopWatch.ElapsedMilliseconds; //Nastavime zaciatocny cas
-
 
                     switch (aLevelManager.LevelName)
                     {
@@ -258,15 +258,16 @@ namespace _2DLogicGame
 
                     }
 
-                    tmpTimeToSleep = unchecked((int)(tmpStartTime + aMSPerFrame - aStopWatch.ElapsedMilliseconds));
-                    if (tmpTimeToSleep < 0) //Poistime si aby cas, ktory ma vlakno spat nebol zaporny
-                    {
-                        tmpTimeToSleep = 0;
-                    }
-
-
-                    Thread.Sleep(tmpTimeToSleep); //Pokus o implementaciu konstantneho TICKRATU
                 }
+
+                tmpTimeToSleep = unchecked((int)(tmpStartTime + aMSPerFrame - aStopWatch.ElapsedMilliseconds));
+                if (tmpTimeToSleep < 0) //Poistime si aby cas, ktory ma vlakno spat nebol zaporny
+                {
+                    tmpTimeToSleep = 0;
+                }
+
+
+                Thread.Sleep(tmpTimeToSleep); //Pokus o implementaciu konstantneho TICKRATU
             }
         }
 
@@ -279,32 +280,42 @@ namespace _2DLogicGame
             }
 
             int tmpTimeToSleep = 0; //Inicializujeme si premennu - reprezentujucu, kolko ma server "spat"
+
             while (aLogicGame.GameState != GameState.Exit)
             {
-                if (aDictionaryPlayerData != null && aDictionaryPlayerData.Count > 0)
+
+                long tmpStartTime = aStopWatch.ElapsedMilliseconds; //Nastavime zaciatocny cas
+
+                if (aStandableBlocksList.Count > 0)
                 {
-
-                    long tmpStartTime = aStopWatch.ElapsedMilliseconds; //Nastavime zaciatocny cas
-
-                    for (int i = 0; i < aStandableBlocksList.Count; i++)
+                    if (aDictionaryPlayerData != null && aDictionaryPlayerData.Count > 0)
                     {
-                        if (aStandableBlocksList[i] != null)
+
+                        for (int i = 0; i < aStandableBlocksList.Count; i++)
                         {
-                            aStandableBlocksList[i].SomethingIsStandingOnTop = false;
-                            aStandableBlocksList.Remove(aStandableBlocksList[i]);
+                            if (aStandableBlocksList[i] != null)
+                            {
+                                aStandableBlocksList[i].SomethingIsStandingOnTop = false;
+                                aStandableBlocksList.Remove(aStandableBlocksList[i]);
+                            }
                         }
+
+
                     }
-
-                    tmpTimeToSleep = unchecked((int)(tmpStartTime + aMSPerFrame - aStopWatch.ElapsedMilliseconds));
-                    if (tmpTimeToSleep < 0) //Poistime si aby cas, ktory ma vlakno spat nebol zaporny
-                    {
-                        tmpTimeToSleep = 0;
-                    }
-
-
-                    Thread.Sleep(tmpTimeToSleep); //Pokus o implementaciu konstantneho TICKRATU
                 }
+
+                tmpTimeToSleep = unchecked((int)(tmpStartTime + aMSPerFrame - aStopWatch.ElapsedMilliseconds));
+
+                if (tmpTimeToSleep < 0) //Poistime si aby cas, ktory ma vlakno spat nebol zaporny
+                {
+                    tmpTimeToSleep = 0;
+                }
+
+                Thread.Sleep(tmpTimeToSleep); //Pokus o implementaciu konstantneho TICKRATU
+
             }
+
+
         }
 
 

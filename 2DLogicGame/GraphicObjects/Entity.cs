@@ -71,10 +71,19 @@ namespace _2DLogicGame.GraphicObjects
         /// </summary>
         private Vector2 aSize;
 
+        /// <summary>
+        /// Atribut. reprezentujuci Rotaciu Entity - typ float
+        /// </summary>
         private float aRotation = 0F;
 
+        /// <summary>
+        /// Atribut, reprezentujuci hlbku aktualneho Layera, v tomto pripade Entity - typ float
+        /// </summary>
         private float aLayerDepth = 0F;
 
+        /// <summary>
+        /// Atribut, reprezentujuci Sprite Effecty - Defaultne ziadne - typ SpriteEffects
+        /// </summary>
         private SpriteEffects aEffects = SpriteEffects.None;
 
         /// <summary>
@@ -92,17 +101,35 @@ namespace _2DLogicGame.GraphicObjects
         /// </summary>
         private float aDefaultSpeed = 0;
 
+        /// <summary>
+        /// Atribut, reprezentujuci rychlost Entity - typ float
+        /// </summary>
         private float aVelocity;
 
+        /// <summary>
+        /// Atribut, reprezentujuci Movement Vector Entity - typ Vector2
+        /// </summary>
         private Vector2 aMovementVector;
 
+        /// <summary>
+        /// Atribut, reprezentujuci ci je entita zablokovaná, teda napr narazila do steny - typ bool
+        /// </summary>
         private bool parIsBlocked = false;
 
+        /// <summary>
+        /// Atribut, reprezentujuci prednastavenu poziciu Entity, kde sa objavi po znovuzrodeni - typ Vector2
+        /// </summary>
         private Vector2 aDefaultPosition;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje ci chce Entita interagovat s nejakym objektom - typ bool
+        /// </summary>
         private bool aWantsToInteract = false;
 
-        private bool aEntityNeedsRespawn;
+        /// <summary>
+        /// Atribut, ktory reprezentuje, ci entita vyzaduje Respawn - typ bool
+        /// </summary>
+        private bool aEntityNeedsReSpawn;
 
         public bool WantsToInteract
         {
@@ -116,8 +143,8 @@ namespace _2DLogicGame.GraphicObjects
         }
         public bool EntityNeedsRespawn
         {
-            get => aEntityNeedsRespawn;
-            set => aEntityNeedsRespawn = value;
+            get => aEntityNeedsReSpawn;
+            set => aEntityNeedsReSpawn = value;
         }
 
 
@@ -135,11 +162,6 @@ namespace _2DLogicGame.GraphicObjects
         private bool aEntityNeedsPosCorrect = false;
 
         private bool aEntityNeedsInterpolation = false;
-
-
-
-
-
 
 
         // Confirm
@@ -177,7 +199,7 @@ namespace _2DLogicGame.GraphicObjects
 
             aDefaultPosition = parPosition;
 
-            aEntityNeedsRespawn = false;
+            aEntityNeedsReSpawn = false;
 
             //Ak by bola Entita vyssia ako 64 blokov, nebude sa to ratat do vysky
             /*if (aSize.Y > 64)
@@ -192,11 +214,19 @@ namespace _2DLogicGame.GraphicObjects
             */
         }
 
+        /// <summary>
+        /// Metoda, ktora nstavi
+        /// </summary>
+        /// <param name="parDirection"></param>
         public void SetDirection(Direction parDirection)
         {
             aDirection = parDirection;
         }
 
+        /// <summary>
+        /// Metoda, ktora nastavi obrazok pre Entitu
+        /// </summary>
+        /// <param name="parImage"></param>
         public void SetImage(string parImage)
         {
             if (!string.IsNullOrEmpty(parImage))
@@ -205,11 +235,20 @@ namespace _2DLogicGame.GraphicObjects
             }
         }
 
+        /// <summary>
+        /// Metoda, ktora vrati Smer Entity
+        /// </summary>
+        /// <returns>Vrati Direction - podla toho na ktory smer sa Entita pozera</returns>
         public Direction GetDirection()
         {
             return aDirection;
         }
 
+        /// <summary>
+        /// Metoda, ktora otoci Entitu
+        /// </summary>
+        /// <param name="parWhereToRotate"></param>
+        /// <returns>Vrati true ak dojde k otoceniu, inak false</returns>
         public bool Rotate(Rotation parWhereToRotate)
         {
             int tmpDirection = (int)aDirection;
@@ -327,7 +366,12 @@ namespace _2DLogicGame.GraphicObjects
             }
         }
 
-        public void SwitchAnimation(double parElapsedTime, int vypis = 0)
+        /// <summary>
+        /// Metoda, ktora sluzi na prepocitanie suradnic, framov textury Entity
+        /// </summary>
+        /// <param name="parElapsedTime">Parameter, reprezentujuci ubehnuty cas - typ double</param>
+        /// <param name="parZmazaVypis">ZMAZAT DEBUG</param>
+        public void SwitchAnimation(double parElapsedTime, int parZmazaVypis = 0)
         {
 
             //Prepina, framy korespondujuce zmenam smeru - Y - AXIS
@@ -349,11 +393,11 @@ namespace _2DLogicGame.GraphicObjects
                 if (aTimeCounter >= 0 && aTimeCounter < tmpTimeThreshold)
                 {
                     aTimeCounter += parElapsedTime;
-                    if (vypis == 1)
+                    if (parZmazaVypis == 1)
                     {
                         //Debug.WriteLine("Cudzia " + aCounterZmazat);
                     }
-                    else if (vypis == 0)
+                    else if (parZmazaVypis == 0)
                     {
                         //Debug.WriteLine("Moja " + aCounterZmazat);}}
 
@@ -488,11 +532,15 @@ namespace _2DLogicGame.GraphicObjects
             {
                 aPosition = aRemotePosition;
                 aEntityNeedsInterpolation = false;
-            } 
+            }
         }
 
 
-
+        /// <summary>
+        /// Metoda, ktora sluzi na detegovanie chyby v svojich datach Entity stiahnutych od servera
+        /// </summary>
+        /// <param name="parMessage">Parameter spravy - typ NetIncomingMessage - buffer</param>
+        /// <returns></returns>
         public bool DownloadedDataErrorDetection(NetIncomingMessage parMessage)
         {
             Direction tmpDir = (Direction)parMessage.ReadByte();
@@ -511,7 +559,7 @@ namespace _2DLogicGame.GraphicObjects
                 InterpolationErrorCheck(); //Odosleme aby doslo k takej jednoduchej interpolacii, skontroluje sa ci suradnice su rovnake, ak nie zmeni sa pozicia v pripade daneho offsetu chyby
             }
             //|| tmpInteract != aWantsToInteract
-            if (tmpDownMov != aIsTryingToMove || tmpDir != aDirection )
+            if (tmpDownMov != aIsTryingToMove || tmpDir != aDirection)
             {
                 aMovingDataErrored = true;
                 return false;
@@ -580,10 +628,10 @@ namespace _2DLogicGame.GraphicObjects
                 PositionCorrection(parGameTime);
             }
 
-            if (aEntityNeedsRespawn)
+            if (aEntityNeedsReSpawn)
             {
                 ReSpawn(true, parGameTime); //True - Entitu Respawneme, a posleme jej aj gameTime
-                aEntityNeedsRespawn = false;
+                aEntityNeedsReSpawn = false;
             }
 
 

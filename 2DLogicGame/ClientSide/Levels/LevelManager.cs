@@ -200,13 +200,16 @@ namespace _2DLogicGame.ClientSide.Levels
                     InitLevel("Levels\\levelMath");
                     break;
                 case 2:
-                    LevelName = "NONE";
+                    InitLevel("Levels\\levelSwap");
                     break;
                 default:
+                    LevelName = "NONE";
                     break;
+
             }
+
         }
-        
+
 
         /// <summary>
         /// Metoda, ktora ovlada zmenu Levelu
@@ -219,7 +222,7 @@ namespace _2DLogicGame.ClientSide.Levels
             aPlayerDefaultPositionsDictionary.Clear();
             InitLevelByNumber(parLevelNumber);
             //Samozrejme, ked uz doslo k zmene levu, oznamime ze uz nie je treba takato zmena
-            aLevelNumberRequested = 0; 
+            aLevelNumberRequested = 0;
             aLevelChangeRequested = false;
         }
 
@@ -264,45 +267,17 @@ namespace _2DLogicGame.ClientSide.Levels
             return tmpBlock;
         }
 
-        public bool CheckForUpdate()
-        {
-            bool tmpIsUpdateNeeded = false;
-
-            switch (aLevelName)
-            {
-                case "Math":
-                    tmpIsUpdateNeeded = aLevelMap.GetMathProblemNaManager().UpdateIsReady;
-                    break;
-                default:
-                    break;
-            }
-
-            aLevelUpdateIsReady = tmpIsUpdateNeeded;
-
-            return tmpIsUpdateNeeded;
-        }
-
-        public NetOutgoingMessage PrepareLevelDataToSend(NetOutgoingMessage parNetOutgoingMessage)
-        {
-            switch (aLevelName)
-            {
-                case "Math":
-                    parNetOutgoingMessage.Write("NumberSum");
-                    parNetOutgoingMessage.WriteVariableInt32(aLevelMap.GetMathProblemNaManager().GetFinalNumberFromInput());
-
-                    break;
-                default:
-                    break;
-            }
-            return parNetOutgoingMessage;
-        }
-
+        /// <summary>
+        /// Metoda, ktora spravuje prichadzajuce data o leveli
+        /// </summary>
+        /// <param name="parMessage"></param>
+        /// <param name="parAmIFirstPlayer"></param>
         public void HandleLevelData(NetIncomingMessage parMessage, bool parAmIFirstPlayer)
         {
             switch (aLevelName)
             {
                 case "Math":
-                    aLevelMap.GetMathProblemNaManager().SetNumberToInput(parMessage.ReadVariableInt32());
+                    aLevelMap.GetMathProblemManager().SetNumberToInput(parMessage.ReadVariableInt32());
                     Feedback tmpFeedBack = (Feedback)parMessage.ReadByte();
                     switch (tmpFeedBack)
                     {
@@ -313,11 +288,12 @@ namespace _2DLogicGame.ClientSide.Levels
                             bool tmpShowButton = parAmIFirstPlayer;
                             if (tmpIdOfButton >= 0)
                             {
-                                aLevelMap.GetMathProblemNaManager().ButtonSucceeded(tmpIdOfButton, tmpShowButton);
+                                aLevelMap.GetMathProblemManager().ButtonSucceeded(tmpIdOfButton, tmpShowButton);
+                                aLevelMap.GetMathProblemManager().AddPoints();
                             }
                             break;
                         case Feedback.SubmitFailed:
-                            aLevelMap.GetMathProblemNaManager().ResetInputNumbers();
+                            aLevelMap.GetMathProblemManager().ResetInputNumbers();
                             break;
                         case Feedback.AllSolved:
                             break;
@@ -344,17 +320,20 @@ namespace _2DLogicGame.ClientSide.Levels
 
             if (aLevelChangeRequested)
             {
-                if (aLevelTransformScreen.NeedsFadeOut == false )
+                if (aLevelTransformScreen.NeedsFadeOut == false)
                 {
                     ChangeLevel(aLevelNumberRequested);
 
                     aLevelTransformScreen.NeedsFadeIn = true;
                 }
-
-
             }
         }
 
+        /// <summary>
+        /// Metoda, ktora sluzi an spracovanie dat o Inicializacii Leve
+        /// </summary>
+        /// <param name="parMessage"></param>
+        /// <param name="parLevelName"></param>
         public void HandleLevelInitData(NetIncomingMessage parMessage, string parLevelName)
         {
             switch (parLevelName)
@@ -366,7 +345,7 @@ namespace _2DLogicGame.ClientSide.Levels
                         int tmpFirstNumber = parMessage.ReadVariableInt32();
                         int tmpSecondNumber = parMessage.ReadVariableInt32();
                         char tmpOperator = (char)(parMessage.ReadByte());
-                        this.aLevelMap.GetMathProblemNaManager().Equations.Add(i+1, new MathEquation(tmpFirstNumber, tmpSecondNumber, tmpOperator));
+                        this.aLevelMap.GetMathProblemManager().Equations.Add(i + 1, new MathEquation(tmpFirstNumber, tmpSecondNumber, tmpOperator));
                     }
 
                     break;

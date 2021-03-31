@@ -81,14 +81,25 @@ namespace _2DLogicGame.ServerSide
         /// </summary>
         public bool aIsBlocked = false;
 
+        /// <summary>
+        /// Atribut, ktory sluzi na definovanie Hitboxu - typ Vector2 - ZATIAL NEYUZITE
+        /// </summary>
         private Vector2 aHitBoxPos;
 
+        /// <summary>
+        /// Atribut, ktory sluzi na definovanie velkosti Hitboxu - typ Vector2 - ZATIAL NEVYUZITE
+        /// </summary>
         private Vector2 aHitBoxSize;
 
+        /// <summary>
+        /// Atribut, ktory sluzi na informovanie, ze Entita sa snazi interagovat s nejakym objektom - typ bool
+        /// </summary>
         private bool aWantsToInteract = false;
 
+        /// <summary>
+        /// Atribut, ktory sluzi na definovanie Default Pozicie v leveli
+        /// </summary>
         private Vector2 aDefaultPosition;
-
 
 
         public float Speed { get => aSpeed; set => aSpeed = value; }
@@ -286,14 +297,16 @@ namespace _2DLogicGame.ServerSide
 
         }
 
+        /// <summary>
+        /// Metoda, ktora sluzi na ReSpawn - znovuzrodenie Entity
+        /// </summary>
+        /// <param name="parRespawn">Parameter bool - true ak sa ma Entita znovuzrodit, false - ak sa nema znovuzrodit</param>
         public void ReSpawn(bool parRespawn)
         {
             if (parRespawn && aDefaultPosition != null)
             {
                 aPosition.X = aDefaultPosition.X;
                 aPosition.Y = aDefaultPosition.Y;
-
-
 
                 Debug.WriteLine("Default - " + aDefaultPosition.X + " " + aDefaultPosition.Y);
             }

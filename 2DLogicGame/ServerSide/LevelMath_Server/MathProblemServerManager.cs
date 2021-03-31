@@ -58,32 +58,37 @@ namespace _2DLogicGame.ServerSide.LevelMath_Server
         /// </summary>
         private int aButtonCount = 0;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje cifry, teda nasobky desiatok - jednotky, desiatky, stovky - podla neho sa urcuje ake cislo reprezentuje napr. stovky
+        /// </summary>
         private int aNumberOrders;
 
-        private int aFinalNumber;
-
+        /// <summary>
+        /// Atribut, ktory reprezentuje ci je Update Nachystany - typ bool 
+        /// </summary>
         private bool aUpdateIsReady;
 
+        /// <summary>
+        /// Atribut, ktory si uchovava idcko posledneho buttonu, ktory bol stlaceny ak doslo k uspechu - typ int
+        /// </summary>
         private int aIdOfLastButtonSucceeded;
 
-        private int aCountOfSucceededButtons;
-        
+        /// <summary>
+        /// Atribut, ktory reprezentuje FeedBack od Matematickeho Problemu, ci doslo k uspechu, neuspechu a pod. - typ enum - Feedback
+        /// </summary>
         private Feedback aProblemFeedback;
 
-        public bool UpdateIsReady
-        {
-            get => aUpdateIsReady;
-            set => aUpdateIsReady = value;
-        }
-
-        private int aIdOfPressedButton;
+        /// <summary>
+        /// Atribut, ktory reprezentuje Body za vyriesene Matematicke problemy
+        /// </summary>
+        private int aMathPoints = 0;
 
         /// <summary>
         /// Atribut, typu bool, ktory je pre Manazera klucovy a oznamuje mu, ze uz su udaje o leveli nacitane a moze robit svoju robotu
         /// </summary>
         private bool aCompletelyLoaded = false;
 
-        private int aMathPoints = 0;
+        private int aCountOfSucceededButtons = 0; //Je mozne nahradit uplne len pocitanim aMathPoints... Mozno zmazat v buducnosti
 
         public bool CompletelyLoaded
         {
@@ -102,10 +107,17 @@ namespace _2DLogicGame.ServerSide.LevelMath_Server
             set => aProblemFeedback = value;
         }
 
-                public int IdOfLastButtonSucceeded
+        public int IdOfLastButtonSucceeded
         {
             get => aIdOfLastButtonSucceeded;
             set => aIdOfLastButtonSucceeded = value;
+        }
+
+
+        public bool UpdateIsReady
+        {
+            get => aUpdateIsReady;
+            set => aUpdateIsReady = value;
         }
 
         public MathProblemServerManager()
@@ -159,6 +171,10 @@ namespace _2DLogicGame.ServerSide.LevelMath_Server
             }
         }
 
+        /// <summary>
+        /// Metoda, ktora prida End Block do dictionary
+        /// </summary>
+        /// <param name="parEndBlockServer"></param>
         public void AddEndBlock(EndBlockServer parEndBlockServer)
         {
             if (aEndBlockList != null && aEndBlockList.Count < 2)
@@ -168,16 +184,10 @@ namespace _2DLogicGame.ServerSide.LevelMath_Server
         }
 
 
-        public void AddPoints()
-        {
-            aMathPoints++;
-        }
-
-        public void SetPoints(int parCountOfPoints)
-        {
-            aMathPoints = parCountOfPoints;
-        }
-
+        /// <summary>
+        /// Metoda, ktora prida Input Block do Dictionary
+        /// </summary>
+        /// <param name="parInputBlock"></param>
         public void AddInput(InputBlockServer parInputBlock)
         {
             aDictionaryInputBlocks.Add(aNumberOrders, parInputBlock);
@@ -189,6 +199,10 @@ namespace _2DLogicGame.ServerSide.LevelMath_Server
             }
         }
 
+        /// <summary>
+        /// Metoda, ktora ziska finalny vysledok scitanim vsetkych Input Blokov reprezentujuci jednotky, desiatky, stovky a pod.
+        /// </summary>
+        /// <returns></returns>
         public int GetFinalNumberFromInput()
         {
             if (aDictionaryInputBlocks != null)
@@ -251,7 +265,6 @@ namespace _2DLogicGame.ServerSide.LevelMath_Server
         /// Metoda, ktora sa vykona vtedy, ak prisla zo servera informacia o uspesnosti niektoreho prikladu
         /// </summary>
         /// <param name="parButtonID">Parameter reprezentujuci, tlacitko, ktoreho stav sa ma zmenit na Succeeded - typ int</param>
-        /// <param name="parShowBridge">Parameter reprezentujuci, ci sa maju zobrazit aj bloky mostu - typ bool</param>
         public void ButtonSucceeded(int parButtonID)
         {
             if (parButtonID >= 0)
@@ -266,25 +279,12 @@ namespace _2DLogicGame.ServerSide.LevelMath_Server
 
         }
 
-        /*
-
-        public MathProblemServerClientData GetMathProblemData()
-        {
-            MathProblemServerClientData tmpNewData = new MathProblemServerClientData();
-            tmpNewData.CurrentButtonPressed = aIdOfPressedButton;
-            aUpdateIsReady = false; //Update uz je v tomto momente odovzdany
-            return tmpNewData;
-        }
-        */
 
         /// <summary>
         /// Metoda, ktora sa stara o napr spravu interakcie medzi inputom a vysledkom
         /// </summary>
         public void Update()
         {
-
-            //if (aCompletelyLoaded) //Ak nam Level Manager oznami, ze je Level kompletne nacitany
-            //{
 
             for (int i = 0; i < aButtonList.Count; i++)
             {
@@ -341,7 +341,6 @@ namespace _2DLogicGame.ServerSide.LevelMath_Server
                 }
             }
 
-            //}
 
         }
 
