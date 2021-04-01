@@ -1,0 +1,217 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XnaContent xmlns:XMLData="XMLData">
+  <Asset Type="XMLData:QuestionsStorage">
+    <Questions>
+      <Answers>
+        <Question>Delfin je:</Question>
+        <ListOfAnswers>
+          <Item>Cicavec</Item>
+          <Item>Ryba</Item>
+          <Item>Oboje</Item>
+          <Item>Ziadne z uvedenych, je to chytak</Item>
+        </ListOfAnswers>
+        <GoodAnswer>A</GoodAnswer>
+      </Answers>
+      <Answers>
+        <Question>Znamy herec, ktory hral vo filme Titanic, postavu Jacka sa vola:</Question>
+        <ListOfAnswers>
+          <Item>Leonardo Da Vinci</Item>
+          <Item>Leonardo DiCaprio</Item>
+          <Item>Luigi </Item>
+          <Item>Vlk z Wall Street</Item>
+        </ListOfAnswers>
+        <GoodAnswer>A</GoodAnswer>
+      </Answers>
+      <Answers>
+        <Question>Zviera, ktore pochadza z Ciny, ziviace sa hlavne bambusmi a listami sa nazyva:</Question>
+        <ListOfAnswers>
+          <Item>Opica</Item>
+          <Item>Slon</Item>
+          <Item>Panda</Item>
+          <Item>Gunar</Item>
+        </ListOfAnswers>
+        <GoodAnswer>C</GoodAnswer>
+      </Answers>
+      <Answers>
+        <Question>Ake zviera je neparnokopytnik?</Question>
+        <ListOfAnswers>
+          <Item>Jelen</Item>
+          <Item>Tur</Item>
+          <Item>Zirafa</Item>
+          <Item>Nosorozec</Item>
+        </ListOfAnswers>
+        <GoodAnswer>D</GoodAnswer>
+      </Answers>
+      <Answers>
+        <Question>Kolko noh ma neparnokopynik?</Question>
+        <ListOfAnswers>
+          <Item>Neda sa presne urcit</Item>
+          <Item>4</Item>
+          <Item>3</Item>
+          <Item>5</Item>
+        </ListOfAnswers>
+        <GoodAnswer>B</GoodAnswer>
+      </Answers>
+      <Answers>
+        <Question>Ktory z uvedenych je najdlhsim tokom rieky na Slovensku?</Question>
+        <ListOfAnswers>
+          <Item>Ipel</Item>
+          <Item>Dunaj</Item>
+          <Item>Vah</Item>
+          <Item>Hron</Item>
+        </ListOfAnswers>
+        <GoodAnswer>C</GoodAnswer>
+      </Answers>
+      <Answers>
+        <Question>Ako sa nazyva najvyssi vrch na Slovensku?</Question>
+        <ListOfAnswers>
+          <Item>Satan</Item>
+          <Item>Lomnicky stit</Item>
+          <Item>Ladovy stit</Item>
+          <Item>Gerlachovsky stit</Item>
+        </ListOfAnswers>
+        <GoodAnswer>D</GoodAnswer>
+      </Answers>
+      <Answers>
+        <Question>Hra s pukom, hrana na ladovom ihrisku sa nazyva:</Question>
+        <ListOfAnswers>
+          <Item>Florbal</Item>
+          <Item>Ladovy futbal</Item>
+          <Item>Ladovy hokej</Item>
+          <Item>Curling</Item>
+        </ListOfAnswers>
+        <GoodAnswer>C</GoodAnswer>
+      </Answers>
+      <Answers>
+        <Question>Ktore zo zvierat uz vyhynulo?</Question>
+        <ListOfAnswers>
+          <Item>Vtakopysk</Item>
+          <Item>Dront (Dodo)</Item>
+          <Item>Orangutan</Item>
+          <Item>Nosorozec cierny</Item>
+        </ListOfAnswers>
+        <GoodAnswer>B</GoodAnswer>
+      </Answers>
+      <Answers>
+        <Question>Ktora z planet nema pevny povrch?</Question>
+        <ListOfAnswers>
+          <Item>Venusa</Item>
+          <Item>Merkur</Item>
+          <Item>Uran</Item>
+          <Item>Pluto</Item>
+        </ListOfAnswers>
+        <GoodAnswer>C</GoodAnswer>
+      </Answers>
+      <Answers>
+        <Question>Ako dlho trva mesiacu, kym "obehne" zem?</Question>
+        <ListOfAnswers>
+          <Item>Cca Jeden Rok</Item>
+          <Item>Cca Jeden Mesiac</Item>
+          <Item>Cca Jeden Den</Item>
+          <Item>Chytak, Zem "obieha" mesiac.</Item>
+        </ListOfAnswers>
+        <GoodAnswer>B</GoodAnswer>
+      </Answers>
+      <Answers>
+        <Question>Ako sa nazvyva vedec, ktory studuje vemir, ale ostava na zemi?</Question>
+        <ListOfAnswers>
+          <Item>Astronom</Item>
+          <Item>Meteorolog</Item>
+          <Item>Astronaut</Item>
+          <Item>Kozmonaut</Item>
+        </ListOfAnswers>
+        <GoodAnswer>A</GoodAnswer>
+      </Answers>
+      <Answers>
+        <Question>Ako sa nazyva studium kamenov a mineralov?</Question>
+        <ListOfAnswers>
+          <Item>Kamenologia</Item>
+          <Item>Minerokamenologia</Item>
+          <Item>Biologia</Item>
+          <Item>Geologia</Item>
+        </ListOfAnswers>
+        <GoodAnswer>D</GoodAnswer>
+      </Answers>
+      <Answers>
+        <Question>Kolko mesiacov trva jedno rocne obdobie?</Question>
+        <ListOfAnswers>
+          <Item>Jeden mesiac</Item>
+          <Item>12 mesiacov / Jeden rok</Item>
+          <Item>Tri mesiace</Item>
+          <Item>Neviem</Item>
+        </ListOfAnswers>
+        <GoodAnswer>C</GoodAnswer>
+      </Answers>
+      <Answers>
+        <Question>Skolsky predmet, ktory sa zaobera historiou sa nazyva?</Question>
+        <ListOfAnswers>
+          <Item>Historia</Item>
+          <Item>Dejepis</Item>
+          <Item>Pravopis</Item>
+          <Item>Histeria</Item>
+        </ListOfAnswers>
+        <GoodAnswer>B</GoodAnswer>
+      </Answers>
+      <Answers>
+        <Question>Ako sa nazyvaju roztavene kamene, vo vnutri zeme?</Question>
+        <ListOfAnswers>
+          <Item>Lava</Item>
+          <Item>Magma</Item>
+          <Item>Vulkan</Item>
+          <Item>Larva</Item>
+        </ListOfAnswers>
+        <GoodAnswer>B</GoodAnswer>
+      </Answers>
+      <Answers>
+        <Question>Ako sa nazvyva novonarodene stadium zaby?</Question>
+        <ListOfAnswers>
+          <Item>Zaba</Item>
+          <Item>Mala zaba</Item>
+          <Item>Mlok</Item>
+          <Item>Zubrienka</Item>
+        </ListOfAnswers>
+        <GoodAnswer>D</GoodAnswer>
+      </Answers>
+      <Answers>
+        <Question>Kde v ludskom tele zacina travenie?</Question>
+        <ListOfAnswers>
+          <Item>V ustach</Item>
+          <Item>V zaludku</Item>
+          <Item>V hrdle</Item>
+          <Item>V crevach</Item>
+        </ListOfAnswers>
+        <GoodAnswer>A</GoodAnswer>
+      </Answers>
+      <Answers>
+        <Question>Zviera, ktore mozete v prirode zahliadnut, vytvarat si vodne hradze z dreva sa nazyva:</Question>
+        <ListOfAnswers>
+          <Item>Potkan</Item>
+          <Item>Kuna</Item>
+          <Item>Bobor</Item>
+          <Item>Vydra</Item>
+        </ListOfAnswers>
+        <GoodAnswer>C</GoodAnswer>
+      </Answers>
+      <Answers>
+        <Question>Kolko hlasok ma slovo hrdza?</Question>
+        <ListOfAnswers>
+          <Item>2</Item>
+          <Item>4</Item>
+          <Item>3</Item>
+          <Item>5</Item>
+        </ListOfAnswers>
+        <GoodAnswer>B</GoodAnswer>
+      </Answers>
+      <Answers>
+        <Question>Ake plody ma dub?</Question>
+        <ListOfAnswers>
+          <Item>Dubaky</Item>
+          <Item>Drbaky</Item>
+          <Item>Zalude</Item>
+          <Item>Dubky</Item>
+        </ListOfAnswers>
+        <GoodAnswer>C</GoodAnswer>
+      </Answers>
+    </Questions>
+  </Asset>
+</XnaContent>

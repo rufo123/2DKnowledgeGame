@@ -184,8 +184,6 @@ namespace _2DLogicGame.ClientSide.Levels
             aLogicGame.CameraX = -48 * aLogicGame.Scale;
 
             aLevelTransformScreen.CameraOffset = aLogicGame.CameraX;
-
-
         }
 
         /// <summary>
@@ -200,7 +198,7 @@ namespace _2DLogicGame.ClientSide.Levels
                     InitLevel("Levels\\levelMath");
                     break;
                 case 2:
-                    InitLevel("Levels\\levelSwap");
+                    InitLevel("Levels\\levelQuestions");
                     break;
                 default:
                     LevelName = "NONE";

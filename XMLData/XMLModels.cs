@@ -57,4 +57,19 @@ namespace XMLData
         [XmlElement(elementName: "Y")] 
         public int PositionY;
     }
+
+    public class QuestionsStorage
+    {
+        [ContentSerializer(ElementName = "Questions", CollectionItemName = "Answers")]
+        public List<QuestionsStorageItems> QuestionsStorageItemsList;
+    }
+
+    public class QuestionsStorageItems
+    {
+        public string Question;
+
+        public List<string> ListOfAnswers; //List vsetkych moznych odpovedi
+
+        public char GoodAnswer; //Charakterizovana A, B, C, D
+    }
 }

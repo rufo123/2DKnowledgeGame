@@ -18,7 +18,7 @@ using XMLData;
 
 namespace LevelCreator
 {
-    class Creator
+    public class CreatorLevel
     {
         /// <summary>
         /// Atribut Dictionary - Bude nam sluzit na uchovananie dat o blokoch...
@@ -33,7 +33,7 @@ namespace LevelCreator
         private int aPositionX = 0;
         private int aPositionY;
 
-        public Creator()
+        public CreatorLevel()
         {
 
             XMLData.LevelMaker tmpNewLevel = new XMLData.LevelMaker();
@@ -158,7 +158,6 @@ namespace LevelCreator
 
                 IntermediateSerializer.Serialize(tmpWriter, tmpNewLevel, null);
             }
-
 
             //Poznamka od Veduceho - Mozno by bolo dobre spravit to, ze ak sa tam nejaky blok opakuje vela krat napríklad 0 - cize vzduch. Tak to tam proste nedať. 
             //Proste to neulozit do XML-ka -> To znamena, ze pri nacitani by tam ostal vzduch. Alebo zadefinovat, ze pri nacitani, tam kde nie je nic, dat napriklad travu...

@@ -31,10 +31,20 @@
 /processor:PassThroughProcessor
 /build:Levels/levelMath.xml
 
+#begin Levels/levelQuestions.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:Levels/levelQuestions.xml
+
 #begin Levels/levelSwap.xml
 /importer:XmlImporter
 /processor:PassThroughProcessor
 /build:Levels/levelSwap.xml
+
+#begin Questions/questions.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:Questions/questions.xml
 
 #begin Sprites/Backgrounds/InputBCK.png
 /importer:TextureImporter

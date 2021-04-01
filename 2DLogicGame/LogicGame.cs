@@ -187,7 +187,7 @@ namespace _2DLogicGame
                             aClientReadThread = new Thread(new ThreadStart(aClientClass.ReadMessages));
                             aClientReadThread.Start();
 
-                            aLevelManager.InitLevelByNumber(1);
+                            aLevelManager.InitLevelByNumber(2);
                             
 
                         }
@@ -204,7 +204,7 @@ namespace _2DLogicGame
                             aClientReadThread = new Thread(new ThreadStart(aClientClass.ReadMessages));
                             aClientReadThread.Start();
 
-                            aLevelManager.InitLevelByNumber(1);
+                            aLevelManager.InitLevelByNumber(2);
 
 
                         }

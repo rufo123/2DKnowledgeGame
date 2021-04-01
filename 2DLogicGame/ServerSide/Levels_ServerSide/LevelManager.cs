@@ -183,7 +183,7 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
                     aCurrentLevelNumber = 1;
                     break;
                 case 2:
-                    InitLevel("Levels\\levelSwap");
+                    InitLevel("Levels\\levelQuestions");
                     aCurrentLevelNumber = 2;
                     break;
                 default:
