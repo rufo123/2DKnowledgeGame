@@ -115,7 +115,7 @@ namespace _2DLogicGame.GraphicObjects
             string tmpNumberString = aNumber.ToString();
 
 
-            Vector2 tmpMeasuredString = LogicGame.Font.MeasureString(tmpNumberString);
+            Vector2 tmpMeasuredString = LogicGame.Font72.MeasureString(tmpNumberString);
 
             Vector2 tmpNumberPosition = aPosition;
 
@@ -129,7 +129,7 @@ namespace _2DLogicGame.GraphicObjects
             }
             tmpNumberPosition.Y = aPosition.Y - ((tmpMeasuredString.Y / 8) * tmpFontScale);
 
-            LogicGame.SpriteBatch.DrawString(LogicGame.Font, aNumber.ToString(), tmpNumberPosition, Color.GreenYellow, 0F, Vector2.Zero, tmpFontScale, SpriteEffects.None, 0.2F);
+            LogicGame.SpriteBatch.DrawString(LogicGame.Font72, aNumber.ToString(), tmpNumberPosition, Color.GreenYellow, 0F, Vector2.Zero, tmpFontScale, SpriteEffects.None, 0.2F);
 
             base.Draw(gameTime);
 

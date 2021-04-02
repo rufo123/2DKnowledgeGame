@@ -43,6 +43,7 @@ namespace _2DLogicGame.GraphicObjects
 
         public ButtonBlock(LogicGame parGame, Vector2 parPosition, Texture2D parTexture = null, bool parHasBlockStates = true, int parCountOfFrames = 3) : base(parGame, parPosition, parTexture, parHasStates: parHasBlockStates, parCountOfFrames: parCountOfFrames, parCollisionType: BlockCollisionType.Button)
         {
+
             SetImageLocation("Sprites\\Blocks\\buttonBlock");
 
             IsInteractible = true;
@@ -91,6 +92,30 @@ namespace _2DLogicGame.GraphicObjects
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
+        }
+
+        public void SwitchButtonStyle(int parStyleNumber)
+        {
+
+           switch (parStyleNumber)
+                {
+                    case 0:
+                        SetImageLocation("Sprites\\Blocks\\buttonBlockRed");
+                        break;
+                    case 1:
+                        SetImageLocation("Sprites\\Blocks\\buttonBlockPurple");
+                        break;
+                    case 2:
+                        SetImageLocation("Sprites\\Blocks\\buttonBlockGreen");
+                        break;
+                    case 3:
+                        SetImageLocation("Sprites\\Blocks\\buttonBlockBlue");
+                        break;
+                    default:
+                        SetImageLocation("Sprites\\Blocks\\buttonBlock");
+                        break;
+                }
+            
         }
 
         public override void Interact()

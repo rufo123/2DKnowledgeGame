@@ -321,7 +321,7 @@ namespace _2DLogicGame.ServerSide.LevelMath_Server
 
             }
 
-            if (aMathPoints >= 5)
+            if (aMathPoints >= 0)
             {
                 int tmpCountOfStandingPlayers = 0;
                 
@@ -333,7 +333,7 @@ namespace _2DLogicGame.ServerSide.LevelMath_Server
                     }
                 }
 
-                if (tmpCountOfStandingPlayers >= 2) //Debug Len jeden
+                if (tmpCountOfStandingPlayers >= 1) //Debug Len jeden
                 {
                     Debug.WriteLine("Server - Vyhra");
                     aProblemFeedback = Feedback.AllSolved;

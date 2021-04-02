@@ -444,6 +444,7 @@ namespace _2DLogicGame.GraphicObjects
             else
             {
                 aColor = parColor;
+                aVisibility = 0.5F;
             }
 
 

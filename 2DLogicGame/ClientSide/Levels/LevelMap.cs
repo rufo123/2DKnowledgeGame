@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
+using _2DLogicGame.ClientSide.QuestionSimonSays;
 using _2DLogicGame.GraphicObjects;
 using Microsoft.Xna.Framework;
 using XMLData;
@@ -36,6 +37,11 @@ namespace _2DLogicGame.ClientSide.Levels
         /// Atribut reprezentujuci manazer matematickeho problemu - typ MathProblemManager
         /// </summary>
         private MathProblemManager aMathProblemManager;
+
+        /// <summary>
+        /// Atribut, reprezentujuci manazer opazok - typ QuestionManager
+        /// </summary>
+        private QuestionManager aQuestionsManager;
 
         /// <summary>
         /// Atribut, Reprezentujuci Vysku a Sirku Blokov, napr 64 - Defaultne
@@ -99,6 +105,9 @@ namespace _2DLogicGame.ClientSide.Levels
                 case "Math": //Ak ide o level typu Math, potrebujeme vytvorit manazera Matematickeho Problemu
                     aMathProblemManager = new MathProblemManager(aLogicGame);
                     break;
+                case "Questions": //Ak ide o level Questions - potrebujeme inicializovat specificke komponenty
+                    aQuestionsManager = new QuestionManager(aLogicGame);
+                    break;
                 default:
                     break;
             }
@@ -154,6 +163,7 @@ namespace _2DLogicGame.ClientSide.Levels
                 }
                 else if (parBlockPositions[i].BlockName == "mathGenerateBlock")
                 {
+
                     ButtonBlock tmpButtonBlock = new ButtonBlock(aLogicGame, tmpBlockPosition);
                     aBlockPositionDictionary.Add(tmpBlockPosition, tmpButtonBlock);
                     aBlockList.Add(tmpButtonBlock);
@@ -161,6 +171,10 @@ namespace _2DLogicGame.ClientSide.Levels
                     if (aMathProblemManager != null && parLevelName == "Math") //Ak vieme ze pojde o level typu Math, odosleme MathProblem manazeru, informacie o Button Blokoch
                     {
                         aMathProblemManager.AddButton(tmpButtonBlock);
+                    } else if (aQuestionsManager != null && parLevelName == "Questions")
+                    {
+                        aQuestionsManager.AddButton(tmpButtonBlock);
+                        
                     }
                 }
                 else if (parBlockPositions[i].BlockName == "mathInputBlock")
@@ -222,6 +236,16 @@ namespace _2DLogicGame.ClientSide.Levels
             if (aMathProblemManager != null)
             {
                 return aMathProblemManager;
+            }
+
+            return null;
+        }
+
+        public QuestionManager GetQuestionManager()
+        {
+            if (aQuestionsManager != null)
+            {
+                return aQuestionsManager;
             }
 
             return null;

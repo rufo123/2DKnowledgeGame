@@ -124,8 +124,8 @@ namespace _2DLogicGame.ClientSide.Chat
                 // aLogicGame.SpriteBatch.Begin();
                 aLogicGame.SpriteBatch.Draw(aChatInputTexture2D, aPositionVector ,aChatInputRectangle, Color.White, 0F, Vector2.Zero, 1F,  SpriteEffects.None, 0.1F); //Vykrasli ChatInputBox pomocou Textury, Rectangle a farby - Color.White zachovava povodne farby
 
-                float tmpNextStringSize = (aLogicGame.Font.MeasureString(aMessageToSend).X * aFontScale) + aLogicGame.Font.LineSpacing; //Reprezentuje buducu moznu velkost Stringu s ohladom na Skalovanie
-                float tmpPreviousStringSize = ((aLogicGame.Font.MeasureString(aMessageToSend).X * (aFontScale + aFontEnlargingConstant)) + aLogicGame.Font.LineSpacing); //Reprezentuje predoslu velkost Stringu s ohladom na Skalovanie
+                float tmpNextStringSize = (aLogicGame.Font72.MeasureString(aMessageToSend).X * aFontScale) + aLogicGame.Font72.LineSpacing; //Reprezentuje buducu moznu velkost Stringu s ohladom na Skalovanie
+                float tmpPreviousStringSize = ((aLogicGame.Font72.MeasureString(aMessageToSend).X * (aFontScale + aFontEnlargingConstant)) + aLogicGame.Font72.LineSpacing); //Reprezentuje predoslu velkost Stringu s ohladom na Skalovanie
 
                 if (tmpNextStringSize > aWindowWidth) //Ak je buduca Velkost Stringu väcsia ako momentalna sirka Input Boxu
                 {
@@ -139,11 +139,11 @@ namespace _2DLogicGame.ClientSide.Chat
                     }
                 }
 
-                Vector2 tmpStringSizeVector = aLogicGame.Font.MeasureString(aMessageToSend) * aFontScale;
+                Vector2 tmpStringSizeVector = aLogicGame.Font72.MeasureString(aMessageToSend) * aFontScale;
 
-                Vector2 tmpVectorChat = aPositionVector + new Vector2(aWindowWidth / 2 - (int)tmpStringSizeVector.X / 2, aWindowHeight / 2 - (aLogicGame.Font.LineSpacing * aFontScale)/2); //Pomocny Pozicny Vektor pre Text Input Boxu
+                Vector2 tmpVectorChat = aPositionVector + new Vector2(aWindowWidth / 2 - (int)tmpStringSizeVector.X / 2, aWindowHeight / 2 - (aLogicGame.Font72.LineSpacing * aFontScale)/2); //Pomocny Pozicny Vektor pre Text Input Boxu
 
-                aLogicGame.SpriteBatch.DrawString(aLogicGame.Font, aMessageToSend, tmpVectorChat, Color.White, 0f, Vector2.Zero, aFontScale, SpriteEffects.None, 0F); //Vykresli String
+                aLogicGame.SpriteBatch.DrawString(aLogicGame.Font72, aMessageToSend, tmpVectorChat, Color.White, 0f, Vector2.Zero, aFontScale, SpriteEffects.None, 0F); //Vykresli String
                 //aLogicGame.SpriteBatch.End();
 
             }
@@ -210,7 +210,7 @@ namespace _2DLogicGame.ClientSide.Chat
                     this.TructMessage(); //Odstranime posledny charakter zo momentalne pisanej spravy
                     Debug.WriteLine(aMessageToSend); //Debug - Sprava do konzole
                 }
-                if (aLogicGame.Font.Characters.Contains(tmpCharacter)) //Overime si ci Font Hry obsahuje charakter, ktory sa snazime napisat
+                if (aLogicGame.Font72.Characters.Contains(tmpCharacter)) //Overime si ci Font72 Hry obsahuje charakter, ktory sa snazime napisat
                 {
                     this.AppendMessage(tmpCharacter); //Ak ano, priradime charakter ku sprave
                     Debug.WriteLine(aMessageToSend); //Debug - Sprava do konzole

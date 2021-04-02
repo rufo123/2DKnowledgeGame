@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using _2DLogicGame.ServerSide.Blocks_ServerSide;
 using _2DLogicGame.ServerSide.LevelMath_Server;
+using _2DLogicGame.ServerSide.Questions_ServeSide;
 using XMLData;
 
 namespace _2DLogicGame.ServerSide.Levels_ServerSide
@@ -26,10 +27,14 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
 
         private MathProblemServerManager aMathProblemServerManager;
 
+        private QuestionsManagerServer aQuestionsServerManager;
+
         /// <summary>
         /// Atribut, Reprezentujuci Vysku a Sirku Blokov, napr 64 - Defaultne
         /// </summary>
         private int aDefaultBlockDimension;
+
+        private LogicGame aLogicGame;
 
         public int DefaultBlockDimension
         {
@@ -39,11 +44,12 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
 
 
 
-        public LevelMap(int parDefaultBlockDimension = 64)
+        public LevelMap(LogicGame parLogicGame, int parDefaultBlockDimension = 64)
         {
             aDefaultBlockDimension = parDefaultBlockDimension;
             aBlockPositionDictionary = new Dictionary<Vector2, BlockServer>(31 * 16);
             aBlockList = new List<BlockServer>(31 * 16);
+            aLogicGame = parLogicGame;
         }
 
         public void DestroyMap(string parOldLevelName)
@@ -53,6 +59,10 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
             {
                 case "Math":
                     aMathProblemServerManager = null;
+                    break;
+                case "Questions":
+                    aQuestionsServerManager.Destroy();
+                    aQuestionsServerManager = null;
                     break;
                 default:
                     break;
@@ -70,6 +80,9 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
             {
                 case "Math":
                     aMathProblemServerManager = new MathProblemServerManager();
+                    break;
+                case "Questions":
+                    aQuestionsServerManager = new QuestionsManagerServer(aLogicGame);
                     break;
                 default:
                     break;
@@ -133,6 +146,9 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
                     if (aMathProblemServerManager != null && parLevelName == "Math") //Ak vieme ze pojde o level typu Math, odosleme MathProblem manazeru, informacie o Button Blokoch
                     {
                         aMathProblemServerManager.AddButton(tmpButtonBlock);
+                    } else if (aQuestionsServerManager != null && parLevelName == "Questions")
+                    {
+                        aQuestionsServerManager.AddButton(tmpButtonBlock);
                     }
                 }
                 else if (parBlockPositions[i].BlockName == "mathInputBlock")
@@ -179,11 +195,21 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
             }
         }
 
-        public MathProblemServerManager GetMathProblemNaManager()
+        public MathProblemServerManager GetMathProblemManager()
         {
             if (aMathProblemServerManager != null)
             {
                 return aMathProblemServerManager;
+            }
+
+            return null;
+        }
+
+        public QuestionsManagerServer GetQuestionManager()
+        {
+            if (aQuestionsServerManager != null)
+            {
+                return aQuestionsServerManager;
             }
 
             return null;

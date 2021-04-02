@@ -223,7 +223,10 @@ namespace _2DLogicGame
                     switch (aLevelManager.LevelName)
                     {
                         case "Math":
-                            aLevelManager.LevelMap.GetMathProblemNaManager().Update();
+                            aLevelManager.LevelMap.GetMathProblemManager().Update();
+                            break;
+                        case "Questions":
+                            aLevelManager.LevelMap.GetQuestionManager().Update();
                             break;
                         default:
                             break;
@@ -788,13 +791,13 @@ namespace _2DLogicGame
                 switch (aLevelManager.LevelName)
                 {
                     case "Math":
-                        parOutgoingMessage.WriteVariableInt32(aLevelManager.LevelMap.GetMathProblemNaManager().Equations.Count);
+                        parOutgoingMessage.WriteVariableInt32(aLevelManager.LevelMap.GetMathProblemManager().Equations.Count);
 
-                        for (int i = 0; i < aLevelManager.LevelMap.GetMathProblemNaManager().Equations.Count; i++)
+                        for (int i = 0; i < aLevelManager.LevelMap.GetMathProblemManager().Equations.Count; i++)
                         {
-                            parOutgoingMessage.WriteVariableInt32(aLevelManager.LevelMap.GetMathProblemNaManager().Equations[i + 1].FirstNumber);
-                            parOutgoingMessage.WriteVariableInt32(aLevelManager.LevelMap.GetMathProblemNaManager().Equations[i + 1].SecondNumber);
-                            parOutgoingMessage.Write((byte)aLevelManager.LevelMap.GetMathProblemNaManager().Equations[i + 1].Operator);
+                            parOutgoingMessage.WriteVariableInt32(aLevelManager.LevelMap.GetMathProblemManager().Equations[i + 1].FirstNumber);
+                            parOutgoingMessage.WriteVariableInt32(aLevelManager.LevelMap.GetMathProblemManager().Equations[i + 1].SecondNumber);
+                            parOutgoingMessage.Write((byte)aLevelManager.LevelMap.GetMathProblemManager().Equations[i + 1].Operator);
                         }
                         break;
                     default:

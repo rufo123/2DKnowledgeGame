@@ -4,11 +4,12 @@ using System.Numerics;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace _2DLogicGame.GraphicObjects
 {
-    class Questions : DrawableGameComponent
+    public class Questions : DrawableGameComponent
     {
 
         /// <summary>
@@ -36,29 +37,49 @@ namespace _2DLogicGame.GraphicObjects
         /// </summary>
         private List<string> aPossibleAnswersList;
 
+        /// <summary>
+        /// Atribut, reprezentujuci poziciu pozadia odpovede
+        /// </summary>
         private Vector2 aAnswerPosition;
 
+        /// <summary>
+        /// Atribut reprezentujuci velkost pozadia odpovede
+        /// </summary>
         private Vector2 aAnswerSize;
 
+        /// <summary>
+        /// Atribut, reprezentujuci texturu pozadia otazky
+        /// </summary>
         private Texture2D aQuestionsBackTexture2D;
 
+        /// <summary>
+        /// Atribut, reprezentujuci rectangle pozadia otazky
+        /// </summary>
         private Rectangle aQuestionBackRectangle;
 
+        /// <summary>
+        /// Atribut, reprezentujuci Texuturu pozadia odpovede
+        /// </summary>
         private Texture2D aAnswerBackTexture2D;
 
+        //Atribut, reprezentujuci Rectangle pozadia odpovede
         private Rectangle aAnswerBackRectangle;
-
-
+        public string CurrentQuestionText
+        {
+            get => aCurrentQuestionText;
+            set => aCurrentQuestionText = value;
+        }
 
         public Questions(LogicGame parGame, Vector2 parPositionVector2, Vector2 parSizeVector2) : base(parGame)
         {
             aLogicGame = parGame;
             aPositon = parPositionVector2;
-            aSize = parPositionVector2;
+            aSize = parSizeVector2;
             aPossibleAnswersList = new List<string>();
             aCurrentQuestionText = "";
+
             aAnswerPosition = new Vector2(parPositionVector2.X + aSize.X / 20, parPositionVector2.Y + aSize.Y / 3);
-            aAnswerSize = new Vector2(aSize.X / (48 / 17), aSize.Y / (16));
+            aAnswerSize = new Vector2(aSize.X / (2 + ((float)6 / 17)), aSize.Y / (4 + ((float)43 / 120)));
 
         }
 
@@ -69,6 +90,11 @@ namespace _2DLogicGame.GraphicObjects
 
             aAnswerBackTexture2D = new Texture2D(aLogicGame.GraphicsDevice, (int)aAnswerSize.X, (int)aAnswerSize.Y);
             aAnswerBackRectangle = new Rectangle(0, 0, (int)aAnswerSize.X, (int)aAnswerSize.Y);
+
+            for (int i = 0; i < 4; i++)
+            {
+                aPossibleAnswersList.Add("Pepeprarparparparpr");
+            }
 
             base.Initialize();
         }
@@ -89,9 +115,9 @@ namespace _2DLogicGame.GraphicObjects
             {
                 for (int i = 0; i < tmpColorAnswer.Length; i++) //Pre celu oblast
                 {
-                    tmpColorAnswer[i] = Color.Black; //Nastavime Farbu na Ciernu
+                    tmpColorAnswer[i] = Color.White; //Nastavime Farbu na Ciernu
                 }
-                aQuestionsBackTexture2D.SetData<Color>(tmpColorAnswer); //Samozrejme nastavime Data o Farbe pre Dummy Texturu
+                aAnswerBackTexture2D.SetData<Color>(tmpColorAnswer); //Samozrejme nastavime Data o Farbe pre Dummy Texturu
             }
 
             base.LoadContent();
@@ -99,13 +125,43 @@ namespace _2DLogicGame.GraphicObjects
 
         public override void Draw(GameTime gameTime)
         {
-
-            aLogicGame.SpriteBatch.Draw(aQuestionsBackTexture2D, aPositon, aQuestionBackRectangle, Color.White * 0.2F, 0F, Vector2.Zero, 1F, SpriteEffects.None, 0.3F);
-
-            for (int i = 0; i < 4; i++)
+            if (aLogicGame.CurrentPressedKey.IsKeyDown(Keys.X))
             {
-                aLogicGame.SpriteBatch.Draw(aAnswerBackTexture2D, CalculateOffsetVector(i), aAnswerBackRectangle, CalculateColor(i) * 0.2F, 0F, Vector2.Zero, 1F, SpriteEffects.None, 0.3F);
+
+                //Prepocitanie suradnic, aby bol text otazky presne v strede
+                Vector2 tmpQuestionSize = aLogicGame.Font48.MeasureString(aCurrentQuestionText) * 1F;
+                Vector2 tmpQuestionPosition = new Vector2(aPositon.X, aPositon.Y);
+                tmpQuestionPosition.X += aSize.X / 2 - tmpQuestionSize.X / 2;
+                tmpQuestionPosition.Y += aAnswerSize.Y / 3;
+
+
+                aLogicGame.SpriteBatch.DrawString(aLogicGame.Font48, aCurrentQuestionText, tmpQuestionPosition, Color.White, 0F, Vector2.Zero, 1F, SpriteEffects.None, 0.2F);
+
+                aLogicGame.SpriteBatch.Draw(aQuestionsBackTexture2D, aPositon, aQuestionBackRectangle, Color.White * 0.2F, 0F, Vector2.Zero, 1F, SpriteEffects.None, 0.3F);
+
+
+
+                for (int i = 0; i < 4; i++)
+                {
+
+                    Vector2 tmpAnswerSize;
+
+                    Vector2 tmpAnswerPosition = CalculateOffsetVector(i);
+
+                    tmpAnswerSize = aLogicGame.Font28.MeasureString(aPossibleAnswersList[i]) * 1F;
+
+                    tmpAnswerPosition.X += aAnswerSize.X / 2 - tmpAnswerSize.X / 2;
+                    tmpAnswerPosition.Y += aAnswerSize.Y / 2 - tmpAnswerSize.Y / 2;
+
+                    aLogicGame.SpriteBatch.DrawString(aLogicGame.Font28, GenerateCharFromNumber(i) + ": " + aPossibleAnswersList[i], tmpAnswerPosition, Color.White);
+
+                    //aLogicGame.SpriteBatch.DrawString(aLogicGame.Font48, aPossibleAnswersList[i], tmpAnswerPosition, Color.White, 0F, Vector2.Zero, 1F, SpriteEffects.None, 0.2F);
+
+                    aLogicGame.SpriteBatch.Draw(aAnswerBackTexture2D, CalculateOffsetVector(i), aAnswerBackRectangle, CalculateColor(i) * 0.5F, 0F, Vector2.Zero, 1F, SpriteEffects.None, 0.3F);
+
+                }
             }
+
 
             base.Draw(gameTime);
         }
@@ -127,10 +183,21 @@ namespace _2DLogicGame.GraphicObjects
 
             if (parAnsNumber % 2 != 0) //Posunieme Nizsie
             {
-                tmpPosOffsetY = (int)(aAnswerSize.X / 2.5) + (int)aAnswerSize.Y;
+                tmpPosOffsetY = (int)(aAnswerSize.Y / 2.5) + (int)aAnswerSize.Y;
             }
 
             return new Vector2(aAnswerPosition.X + tmpPosOffsetX, aAnswerPosition.Y + tmpPosOffsetY);
+        }
+
+        /// <summary>
+        /// Metoda, ktora vygeneruje charakter v zavislosti od cisla, napr 1 - A, 2 - B, 3 - C, 4 - D
+        /// </summary>
+        /// <param name="parNumber">Parameter, reprezentujuci cislo - typ int</param>
+        /// <returns>Vrati znak v zavislosti od parametra - cisla</returns>
+        public char GenerateCharFromNumber(int parNumber)
+        {
+            return Convert.ToChar(65 + parNumber);
+
         }
 
         /// <summary>

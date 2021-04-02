@@ -2251,7 +2251,7 @@
           <X>9</X>
           <Y>10</Y>
         </Position>
-        <BlockName>IGNORE</BlockName>
+        <BlockName>mathGenerateBlock</BlockName>
       </BlockPosition>
       <BlockPosition>
         <Position>
@@ -2279,7 +2279,7 @@
           <X>13</X>
           <Y>10</Y>
         </Position>
-        <BlockName>IGNORE</BlockName>
+        <BlockName>mathGenerateBlock</BlockName>
       </BlockPosition>
       <BlockPosition>
         <Position>
@@ -2307,7 +2307,7 @@
           <X>17</X>
           <Y>10</Y>
         </Position>
-        <BlockName>IGNORE</BlockName>
+        <BlockName>mathGenerateBlock</BlockName>
       </BlockPosition>
       <BlockPosition>
         <Position>
@@ -2335,7 +2335,7 @@
           <X>21</X>
           <Y>10</Y>
         </Position>
-        <BlockName>IGNORE</BlockName>
+        <BlockName>mathGenerateBlock</BlockName>
       </BlockPosition>
       <BlockPosition>
         <Position>

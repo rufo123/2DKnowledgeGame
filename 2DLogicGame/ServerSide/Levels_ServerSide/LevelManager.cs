@@ -105,7 +105,7 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
         public LevelManager(LogicGame parLogicGame)
         {
             aLevelBlockData = new List<BlockData>();
-            aLevelMap = new LevelMap();
+            aLevelMap = new LevelMap(parLogicGame);
             aLogicGame = parLogicGame;
             aPlayerDefaultPositionsDictionary = new Dictionary<int, Vector2>(aMaxPlayers); //2 Hraci Max
             aCurrentLevelNumber = 0;
@@ -233,8 +233,9 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
             switch (aLevelName)
             {
                 case "Math":
-                    return aLevelMap.GetMathProblemNaManager().UpdateIsReady;
-                    break;
+                    return aLevelMap.GetMathProblemManager().UpdateIsReady;
+                case "Questions":
+                    return aLevelMap.GetQuestionManager().UpdateIsReady;
                 default:
                     break;
             }
@@ -247,7 +248,7 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
             switch (aLevelName)
             {
                 case "Math":
-                    if (aLevelMap.GetMathProblemNaManager().ProblemFeedback == Feedback.AllSolved)
+                    if (aLevelMap.GetMathProblemManager().ProblemFeedback == Feedback.AllSolved)
                     {
                         return true;
                     }
@@ -269,15 +270,18 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
             switch (aLevelName)
             {
                 case "Math": //Budeme vediet na isto ze ide o level typu Math
-                    parOutgoingMessage.WriteVariableInt32(aLevelMap.GetMathProblemNaManager().GetFinalNumberFromInput());
-                    parOutgoingMessage.Write((byte)aLevelMap.GetMathProblemNaManager().ProblemFeedback);
-                    parOutgoingMessage.WriteVariableInt32(aLevelMap.GetMathProblemNaManager().IdOfLastButtonSucceeded);
-                    aLevelMap.GetMathProblemNaManager().UpdateIsReady = false;
-                    aLevelMap.GetMathProblemNaManager().ProblemFeedback = Feedback.NotSubmitted;
+                    parOutgoingMessage.WriteVariableInt32(aLevelMap.GetMathProblemManager().GetFinalNumberFromInput());
+                    parOutgoingMessage.Write((byte)aLevelMap.GetMathProblemManager().ProblemFeedback);
+                    parOutgoingMessage.WriteVariableInt32(aLevelMap.GetMathProblemManager().IdOfLastButtonSucceeded);
+                    aLevelMap.GetMathProblemManager().UpdateIsReady = false;
+                    aLevelMap.GetMathProblemManager().ProblemFeedback = Feedback.NotSubmitted;
+                    break;
+                case "Questions":
+                    parOutgoingMessage = aLevelMap.GetQuestionManager().PrepareQuestionData(parOutgoingMessage);
+                    aLevelMap.GetQuestionManager().UpdateIsReady = false;
                     break;
                 default:
-                    return null;
-                    break;
+                    return parOutgoingMessage;
             }
             return parOutgoingMessage;
         }

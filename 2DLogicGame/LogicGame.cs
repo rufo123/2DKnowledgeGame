@@ -22,7 +22,12 @@ namespace _2DLogicGame
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
-        private SpriteFont _font;
+
+        private SpriteFont aFont72;
+
+        private SpriteFont aFont48;
+
+        private SpriteFont aFont28;
 
         private MenuBox aMenuBox;
         private Menu aMenu;
@@ -65,7 +70,9 @@ namespace _2DLogicGame
         // Gettery a Settery
 
         public SpriteBatch SpriteBatch { get => _spriteBatch; set => _spriteBatch = value; } //Getter Setter SpriteBatch
-        public SpriteFont Font { get => _font; set => _font = value; } //Getter Setter Font
+        public SpriteFont Font72 { get => aFont72; set => aFont72 = value; } //Getter Setter Font72
+        public SpriteFont Font48 { get => aFont48; set => aFont48 = value; } //Getter Setter Font48
+        public SpriteFont Font28 { get => aFont28; set => aFont28 = value; } //Getter Setter Font28
         public KeyboardState PreviousPressedKey { get => aPreviousPressedKey; set => aPreviousPressedKey = value; }
         public KeyboardState CurrentPressedKey { get => aCurrentPressedKey; set => aCurrentPressedKey = value; }
         public GameState GameState { get => aGameState; set => aGameState = value; }
@@ -143,7 +150,11 @@ namespace _2DLogicGame
         protected override void LoadContent()
         {
 
-            Font = Content.Load<SpriteFont>("Fonts\\StickRegular12");
+            Font72 = Content.Load<SpriteFont>("Fonts\\StickRegular72");
+
+            Font48 = Content.Load<SpriteFont>("Fonts\\StickRegular48");
+
+            Font28 = Content.Load<SpriteFont>("Fonts\\StickRegular28");
 
             aRenderTarget = new RenderTarget2D(this.GraphicsDevice, aRenderTargetWidth, aRenderTargetHeight);
 

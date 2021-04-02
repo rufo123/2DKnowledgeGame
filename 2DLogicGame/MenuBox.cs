@@ -67,7 +67,7 @@ namespace _2DLogicGame
                     tmpColor = aColorSelectedItem;
                 }
 
-                aLogicGame.SpriteBatch.DrawString(aLogicGame.Font, aBoxItems[i].MenuText, aBoxItems[i].MenuPosition, tmpColor);
+                aLogicGame.SpriteBatch.DrawString(aLogicGame.Font72, aBoxItems[i].MenuText, aBoxItems[i].MenuPosition, tmpColor);
 
 
             }

@@ -203,9 +203,7 @@ namespace _2DLogicGame.ClientSide.Levels
                 default:
                     LevelName = "NONE";
                     break;
-
             }
-
         }
 
 
@@ -298,6 +296,9 @@ namespace _2DLogicGame.ClientSide.Levels
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
+                    break;
+                case "Questions":
+                    aLevelMap.GetQuestionManager().HandleIncommingData(parMessage, parAmIFirstPlayer);
                     break;
                 default:
                     break;

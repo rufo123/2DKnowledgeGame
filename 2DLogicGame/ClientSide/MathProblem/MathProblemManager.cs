@@ -304,8 +304,7 @@ namespace _2DLogicGame.GraphicObjects
 
             if (aCompletelyLoaded) //Ak nam Level Manager oznami, ze je Level kompletne nacitany
             {
-                if (aButtonList != null && aButtonList.Count > 0 && aDictionaryOfBridgeSubBlocks != null &&
-                    aDictionaryOfBridgeSubBlocks.Count > 0 && aEquations != null)
+                if (aButtonList != null && aButtonList.Count > 0 && aDictionaryOfBridgeSubBlocks != null && aDictionaryOfBridgeSubBlocks.Count > 0 && aEquations != null)
                 {
                     //Pokial Existuje List tlacidielk, obsahuje nejake tlacitka a podobne aj s Dictionary
 
@@ -322,17 +321,13 @@ namespace _2DLogicGame.GraphicObjects
                         {
                             //aUpdateIsReady = true;
                         }
-
-
                     }
                 }
             }
-
             if (tmpIsAnyButtonTurnedOn == false)
             {
                 aMathProblem.Shown = false;
             }
-
             base.Update(gameTime);
         }
 

@@ -125,7 +125,7 @@ namespace _2DLogicGame.ClientSide.Chat
                 }
                 for (int countRow = aStartOfMessageDrawing; countRow < aMessageStorage.Count; countRow++) //For cyklus, pocitajuci, kolko riadkov sprav sa ma zobrazit - meni sa dynamicky, zalezi od - Atributu aStartOfMessageDrawing a od poctu sprav v uloznom priestore
                 {
-                    Vector2 tmpOffSetVector = CalculateOffSetVector(aPositionVector, aLogicGame.Font, aMessagesScale, countRow - aStartOfMessageDrawing); //Vypocet OffSet Vectoru - pre vykreslenie na novy riadok
+                    Vector2 tmpOffSetVector = CalculateOffSetVector(aPositionVector, aLogicGame.Font72, aMessagesScale, countRow - aStartOfMessageDrawing); //Vypocet OffSet Vectoru - pre vykreslenie na novy riadok
 
 
 
@@ -140,7 +140,7 @@ namespace _2DLogicGame.ClientSide.Chat
 
 
 
-                   aLogicGame.SpriteBatch.DrawString(aLogicGame.Font, tmpStringWithoutColorCode, tmpOffSetVector, ConvertEnumColor(tmpMessageColor), 0F, Vector2.Zero, aMessagesScale, SpriteEffects.None, 0F); //Samotne vykreslovanie riadkov sprav
+                   aLogicGame.SpriteBatch.DrawString(aLogicGame.Font72, tmpStringWithoutColorCode, tmpOffSetVector, ConvertEnumColor(tmpMessageColor), 0F, Vector2.Zero, aMessagesScale, SpriteEffects.None, 0F); //Samotne vykreslovanie riadkov sprav
                 }
                 //    aLogicGame.SpriteBatch.End();
 
@@ -160,13 +160,13 @@ namespace _2DLogicGame.ClientSide.Chat
         /// <summary>
         /// Metoda, ktora sluzi na rozdelovanie velkeho Stringu na riadky - Pokial sa nezmesti do Boxu
         /// </summary>
-        /// <param name="parFont">Parameter typu Font - typ SpriteFont</param>
+        /// <param name="parFont">Parameter typu Font72 - typ SpriteFont</param>
         /// <param name="parFontScale">Parameter Skala Fontu - Typ float</param>
         /// <param name="parReceiveBoxWidth">Parameter Sirka Boxu - Typ int</param>
         /// <param name="parMessage">Parameter Reprezentujuci Spravu - Typ String</param>
         public void ParseMessageIntoRows(SpriteFont parFont, float parFontScale, int parReceiveBoxWidth, string parMessage, int parMessageColor)
         {
-            Vector2 tmpStringSizeVector = aLogicGame.Font.MeasureString(parMessage) * parFontScale; //Vektor, ktory reprezentuje velkost celeho stringu pocitajuc uz so skalou
+            Vector2 tmpStringSizeVector = aLogicGame.Font72.MeasureString(parMessage) * parFontScale; //Vektor, ktory reprezentuje velkost celeho stringu pocitajuc uz so skalou
             if (tmpStringSizeVector.X <= parReceiveBoxWidth) //Ak je sirka stringu mensia rovna ako sirka boxu
             {
                 aMessageStorage.Add(parMessage + parMessageColor); //Proste pridame spravu do Uloziska
@@ -179,9 +179,9 @@ namespace _2DLogicGame.ClientSide.Chat
                 {
                     tmpNewMessage.Append(parMessage[i]); //Do naseho StringBuildera postupne pridavame charaktery z povodneho stringu
 
-                    float tmpNewMessageWidth = aLogicGame.Font.MeasureString(tmpNewMessage.ToString()).X * parFontScale; //Pomocna premenna - Sirka novej spravy pocitajuc, ako vzdy, so skalou.
+                    float tmpNewMessageWidth = aLogicGame.Font72.MeasureString(tmpNewMessage.ToString()).X * parFontScale; //Pomocna premenna - Sirka novej spravy pocitajuc, ako vzdy, so skalou.
 
-                    if (tmpNewMessageWidth + aLogicGame.Font.LineSpacing * parFontScale > parReceiveBoxWidth)
+                    if (tmpNewMessageWidth + aLogicGame.Font72.LineSpacing * parFontScale > parReceiveBoxWidth)
                     { //Ak je Sirka novej spravy + "Spacing Pismen, vynasobeny skalou" vacsi ako sirka boxu
 
                         aMessageStorage.Add(tmpNewMessage.ToString() + parMessageColor); //Pridame takto nasu, vynatu spravu do uloziska
@@ -198,7 +198,7 @@ namespace _2DLogicGame.ClientSide.Chat
         /// Vypocet OffSet Vectoru - Pouziteho pri vypocte vykreslovania sprav na riadky
         /// </summary>
         /// <param name="parPositionVector">Parameter Vectoru Reprezentujuceho Poziciu - Typ Vector2</param>
-        /// <param name="parFont">Parameter Reprezentujuci Pismo - Typ Font</param>
+        /// <param name="parFont">Parameter Reprezentujuci Pismo - Typ Font72</param>
         /// <param name="parMessageScale">Parameter Reprezentujuci Skalovanie Sprav - Typ Float</param>
         /// <param name="parRowNumber">Parameter Reprezentujuci Cislo Riadku - Typ Int</param>
         /// <returns>Vrati vypocitanu poziciu - Vector - Typ Vector2</returns>
@@ -215,11 +215,11 @@ namespace _2DLogicGame.ClientSide.Chat
         /// <summary>
         /// Setter - Nastavi Spacing, na zaklade typu Pisma a Skalovania Sprav
         /// </summary>
-        /// <param name="parFont">Parameter Reprezentujuci Pismo - Typ Font</param>
+        /// <param name="parFont">Parameter Reprezentujuci Pismo - Typ Font72</param>
         /// <param name="parMessageScale">Parameter Reprezentujuci Skalovanie Pisma - Typ Float</param>
         public void SetSpacing(SpriteFont parFont, float parMessageScale)
         {
-            if (parFont != null) //Overime ci Font existuje
+            if (parFont != null) //Overime ci Font72 existuje
             {
                 aSpacing = parFont.LineSpacing * parMessageScale; //Spacing nastavime ako font line spacing vynasobeny skalou
             }
@@ -279,7 +279,7 @@ namespace _2DLogicGame.ClientSide.Chat
         /// <param name="parMessage"></param>
         public void StoreMessage(string parMessage, int parMessageColor) 
         {
-            ParseMessageIntoRows(aLogicGame.Font, aMessagesScale, aWindowWidth, parMessage, parMessageColor); //Parsovanie celej spravy do riadkov
+            ParseMessageIntoRows(aLogicGame.Font72, aMessagesScale, aWindowWidth, parMessage, parMessageColor); //Parsovanie celej spravy do riadkov
         }
 
         public Color ConvertEnumColor(ChatColors parColor) {

@@ -164,12 +164,12 @@ namespace _2DLogicGame.GraphicObjects
                 Vector2 tmpNewOperatorPosition = new Vector2();
 
                 tmpNewOperatorPosition.Y = aPosition.Y + 100;
-                tmpNewOperatorPosition.X = (aPosition.X + aSize.X/2 - (aLogicGame.Font.LineSpacing * aLogicGame.Scale * 0.7F  / 2F) * 0.7F);
+                tmpNewOperatorPosition.X = (aPosition.X + aSize.X/2 - (aLogicGame.Font72.LineSpacing * aLogicGame.Scale * 0.7F  / 2F) * 0.7F);
 
-                aLogicGame.SpriteBatch.DrawString(aLogicGame.Font, aEquation.Operator.ToString(), tmpNewOperatorPosition, Color.GreenYellow, 0F, Vector2.Zero, 0.7F, SpriteEffects.None, 0.2F);
+                aLogicGame.SpriteBatch.DrawString(aLogicGame.Font72, aEquation.Operator.ToString(), tmpNewOperatorPosition, Color.GreenYellow, 0F, Vector2.Zero, 0.7F, SpriteEffects.None, 0.2F);
             }
 
-            //aLogicGame.SpriteBatch.DrawString(aLogicGame.Font, "Test", aPosition, Color.White, 0F, Vector2.Zero, 1F, SpriteEffects.None, 0F);
+            //aLogicGame.SpriteBatch.DrawString(aLogicGame.Font72, "Test", aPosition, Color.White, 0F, Vector2.Zero, 1F, SpriteEffects.None, 0F);
             base.Draw(gameTime);
         }
     }
