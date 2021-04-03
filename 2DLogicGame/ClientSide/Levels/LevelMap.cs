@@ -87,16 +87,26 @@ namespace _2DLogicGame.ClientSide.Levels
                         aMathProblemManager = null;
                     }
                     break;
+                case "Questions":
+                    if (aQuestionsManager != null)
+                    {
+                        aQuestionsManager.Destroy();
+                        aQuestionsManager = null;
+                    }
+
+                    break;
                 default:
                     break;
             }
         }
+
 
         /// <summary>
         /// Metoda, ktora Inicializuje mapu pomocou zadaneho Listu dat o Blokoch - typ List<BlockData>
         /// </summary>
         /// <param name="parBlockPositions">Parameter reprezentujuci List Dat o blokoch - typ List<BlockData></param>
         /// <param name="parLevelName"></param>
+        /// <param name="parPlayerId">Parameter, reprezentujuci ciselne ID hraca - typ int</param>
         public void InitMap(List<BlockData> parBlockPositions, string parLevelName)
         {
 
@@ -179,13 +189,30 @@ namespace _2DLogicGame.ClientSide.Levels
                 }
                 else if (parBlockPositions[i].BlockName == "mathInputBlock")
                 {
-                    InputBlock tmpInputBlock = new InputBlock(aLogicGame, tmpBlockPosition);
+                    InputBlock tmpInputBlock = new InputBlock(aLogicGame, tmpBlockPosition, parHasStates:true, parCountOfFrames:5);
                     aBlockPositionDictionary.Add(tmpBlockPosition, tmpInputBlock);
                     aBlockList.Add(tmpInputBlock);
 
                     if (aMathProblemManager != null && parLevelName == "Math") //Ak vieme ze pojde o level typu Math, odosleme MathProblem manazeru, informacie o InputBlokoch
                     {
                         aMathProblemManager.AddInput(tmpInputBlock);
+                    }
+
+                    if (aQuestionsManager != null & parLevelName == "Questions")
+                    {
+                        tmpInputBlock.ChangeInputType(InputBlockType.Colors);
+                        aQuestionsManager.AddInput(tmpInputBlock);
+                    }
+                }
+                else if (parBlockPositions[i].BlockName == "doorBlock")
+                {
+                    DoorBlock tmpDoorBlock = new DoorBlock(aLogicGame, tmpBlockPosition);
+                    aBlockPositionDictionary.Add(tmpBlockPosition, tmpDoorBlock);
+                    aBlockList.Add(tmpDoorBlock);
+
+                    if (aQuestionsManager != null && parLevelName == "Questions")
+                    {
+                        aQuestionsManager.AddDoors(tmpDoorBlock);
                     }
                 }
                 else
@@ -200,6 +227,7 @@ namespace _2DLogicGame.ClientSide.Levels
                 aMathProblemManager.CompletelyLoaded = true;
                 aLogicGame.Components.Add(aMathProblemManager);
             }
+
         }
 
         /// <summary>

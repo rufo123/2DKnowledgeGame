@@ -613,13 +613,13 @@ namespace _2DLogicGame.GraphicObjects
                 if (aDefaultPosition != null)
                 {
                     aPosition = aDefaultPosition;
-                    PositionCorrection(parGameTime); //Kedze ide o respawn zavolame si aj PositionCorrect -> Vyziadame si od servera aby skontroloval ci nase suradnice su spravne
+                    // PositionCorrection(parGameTime); //Kedze ide o respawn zavolame si aj PositionCorrect -> Vyziadame si od servera aby skontroloval ci nase suradnice su spravne
                 }
-
             }
+
         }
 
-
+        
 
         public override void Update(GameTime parGameTime)
         {

@@ -119,6 +119,8 @@ namespace _2DLogicGame.GraphicObjects
         /// </summary>
         private BlockCollisionType aBlockCollisionType = BlockCollisionType.None;
 
+        private BlockCollisionType aDefaultBlockCollisionType;
+
         public BlockCollisionType BlockCollisionType
         {
             get => aBlockCollisionType;
@@ -160,7 +162,7 @@ namespace _2DLogicGame.GraphicObjects
         public bool IsHidden
         {
             get => aIsHidden;
-            set => aIsHidden = value;
+            set => HideUnHideAndUnsetCollision(value);
         }
         public float Visibility
         {
@@ -225,6 +227,26 @@ namespace _2DLogicGame.GraphicObjects
             if (parTexture != null)
             {
                 aTexture = parTexture;
+            }
+
+            aDefaultBlockCollisionType = aBlockCollisionType;
+        }
+
+        /// <summary>
+        /// Metoda, ktora podla parametra, bud schova alebo neschova block s tym, ze aj zmaze jeho kolizu
+        /// </summary>
+        /// <param name="parHide">Parameter, ci sa ma block schovat alebo nie - ty bool</param>
+        public void HideUnHideAndUnsetCollision(bool parHide)
+        {
+            if (parHide)
+            {
+                aIsHidden = true;
+                aBlockCollisionType = BlockCollisionType.None;
+            }
+            else
+            {
+                aIsHidden = false;
+                aBlockCollisionType = aDefaultBlockCollisionType;
             }
         }
 

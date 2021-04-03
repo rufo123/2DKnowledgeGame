@@ -62,6 +62,17 @@ namespace _2DLogicGame.GraphicObjects
         /// </summary>
         private Texture2D aAnswerBackTexture2D;
 
+        /// <summary>
+        /// Atribut, ktory povoli zobrazovanie objektu - typ bool
+        /// </summary>
+        private bool aShowEnabled;
+
+        public bool ShowEnabled
+        {
+            get => aShowEnabled;
+            set => aShowEnabled = value;
+        }
+
         //Atribut, reprezentujuci Rectangle pozadia odpovede
         private Rectangle aAnswerBackRectangle;
         public string CurrentQuestionText
@@ -125,7 +136,7 @@ namespace _2DLogicGame.GraphicObjects
 
         public override void Draw(GameTime gameTime)
         {
-            if (aLogicGame.CurrentPressedKey.IsKeyDown(Keys.X))
+            if (aShowEnabled)
             {
 
                 //Prepocitanie suradnic, aby bol text otazky presne v strede
@@ -138,8 +149,6 @@ namespace _2DLogicGame.GraphicObjects
                 aLogicGame.SpriteBatch.DrawString(aLogicGame.Font48, aCurrentQuestionText, tmpQuestionPosition, Color.White, 0F, Vector2.Zero, 1F, SpriteEffects.None, 0.2F);
 
                 aLogicGame.SpriteBatch.Draw(aQuestionsBackTexture2D, aPositon, aQuestionBackRectangle, Color.White * 0.2F, 0F, Vector2.Zero, 1F, SpriteEffects.None, 0.3F);
-
-
 
                 for (int i = 0; i < 4; i++)
                 {

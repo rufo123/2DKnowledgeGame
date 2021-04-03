@@ -168,6 +168,18 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/Blocks/buttonBlockRed.png
 
+#begin Sprites/Blocks/doorBlock.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Blocks/doorBlock.png
+
 #begin Sprites/Blocks/endBlock.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -239,4 +251,16 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Sprites/Items/banana.png
+
+#begin Sprites/Items/wrongIndicator.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/Items/wrongIndicator.png
 

@@ -21,6 +21,12 @@ namespace _2DLogicGame.ServerSide.Blocks_ServerSide
             set => aNumber = value;
         }
 
+        public int MaxNumber
+        {
+            get => aMaxNumber;
+            set => aMaxNumber = value;
+        }
+
 
         public InputBlockServer(Vector2 parPosition, BlockCollisionType parCollisionType = BlockCollisionType.Wall, int parMinNumber = 0, int parMaxNumber = 9) : base(parPosition, parCollisionType)
         {

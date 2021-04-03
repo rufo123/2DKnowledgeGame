@@ -78,6 +78,25 @@ namespace _2DLogicGame.ClientSide.Levels
         /// </summary>
         private Dictionary<long, ClientSide.PlayerClientData> aDictionaryPlayerData; //Zatial ani nevyuzite, mozno aj zmazat
 
+        /// <summary>
+        /// Atribut, reprezentujuci ID hraca, mna - typ int
+        /// </summary>
+        private int aPlayerID;
+
+        /// <summary>
+        /// Atribut, ktory reprezentuje cislo momentalne spusteneho levelu
+        /// </summary>
+        private int aCurrentLevelNumber;
+
+        /// <summary>
+        /// Atribut, ktory sluzi ako pomocna premenna hracom, aby vedeli, kedy sa maju u Klienta zobrazit na prednastavenych poziciach
+        /// </summary>
+        private bool aLevelChanged;
+
+        /// <summary>
+        /// Atribut, ktory sluzi ako pomocna premenna hracom, aby vedeli, kedy sa maju u Klienta zobrazit na prednastavenych poziciach
+        /// </summary>
+        private bool aLevelReset;
 
         private LevelTransformScreen aLevelTransformScreen;
 
@@ -103,6 +122,17 @@ namespace _2DLogicGame.ClientSide.Levels
             get => aPlayerDefaultPositionsDictionary;
             set => aPlayerDefaultPositionsDictionary = value;
         }
+        public bool LevelChanged
+        {
+            get => aLevelChanged;
+            set => aLevelChanged = value;
+        }
+
+        public bool LevelReset
+        {
+            get => aLevelReset;
+            set => aLevelReset = value;
+        }
 
         /// <summary>
         /// Konstruktor LevelManageru -
@@ -122,6 +152,9 @@ namespace _2DLogicGame.ClientSide.Levels
             aHelperTimer = 0F;
             aLevelTransformScreen = new LevelTransformScreen(parLogicGame);
             aPlayScreenComponentCollection.AddComponent(aLevelTransformScreen);
+            aCurrentLevelNumber = 0;
+            aLevelReset = false;
+            aLevelChanged = false;
         }
 
         /// <summary>
@@ -184,6 +217,7 @@ namespace _2DLogicGame.ClientSide.Levels
             aLogicGame.CameraX = -48 * aLogicGame.Scale;
 
             aLevelTransformScreen.CameraOffset = aLogicGame.CameraX;
+
         }
 
         /// <summary>
@@ -196,9 +230,11 @@ namespace _2DLogicGame.ClientSide.Levels
             {
                 case 1:
                     InitLevel("Levels\\levelMath");
+                    aCurrentLevelNumber = parLevelNumber;
                     break;
                 case 2:
                     InitLevel("Levels\\levelQuestions");
+                    aCurrentLevelNumber = parLevelNumber;
                     break;
                 default:
                     LevelName = "NONE";
@@ -220,6 +256,19 @@ namespace _2DLogicGame.ClientSide.Levels
             //Samozrejme, ked uz doslo k zmene levu, oznamime ze uz nie je treba takato zmena
             aLevelNumberRequested = 0;
             aLevelChangeRequested = false;
+            if (!aLevelReset) //Ak sa level neresetoval
+            {
+                aLevelChanged = true; //Pojde o zmenu levelu
+            }
+        }
+
+        /// <summary>
+        /// Metoda, ktora restartuje level
+        /// </summary>
+        public void ResetLevel()
+        {
+            aLevelReset = true;
+            ChangeLevel(aCurrentLevelNumber);
         }
 
         /// <summary>
@@ -298,7 +347,8 @@ namespace _2DLogicGame.ClientSide.Levels
                     }
                     break;
                 case "Questions":
-                    aLevelMap.GetQuestionManager().HandleIncommingData(parMessage, parAmIFirstPlayer);
+                    aLevelMap.GetQuestionManager().HandleIncomingData(parMessage, parAmIFirstPlayer);
+                    Debug.WriteLine("Client - Manager - LevelData");
                     break;
                 default:
                     break;
@@ -326,6 +376,14 @@ namespace _2DLogicGame.ClientSide.Levels
                     aLevelTransformScreen.NeedsFadeIn = true;
                 }
             }
+
+            if (aLevelMap.GetQuestionManager() != null && aLevelMap.GetQuestionManager().NeedsReset)
+            {
+                ResetLevel();
+                
+
+            }
+
         }
 
         /// <summary>
@@ -333,7 +391,7 @@ namespace _2DLogicGame.ClientSide.Levels
         /// </summary>
         /// <param name="parMessage"></param>
         /// <param name="parLevelName"></param>
-        public void HandleLevelInitData(NetIncomingMessage parMessage, string parLevelName)
+        public void HandleLevelInitData(NetIncomingMessage parMessage, string parLevelName, int parPlayerID)
         {
             switch (parLevelName)
             {
@@ -346,6 +404,12 @@ namespace _2DLogicGame.ClientSide.Levels
                         char tmpOperator = (char)(parMessage.ReadByte());
                         this.aLevelMap.GetMathProblemManager().Equations.Add(i + 1, new MathEquation(tmpFirstNumber, tmpSecondNumber, tmpOperator));
                     }
+
+                    break;
+                case "Questions":
+                    bool tmpAmIFirst = (parPlayerID == 1 ? true : false);
+                    aLevelMap.GetQuestionManager().HandleIncomingData(parMessage, tmpAmIFirst);
+                    Debug.WriteLine("Client - Manager - Init");
 
                     break;
                 default:

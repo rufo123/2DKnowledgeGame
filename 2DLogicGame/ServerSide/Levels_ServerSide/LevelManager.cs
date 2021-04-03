@@ -5,6 +5,8 @@ using System.Diagnostics;
 using System.Numerics;
 using _2DLogicGame.ServerSide.Blocks_ServerSide;
 using _2DLogicGame.ServerSide.LevelMath_Server;
+using _2DLogicGame.ServerSide.Questions_ServeSide;
+using Assimp;
 using Lidgren.Network;
 using XMLData;
 
@@ -199,6 +201,13 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
             InitLevelByNumber(++aCurrentLevelNumber);
         }
 
+        public void ResetLevel()
+        {
+            LevelMap.DestroyMap(aLevelName);
+            aPlayerDefaultPositionsDictionary.Clear();
+            InitLevelByNumber(aCurrentLevelNumber);
+        }
+
 
         /// <summary>
         /// Metoda, ktora vrati velkost blokov v mape
@@ -243,6 +252,22 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
             return false;
         }
 
+        public bool LevelNeedsReset()
+        {
+            switch (aLevelName)
+            {
+                case "Math":
+                    return false;
+                case "Questions":
+                    return aLevelMap.GetQuestionManager().NeedsReset;
+                default:
+                    break;
+            }
+
+            return false;
+
+        }
+
         public bool WinCheck()
         {
             switch (aLevelName)
@@ -256,7 +281,15 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
                     {
                         return false;
                     }
-
+                case "Questions":
+                    if (aLevelMap.GetQuestionManager().QuestionFeedback == QuestionFeedback.Complete)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                     break;
                 default:
                     return false;
@@ -286,6 +319,30 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
             return parOutgoingMessage;
         }
 
+        public NetOutgoingMessage PrepareLevelInitDataForUpload(NetOutgoingMessage parOutgoingMessage)
+        {
+            switch (aLevelName)
+            {
+                case "Math":
+                    parOutgoingMessage.WriteVariableInt32(this.LevelMap.GetMathProblemManager().Equations.Count);
+
+                    for (int i = 0; i < this.LevelMap.GetMathProblemManager().Equations.Count; i++)
+                    {
+                        parOutgoingMessage.WriteVariableInt32(this.LevelMap.GetMathProblemManager().Equations[i + 1].FirstNumber);
+                        parOutgoingMessage.WriteVariableInt32(this.LevelMap.GetMathProblemManager().Equations[i + 1].SecondNumber);
+                        parOutgoingMessage.Write((byte)this.LevelMap.GetMathProblemManager().Equations[i + 1].Operator);
+                    }
+
+                    return parOutgoingMessage;
+                case "Questions":
+                    aLevelMap.GetQuestionManager().QuestionFeedback = QuestionFeedback.Initialization;
+                    parOutgoingMessage = aLevelMap.GetQuestionManager().PrepareQuestionData(parOutgoingMessage);
+                    return parOutgoingMessage;
+                default:
+                    return parOutgoingMessage;
+            }
+        }
+
         public NetOutgoingMessage PrepareLevelChangeMessage(NetOutgoingMessage parOutgoingMessage)
         {
             int tmpNewLevel = aCurrentLevelNumber + 1;
@@ -307,9 +364,6 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
                     parOutgoingMessage.WriteVariableInt32(i);
                     parOutgoingMessage.Write(aPlayerDefaultPositionsDictionary[i].X);
                     parOutgoingMessage.Write(aPlayerDefaultPositionsDictionary[i].Y);
-
-                    
-
                 }
             }
 

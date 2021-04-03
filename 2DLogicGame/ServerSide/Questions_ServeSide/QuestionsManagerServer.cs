@@ -13,7 +13,9 @@ namespace _2DLogicGame.ServerSide.Questions_ServeSide
         None = 0,
         Correct = 1,
         Incorrect = 2,
-        Initialization = 3
+        Initialization = 3,
+        IncorrectFinalAnswers = 4,
+        Complete = 5
     }
 
     public enum AnswerColors
@@ -42,19 +44,29 @@ namespace _2DLogicGame.ServerSide.Questions_ServeSide
         private int aCurrentQuestionNumber;
 
         /// <summary>
-        /// Atribut, ktory reprezentuje pocet spravce zodpovedanych otazok, pri zlej odpovedi sa zresetuje
-        /// </summary>
-        private int aCountOfCorrectlyAnswered;
-
-        /// <summary>
         /// Atribut, ktory reprezentuje Feedback, ci bola otazka zodpovedana spravne alebo nie
         /// </summary>
         private QuestionFeedback aQuestionFeedback;
 
         /// <summary>
-        /// Atribut, ktory reprezentuje List tlacitko - v tomto pripade - prve 4 - Odpovede, 5-ty potvrdenie vyberu farieb
+        /// Atribut, ktory reprezentuje List tlacitok - v tomto pripade - prve 4 - Odpovede, 5-ty potvrdenie vyberu farieb
         /// </summary>
         private List<ButtonBlockServer> aButtonList;
+
+        /// <summary>
+        /// Atribut, ktory reprezentuje List dveri - typ List<DoorBlockServer>
+        /// </summary>
+        private List<DoorBlockServer> aDoorsList;
+
+        /// <summary>
+        /// Atribut, ktory reprezentuje List input blokov - typ List<InputBlockServer>
+        /// </summary>
+        private List<InputBlockServer> aInputList;
+
+        /// <summary>
+        /// Atribut, ktory reprezentuje List znakov odpovedajucim dobrym odpovediam - typ List<char>
+        /// </summary>
+        private List<char> aGoodAnswersList;
 
         /// <summary>
         /// Atribut, reprezentujuci momentalne zadanu odpoved - typ char
@@ -65,6 +77,26 @@ namespace _2DLogicGame.ServerSide.Questions_ServeSide
         /// Atribut, reprezentujuci, ci je Update pripraveny, napr pri Inicializacii, Spravnej odpovedi alebo nespravnej odpovedi - typ bool
         /// </summary>
         private bool aUpdateIsReady;
+
+        /// <summary>
+        /// Atribu, ktory reprezentuje specialne cislo, ktore je vysledok scitania, obsahu input blokov, sluzi na porovnavanie zmeny - typ int
+        /// </summary>
+        private int aOldSumNumber;
+
+        /// <summary>
+        /// Atribut, ktory sluzi na zaznamenavanie poctu uz odoslanych otazok - typ iny
+        /// </summary>
+        private int aCountOfAlreadySentAnswers;
+
+        /// <summary>
+        /// Atribut, ktory sluzi na zaznamenavanie bodov za otazky
+        /// </summary>
+        private int aQuestionPoints;
+
+        /// <summary>
+        /// Atribut, ktory signalizuje, ze je potrebny Reset Levelu
+        /// </summary>
+        private bool aNeedsReset;
 
         /// <summary>
         /// Atribu, ktory reprezentuje Dictionary obsahujucu cisla, ktore uz boli odoslane -> Key - Int -> Cislo, Value bool -> True/False
@@ -81,7 +113,11 @@ namespace _2DLogicGame.ServerSide.Questions_ServeSide
             get => aUpdateIsReady;
             set => aUpdateIsReady = value;
         }
-
+        public bool NeedsReset
+        {
+            get => aNeedsReset;
+            set => aNeedsReset = value;
+        }
 
 
         /// <summary>
@@ -94,11 +130,16 @@ namespace _2DLogicGame.ServerSide.Questions_ServeSide
             aQuestionsList = new List<QuestionsStorageItems>();
             InitQuestions("Questions\\questions");
             aCurrentQuestionNumber = 0;
-            aCountOfCorrectlyAnswered = 0;
             aButtonList = new List<ButtonBlockServer>();
+            aDoorsList = new List<DoorBlockServer>();
+            aInputList = new List<InputBlockServer>();
+            aGoodAnswersList = new List<char>();
             aUpdateIsReady = false;
             aDictionaryOfAlreadySentAnswers = new Dictionary<int, bool>();
             PickNewQuestion();
+            aOldSumNumber = 0;
+            aCountOfAlreadySentAnswers = 0;
+            aQuestionPoints = 0;
         }
 
         /// <summary>
@@ -151,13 +192,31 @@ namespace _2DLogicGame.ServerSide.Questions_ServeSide
             }
         }
 
+        public void AddDoors(DoorBlockServer parDoors)
+        {
+            if (aDoorsList != null)
+            {
+                aDoorsList.Add(parDoors);
+            }
+        }
+
+        public void AddInput(InputBlockServer parInput)
+        {
+            if (aInputList != null)
+            {
+                aInputList.Add(parInput);
+            }
+        }
+
         /// <summary>
         /// Metoda, ktora zresetuje otazky
         /// </summary>
         public void ResetQuestions()
         {
-            aCountOfCorrectlyAnswered = 0;
             aDictionaryOfAlreadySentAnswers.Clear();
+            aGoodAnswersList.Clear();
+            aCountOfAlreadySentAnswers = 0;
+            aQuestionPoints = 0;
         }
 
         /// <summary>
@@ -170,20 +229,42 @@ namespace _2DLogicGame.ServerSide.Questions_ServeSide
             if (aQuestionsList != null)
             {
                 parOutgoingMessage.Write((byte)aQuestionFeedback);
-                parOutgoingMessage.Write((byte)aCurrentAnswer);
 
-                parOutgoingMessage.Write(aQuestionsList[aCurrentQuestionNumber].Question);
-
-                for (int i = 0; i < 4; i++)
+                if (aCountOfAlreadySentAnswers <= 4) //Ak este neboli zodpovedane vsetky otazky, tak ich odosleme
                 {
-                    parOutgoingMessage.Write(aQuestionsList[aCurrentQuestionNumber].ListOfAnswers[i]);
+                    parOutgoingMessage.Write((byte)aCurrentAnswer);
+                    aCountOfAlreadySentAnswers = aGoodAnswersList.Count;
+
+                    parOutgoingMessage.Write(aQuestionsList[aCurrentQuestionNumber].Question);
+
+                    for (int i = 0; i < 4; i++)
+                    {
+                        parOutgoingMessage.Write(aQuestionsList[aCurrentQuestionNumber].ListOfAnswers[i]);
+                    }
                 }
+
+                if (aGoodAnswersList.Count > 3) //Umoznime odosielanie dat v Input Blokoch
+                {
+
+                    parOutgoingMessage.Write("InputBlocks");
+                    parOutgoingMessage.WriteVariableInt32(aInputList.Count);
+                    if (aInputList != null && aInputList.Count > 3)
+                    {
+                        for (int i = 0; i < aInputList.Count; i++)
+                        {
+                            parOutgoingMessage.WriteVariableInt32(aInputList[i].Number);
+                        }
+                    }
+                }
+
+                QuestionFeedback = QuestionFeedback.None;
 
                 return parOutgoingMessage;
             }
 
             //Poradie - Odpoved -> FeedBack -> Otazka -> List Odpovedi
 
+            QuestionFeedback = QuestionFeedback.None;
             return parOutgoingMessage;
         }
 
@@ -210,9 +291,53 @@ namespace _2DLogicGame.ServerSide.Questions_ServeSide
         /// </summary>
         public void Update()
         {
-            for (int i = 0; i < aButtonList.Count; i++)
+
+            if (aDoorsList[1].IsHidden == false && aGoodAnswersList != null && aGoodAnswersList.Count > 3 && aDoorsList != null)
             {
-                if (aButtonList[i].WantsToInteract == true)
+                aDoorsList[1].IsHidden = true;
+            }
+
+            if (aGoodAnswersList != null && aGoodAnswersList.Count > 3) //Ak boli zodpovedane vsetky otazky, cize 4 nebudeme posielat znova otazky
+            {
+
+                int tmpSumOfInput = 0;
+
+                for (int i = 0; i < aInputList.Count; i++)
+                {
+                    tmpSumOfInput += aInputList[i].Number;
+                }
+
+                if (aOldSumNumber != tmpSumOfInput)
+                {
+                    aUpdateIsReady = true;
+                    aOldSumNumber = tmpSumOfInput;
+                }
+
+                if (aButtonList[aButtonList.Count - 1].WantsToInteract)
+                {
+
+                    if (CheckAnswers())
+                    {
+                        aQuestionPoints++;
+                        aQuestionFeedback = QuestionFeedback.Complete; //Oznamime ze ulohy oboch hracov su splnene
+                    }
+                    else
+                    {
+                        ResetQuestions();
+                        aQuestionFeedback = QuestionFeedback.IncorrectFinalAnswers;
+                        aUpdateIsReady = true; //Musime odoslat update znova o tom ze doslo k nespravnej odpovedi, tentokrat od druheho klienta, no aj napriek tomu dojde k zresetovaniu
+                        aNeedsReset = true;
+
+                    }
+
+                    //Ak nejaky hrac chce interagovat s poslednym tlacitkom, berieme to ako, ze chce odoslat odpovede...
+
+                }
+            }
+
+            for (int i = 0; i < aButtonList.Count - 1; i++) //Posledny zatial netreba, ten sa kontroluje az na konci, potvrdzuje odpovede zadane druhym hracom
+            {
+                if (aButtonList[i].WantsToInteract == true && aGoodAnswersList != null && aCountOfAlreadySentAnswers < 4) //Druha podmienka, zabranuje generacii novych otazok, pokial su uz 4 zodpovedane 
                 {
                     if (i >= 0 && i <= 3)
                     {
@@ -223,6 +348,8 @@ namespace _2DLogicGame.ServerSide.Questions_ServeSide
                             aCurrentAnswer = ConvertNumberToChar(i);
                             aUpdateIsReady = true;
                             aButtonList[i].WantsToInteract = false;
+                            aGoodAnswersList.Add(ConvertNumberToChar(i));
+                            aQuestionPoints++;
                         }
                         else
                         {
@@ -232,12 +359,15 @@ namespace _2DLogicGame.ServerSide.Questions_ServeSide
                             aCurrentAnswer = ConvertNumberToChar(i);
                             aUpdateIsReady = true;
                             aButtonList[i].WantsToInteract = false;
+                            aGoodAnswersList.Clear();
 
                         }
                     }
-
                 }
+
             }
+
+
         }
 
         /// <summary>
@@ -250,6 +380,18 @@ namespace _2DLogicGame.ServerSide.Questions_ServeSide
             return Convert.ToChar(65 + parAnswerNumber);
         }
 
+        public bool CheckAnswers()
+        {
+            bool tmpAreAnswersOk = false;
+
+            for (int i = 0; i < aInputList.Count; i++) //Prejdeme cely list INputov
+            {
+                tmpAreAnswersOk = (ConvertNumberToChar(aInputList[i].Number - 1) == aGoodAnswersList[i]); //Porovname vzdy po jednej odpovedi, ci zodpoveda
+
+            }
+            return tmpAreAnswersOk;
+        }
+
         /// <summary>
         /// Metoda, ktora sa stara o upratanie "neporiadku", ktory po sebe zanechala
         /// </summary>
@@ -259,6 +401,10 @@ namespace _2DLogicGame.ServerSide.Questions_ServeSide
             {
                 aButtonList.Clear();
                 aButtonList = null; //GC uz sa o zbytok postara
+                aDoorsList.Clear();
+                aDoorsList = null;
+                aGoodAnswersList.Clear();
+                aGoodAnswersList = null;
             }
         }
     }

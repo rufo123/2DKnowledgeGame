@@ -8,6 +8,13 @@ using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace _2DLogicGame.GraphicObjects
 {
+
+    public enum InputBlockType
+    {
+        Numbers = 0, //Default
+        Colors = 1 //Alternativa
+    }
+
     public class InputBlock : Block
     {
 
@@ -25,19 +32,25 @@ namespace _2DLogicGame.GraphicObjects
 
         private bool aSubmitted;
 
+        private InputBlockType aInputBlockType;
+
         public bool Submitted
         {
             get => aSubmitted;
             set => aSubmitted = value;
         }
 
-        public InputBlock(LogicGame parGame, Vector2 parPosition, Texture2D parTexture = null, bool parIsAnimated = false, bool parHasStates = false, int parCountOfFrames = 0, int parMinNumber = 0, int parMaxNumber = 9) : base(parGame, parPosition, parTexture, parIsAnimated, parHasStates, parCountOfFrames, parCollisionType: BlockCollisionType.Wall)
+        public InputBlock(LogicGame parGame, Vector2 parPosition, InputBlockType parInputBlockType = InputBlockType.Numbers, Texture2D parTexture = null, bool parIsAnimated = false, bool parHasStates = false, int parCountOfFrames = 0, int parMinNumber = 0, int parMaxNumber = 9) : base(parGame, parPosition, parTexture, parIsAnimated, parHasStates, parCountOfFrames, parCollisionType: BlockCollisionType.Wall)
         {
+            aInputBlockType = parInputBlockType;
+
             aNumber = 0;
             aMinNumber = parMinNumber;
             aMaxNumber = parMaxNumber;
 
             SetImageLocation("Sprites\\Blocks\\mathInputBlock");
+
+            SwitchState(2, 0);
 
             IsInteractible = true;
         }
@@ -107,29 +120,69 @@ namespace _2DLogicGame.GraphicObjects
             aNumber = 0;
         }
 
+        public void ChangeInputType(InputBlockType parType)
+        {
+            aInputBlockType = parType;
+        }
+
+        public override void Update(GameTime gameTime)
+        {
+
+            if (aInputBlockType == InputBlockType.Colors)
+            {
+                switch (aNumber)
+                {
+                    case 0:
+                        SwitchState(0, gameTime.ElapsedGameTime.Milliseconds);
+                        break;
+                    case 1:
+                        SwitchState(1, gameTime.ElapsedGameTime.Milliseconds);
+                        break;
+                    case 2:
+                        SwitchState(2, gameTime.ElapsedGameTime.Milliseconds);
+                        break;
+                    case 3:
+                        SwitchState(3, gameTime.ElapsedGameTime.Milliseconds);
+                        break;
+                    case 4:
+                        SwitchState(4, gameTime.ElapsedGameTime.Milliseconds);
+                        break;
+                }
+            }
+
+            base.Update(gameTime);
+        }
+
         public override void Draw(GameTime gameTime)
         {
 
-            float tmpFontScale = 0.5F;
-
-            string tmpNumberString = aNumber.ToString();
-
-
-            Vector2 tmpMeasuredString = LogicGame.Font72.MeasureString(tmpNumberString);
-
-            Vector2 tmpNumberPosition = aPosition;
-
-            if (aNumber > 9)
+            if (aInputBlockType == InputBlockType.Numbers)
             {
-                tmpNumberPosition.X = aPosition.X - 1;
-            }
-            else
-            {
-                tmpNumberPosition.X = aPosition.X + (tmpMeasuredString.X * tmpFontScale) / 2;
-            }
-            tmpNumberPosition.Y = aPosition.Y - ((tmpMeasuredString.Y / 8) * tmpFontScale);
 
-            LogicGame.SpriteBatch.DrawString(LogicGame.Font72, aNumber.ToString(), tmpNumberPosition, Color.GreenYellow, 0F, Vector2.Zero, tmpFontScale, SpriteEffects.None, 0.2F);
+                float tmpFontScale = 0.5F;
+
+                string tmpNumberString = aNumber.ToString();
+
+
+                Vector2 tmpMeasuredString = LogicGame.Font72.MeasureString(tmpNumberString);
+
+                Vector2 tmpNumberPosition = aPosition;
+
+                if (aNumber > 9)
+                {
+                    tmpNumberPosition.X = aPosition.X - 1;
+                }
+                else
+                {
+                    tmpNumberPosition.X = aPosition.X + (tmpMeasuredString.X * tmpFontScale) / 2;
+                }
+
+                tmpNumberPosition.Y = aPosition.Y - ((tmpMeasuredString.Y / 8) * tmpFontScale);
+
+                LogicGame.SpriteBatch.DrawString(LogicGame.Font72, aNumber.ToString(), tmpNumberPosition, Color.GreenYellow, 0F, Vector2.Zero, tmpFontScale, SpriteEffects.None, 0.2F);
+
+                
+            }
 
             base.Draw(gameTime);
 

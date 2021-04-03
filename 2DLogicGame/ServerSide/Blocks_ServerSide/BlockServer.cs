@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using _2DLogicGame.GraphicObjects;
 
 namespace _2DLogicGame.ServerSide.Blocks_ServerSide
 {
@@ -49,6 +50,11 @@ namespace _2DLogicGame.ServerSide.Blocks_ServerSide
         /// </summary>
         private BlockCollisionType aBlockCollisionType = BlockCollisionType.None;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje prednastaveny typ kolizie, pokial sa kolizia zmeni, budeme vediet aka bola predosla - typ enum - BlockCollisionType
+        /// </summary>
+        private BlockCollisionType aDefaultBlockCollisionType;
+
         public BlockCollisionType BlockCollisionType
         {
             get => aBlockCollisionType;
@@ -58,7 +64,7 @@ namespace _2DLogicGame.ServerSide.Blocks_ServerSide
         public bool IsHidden
         {
             get => aIsHidden;
-            set => aIsHidden = value;
+            set => HideUnHideBlock(value);
         }
 
         public bool IsInteractible
@@ -78,6 +84,7 @@ namespace _2DLogicGame.ServerSide.Blocks_ServerSide
             set => aSomethingIsStandingOnTop = value;
         }
 
+
         /// <summary>
         /// Trieda reprezentujuca Blok, ktory je specifikovany poziciou a pokial pouzivatel potrebuje, moze hned inicializovat aj Texturu
         /// </summary>
@@ -91,6 +98,7 @@ namespace _2DLogicGame.ServerSide.Blocks_ServerSide
         {
             aPosition = parPosition;
             aBlockCollisionType = parCollisionType;
+            aDefaultBlockCollisionType = parCollisionType;
             aSize = new Vector2(64, 64);
 
             aIsInteractible = false;
@@ -128,6 +136,23 @@ namespace _2DLogicGame.ServerSide.Blocks_ServerSide
                 aWantsToInteract = true;
             }
         }
+
+        /// <summary>
+        /// Metoda, ktora skryje alebo odkryje block podla parametra
+        /// </summary>
+        /// <param name="parHide">Parameter, ktory rozhoduje o skryti bloku, laebo odkryti - typ bool</param>
+        public void HideUnHideBlock(bool parHide)
+        {
+            if (parHide)
+            {
+                aBlockCollisionType = BlockCollisionType.None;
+            }
+            else
+            {
+                aBlockCollisionType = aDefaultBlockCollisionType;
+            }
+        }
+
 
 
     }

@@ -159,6 +159,9 @@ namespace _2DLogicGame
                             aConnected = true;
 
                             Debug.WriteLine("Klient - Klient sa uspesne pripojil!");
+
+                            aLevelManager.InitLevelByNumber(2);
+
                             RequestConnectedClients();
                         }
                         break;
@@ -205,7 +208,7 @@ namespace _2DLogicGame
 
                         if (tmpReceivedByte == (byte)PacketMessageType.RequestLevelInitData)
                         {
-                            HandleLevelInitDataFromServer(tmpIncommingMessage);
+                            HandleLevelInitDataFromServer(tmpIncommingMessage, aDictionaryPlayerData[aMyIdentifier].PlayerID);
                         }
 
                         if (tmpReceivedByte == (byte) PacketMessageType.LevelData)
@@ -247,10 +250,9 @@ namespace _2DLogicGame
                             aDictionaryPlayerData[tmpRUID].PrepareDownloadedData(tmpIncommingMessage, aPlayerController.GameTime); //Ide o data o spoluhracoch
 
                         }
-                        if (tmpReceivedByte == (byte) PacketMessageType.LevelWonChanged)
+                        if (tmpReceivedByte == (byte) PacketMessageType.LevelWonChanged) //Level sa zmenil - Vyhrali sme - alebo reset
                         {
                             HandleLevelChange(tmpIncommingMessage.ReadVariableInt32());
-                            
                         }
                         if (tmpReceivedByte == (byte) PacketMessageType.DefaultPosChanged)
                         {
@@ -382,6 +384,7 @@ namespace _2DLogicGame
                         aLogicGame.Components.Add(aPlayerController);
                         aMyIdentifier = tmpRUID;
                         aDictionaryPlayerData[aMyIdentifier].Connected = true;
+                        
 
                     }
                     else
@@ -510,8 +513,8 @@ namespace _2DLogicGame
 
                 if (sizeOfPLayerY > 64)
                 {
-                    tmpPositionOffsetY = sizeOfPLayerY - 64;
-                    sizeOfPLayerY = 64;
+                    tmpPositionOffsetY = sizeOfPLayerY - (64 - 2); //Preto - 2, lebo o 2 Pixely zarazime ako keby Entitu do Zeme, kvoli vzhladu
+                    sizeOfPLayerY = (64 - 4); //Obe by mali byt rovnake, -4 je napr. to ze zmensime hitbox o 4 pixely aby sa napr Entita pekne zmestila do dveri
                 } //Pokial by bola vyska Entity vyssia ako velkost bloku, zbytok jeho tela, resp hlava nebude kolizna, bude vytrcat nad blokom...
 
                 int tmpTilePositionX = (int)Math.Floor(parEntity.GetAfterMoveVector2(parGameTime).X / tmpMapBlockDimSize); //Zaciatocna X-ova Tile Suradnica - Vlavo
@@ -619,9 +622,9 @@ namespace _2DLogicGame
         /// Metoda, ktora prijma inicializacne data o leveli od Servera
         /// <param name="parIncomingMessage">Parameter, ktory reprezentuje prichadzajucu spravu - typ NetIncommingMessage</param>
         /// </summary>
-        public void HandleLevelInitDataFromServer(NetIncomingMessage parIncomingMessage)
+        public void HandleLevelInitDataFromServer(NetIncomingMessage parIncomingMessage, int parPlayerID)
         {
-            aLevelManager.HandleLevelInitData(parIncomingMessage, aLevelManager.LevelName);
+            aLevelManager.HandleLevelInitData(parIncomingMessage, aLevelManager.LevelName, parPlayerID);
         }
 
         /// <summary>
@@ -661,6 +664,23 @@ namespace _2DLogicGame
 
             } //Viem, ze tu pojde o cyklus v cykle, ale maximalny pocet hracov je 2, prechadzame vzdy tiez o velkosti 2, takze sa urobia maximalne 4 ukony
 
+
+        }
+
+        /// <summary>
+        /// Metoda, ktora sluzi na jednoduche znovuzrodenie hracov, vyuzivana najma pri resete alebo zmene levu
+        /// </summary>
+        public void HandleRespawnPlayers(GameTime parGameTime)
+        {
+            foreach (KeyValuePair<long, ClientSide.PlayerClientData> dictItem in aDictionaryPlayerData.ToList())
+            {
+                //Prejdeme vsetky data v Dictionary
+                {
+                    dictItem.Value.ReSpawn(true, parGameTime);
+                }
+            }
+
+                RequestLevelData();
 
         }
 

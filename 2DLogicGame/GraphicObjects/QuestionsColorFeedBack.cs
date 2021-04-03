@@ -60,6 +60,11 @@ namespace _2DLogicGame.GraphicObjects
         /// </summary>
         private bool aFadeIn;
 
+        /// <summary>
+        /// Atribut, reprezentujuci ci je povolene zobrazovanie objektu - typ bool
+        /// </summary>
+        private bool aShowEnabled;
+        
 
         public bool Show
         {
@@ -70,6 +75,11 @@ namespace _2DLogicGame.GraphicObjects
         {
             get => aColor;
             set => aColor = value;
+        }
+        public bool ShowEnabled
+        {
+            get => aShowEnabled;
+            set => aShowEnabled = value;
         }
 
         public QuestionsColorFeedBack(LogicGame parLogicGame, Vector2 parPosition, Vector2 parSize) : base(parLogicGame)
@@ -124,7 +134,7 @@ namespace _2DLogicGame.GraphicObjects
 
         public override void Update(GameTime gameTime)
         {
-            if (aShow)
+            if (aShowEnabled && aShow)
             {
                 aShowTimer += gameTime.ElapsedGameTime.Milliseconds;
 

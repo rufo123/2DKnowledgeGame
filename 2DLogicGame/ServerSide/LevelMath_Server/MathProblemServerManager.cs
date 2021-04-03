@@ -321,7 +321,7 @@ namespace _2DLogicGame.ServerSide.LevelMath_Server
 
             }
 
-            if (aMathPoints >= 0)
+            if (aMathPoints >= 5)
             {
                 int tmpCountOfStandingPlayers = 0;
                 

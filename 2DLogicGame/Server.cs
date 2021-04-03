@@ -238,6 +238,7 @@ namespace _2DLogicGame
                         tmpOutgoingMessage.Write((byte)PacketMessageType.LevelData);
                         tmpOutgoingMessage = aLevelManager.PrepareLevelDataForUpload(tmpOutgoingMessage);
                         aServer.SendToAll(tmpOutgoingMessage, NetDeliveryMethod.ReliableOrdered);
+
                     }
 
                     if (aLevelManager.WinCheck() && aLevelManager.WinInfoRequested == false) //Ak doslo k vyhre a este sme sme neprebrali informacie o vyhre
@@ -259,6 +260,11 @@ namespace _2DLogicGame
                         aServer.SendToAll(tmpNetOutgoingMessage, NetDeliveryMethod.ReliableOrdered);
                         aLevelManager.DefaultPosChanged = false;
 
+                    }
+
+                    if (aLevelManager.LevelNeedsReset())
+                    {
+                        aLevelManager.ResetLevel();
                     }
 
                 }
@@ -350,8 +356,8 @@ namespace _2DLogicGame
 
                     if (sizeOfPLayerY > 64)
                     {
-                        tmpPositionOffsetY = sizeOfPLayerY - 64;
-                        sizeOfPLayerY = 64;
+                        tmpPositionOffsetY = sizeOfPLayerY - (64 - 2); //Preto - 2, lebo o 2 Pixely zarazime ako keby Entitu do Zeme, kvoli vzhladu
+                        sizeOfPLayerY = (64 - 4);
                     } //Pokial by bola vyska Entity vyssia ako velkost bloku, zbytok jeho tela, resp hlava nebude kolizna, bude vytrcat nad blokom...
 
                     int tmpTilePositionX = (int)Math.Floor(parEntity.GetAfterMoveVector2(aTickRate).X / tmpMapBlockDimSize); //Zaciatocna X-ova Tile Suradnica - Vlavo
@@ -788,21 +794,7 @@ namespace _2DLogicGame
 
             if (parInitData)
             {
-                switch (aLevelManager.LevelName)
-                {
-                    case "Math":
-                        parOutgoingMessage.WriteVariableInt32(aLevelManager.LevelMap.GetMathProblemManager().Equations.Count);
-
-                        for (int i = 0; i < aLevelManager.LevelMap.GetMathProblemManager().Equations.Count; i++)
-                        {
-                            parOutgoingMessage.WriteVariableInt32(aLevelManager.LevelMap.GetMathProblemManager().Equations[i + 1].FirstNumber);
-                            parOutgoingMessage.WriteVariableInt32(aLevelManager.LevelMap.GetMathProblemManager().Equations[i + 1].SecondNumber);
-                            parOutgoingMessage.Write((byte)aLevelManager.LevelMap.GetMathProblemManager().Equations[i + 1].Operator);
-                        }
-                        break;
-                    default:
-                        break;
-                }
+                aLevelManager.PrepareLevelInitDataForUpload(parOutgoingMessage);
             }
             else
             {

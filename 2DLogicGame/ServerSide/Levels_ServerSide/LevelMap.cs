@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using _2DLogicGame.GraphicObjects;
 using _2DLogicGame.ServerSide.Blocks_ServerSide;
 using _2DLogicGame.ServerSide.LevelMath_Server;
 using _2DLogicGame.ServerSide.Questions_ServeSide;
@@ -54,7 +55,7 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
 
         public void DestroyMap(string parOldLevelName)
         {
-            
+
             switch (parOldLevelName)
             {
                 case "Math":
@@ -146,7 +147,8 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
                     if (aMathProblemServerManager != null && parLevelName == "Math") //Ak vieme ze pojde o level typu Math, odosleme MathProblem manazeru, informacie o Button Blokoch
                     {
                         aMathProblemServerManager.AddButton(tmpButtonBlock);
-                    } else if (aQuestionsServerManager != null && parLevelName == "Questions")
+                    }
+                    else if (aQuestionsServerManager != null && parLevelName == "Questions")
                     {
                         aQuestionsServerManager.AddButton(tmpButtonBlock);
                     }
@@ -161,15 +163,29 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
                     {
                         aMathProblemServerManager.AddInput(tmpInputBlock);
                     }
+                    else if (aQuestionsServerManager != null && parLevelName == "Questions")
+                    {
+                        tmpInputBlock.MaxNumber = 5; //Pretoze, mame Otazky o A,B,C,D a 0 bude reprezentovat nic...
+                        aQuestionsServerManager.AddInput(tmpInputBlock);
+                    }
                 }
-                else
+                else if (parBlockPositions[i].BlockName == "doorBlock")
                 {
+                    DoorBlockServer tmpDoorBlock = new DoorBlockServer(tmpBlockPosition);
+                    aBlockPositionDictionary.Add(tmpBlockPosition, tmpDoorBlock);
+                    aBlockList.Add(tmpDoorBlock);
+
+                    if (aQuestionsServerManager != null && parLevelName == "Questions") //Ak vieme ze pojde o level typu Math, odosleme MathProblem manazeru, informacie o InputBlokoch
+                    {
+                        aQuestionsServerManager.AddDoors(tmpDoorBlock);
+                    }
+
+
                     //Blank
                 }
 
             }
         }
-
         /// <summary>
         /// Metoda, ktora vrati List Blokov v podobe DrawableGameComponentov
         /// </summary>

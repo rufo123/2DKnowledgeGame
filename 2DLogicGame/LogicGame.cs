@@ -198,8 +198,6 @@ namespace _2DLogicGame
                             aClientReadThread = new Thread(new ThreadStart(aClientClass.ReadMessages));
                             aClientReadThread.Start();
 
-                            aLevelManager.InitLevelByNumber(2);
-                            
 
                         }
                         else if (aMenu.TaskToExecute == MenuTasksToBeExecuted.Play_Start)
@@ -214,8 +212,6 @@ namespace _2DLogicGame
 
                             aClientReadThread = new Thread(new ThreadStart(aClientClass.ReadMessages));
                             aClientReadThread.Start();
-
-                            aLevelManager.InitLevelByNumber(2);
 
 
                         }
@@ -268,12 +264,22 @@ namespace _2DLogicGame
             }
 
 
-            //Kontrola ci LevelManager nepotrebuje odoslat update
+            //Kontrola ci LevelManager nepotrebuje odoslat update | Kontrola ci nie je potrebny respawn hracov
             if (aLevelManager != null && aClientClass != null)
             {
 
                 //Skontrolujem ci aj LevelManager nepotrebuje nieco aktualizovat
                 aLevelManager.Update(parGameTime: gameTime);
+
+                if (aLevelManager.LevelChanged) 
+                {
+                    aClientClass.HandleRespawnPlayers(gameTime);
+                    aLevelManager.LevelChanged = false;
+                } else if (aLevelManager.LevelReset)
+                {
+                    aClientClass.HandleRespawnPlayers(gameTime);
+                    aLevelManager.LevelReset = false;
+                }
 
             }
 
@@ -286,6 +292,7 @@ namespace _2DLogicGame
             }
 
 
+
             PreviousPressedKey = CurrentPressedKey;
             CurrentPressedKey = Keyboard.GetState();
 
@@ -293,9 +300,7 @@ namespace _2DLogicGame
 
             base.Update(gameTime);
 
-         
-
-
+            
             //ControlRequest
 
 
