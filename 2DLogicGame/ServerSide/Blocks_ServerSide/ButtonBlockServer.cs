@@ -11,6 +11,12 @@ namespace _2DLogicGame.ServerSide.Blocks_ServerSide
 
         private bool aIsTurnedOn = false;
 
+        public bool Succeded
+        {
+            get => aSucceded;
+            set => aSucceded = value;
+        }
+
         public ButtonBlockServer(Vector2 parPosition, BlockCollisionType parCollisionType = BlockCollisionType.Button) : base(parPosition, parCollisionType)
         {
             aSucceded = false;

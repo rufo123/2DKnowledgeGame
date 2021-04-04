@@ -236,6 +236,10 @@ namespace _2DLogicGame.ClientSide.Levels
                     InitLevel("Levels\\levelQuestions");
                     aCurrentLevelNumber = parLevelNumber;
                     break;
+                case 3:
+                    InitLevel("Levels\\levelEnglish");
+                    aCurrentLevelNumber = parLevelNumber;
+                    break;
                 default:
                     LevelName = "NONE";
                     break;
@@ -350,6 +354,9 @@ namespace _2DLogicGame.ClientSide.Levels
                     aLevelMap.GetQuestionManager().HandleIncomingData(parMessage, parAmIFirstPlayer);
                     Debug.WriteLine("Client - Manager - LevelData");
                     break;
+                case "English":
+                    aLevelMap.GetEnglishManager().HandleIncomingData(parMessage);
+                    break;
                 default:
                     break;
             }
@@ -393,6 +400,9 @@ namespace _2DLogicGame.ClientSide.Levels
         /// <param name="parLevelName"></param>
         public void HandleLevelInitData(NetIncomingMessage parMessage, string parLevelName, int parPlayerID)
         {
+
+            bool tmpAmIFirst = false;
+
             switch (parLevelName)
             {
                 case "Math":
@@ -407,10 +417,13 @@ namespace _2DLogicGame.ClientSide.Levels
 
                     break;
                 case "Questions":
-                    bool tmpAmIFirst = (parPlayerID == 1 ? true : false);
+                    tmpAmIFirst = (parPlayerID == 1);
                     aLevelMap.GetQuestionManager().HandleIncomingData(parMessage, tmpAmIFirst);
                     Debug.WriteLine("Client - Manager - Init");
-
+                    break;
+                case "English":
+                    tmpAmIFirst = (parPlayerID == 1);
+                    aLevelMap.GetEnglishManager().HandleIncomingData(parMessage);
                     break;
                 default:
                     break;

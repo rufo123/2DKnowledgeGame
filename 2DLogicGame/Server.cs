@@ -130,7 +130,7 @@ namespace _2DLogicGame
 
             aDictionaryPlayerData = new Dictionary<long, ServerSide.PlayerServerData>(aMaxPlayers);
 
-            aLevelManager.InitLevelByNumber(2);
+            aLevelManager.InitLevelByNumber(3);
 
             aStopWatch = new Stopwatch();
 
@@ -227,6 +227,9 @@ namespace _2DLogicGame
                             break;
                         case "Questions":
                             aLevelManager.LevelMap.GetQuestionManager().Update();
+                            break;
+                        case "English":
+                            aLevelManager.LevelMap.GetEnglishManager().Update();
                             break;
                         default:
                             break;

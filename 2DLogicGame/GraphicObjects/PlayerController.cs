@@ -176,10 +176,10 @@ namespace _2DLogicGame.GraphicObjects
 
 
 
-        /*    public override void Update(GameTime gameTime)
+        /*    public override void Update(GameTime parGameTime)
             {
 
-                aGameTime = gameTime;
+                aGameTime = parGameTime;
 
                 KeyboardState tmpNewKeyBoardState = Keyboard.GetState();
 
@@ -187,7 +187,7 @@ namespace _2DLogicGame.GraphicObjects
                 {
                     Keys tmpCurrentKeyPresed = Keys.None;
 
-                    double tmpElapsedTime = gameTime.ElapsedGameTime.TotalSeconds;
+                    double tmpElapsedTime = parGameTime.ElapsedGameTime.TotalSeconds;
 
                     if (tmpNewKeyBoardState.IsKeyDown(aUp))
                     {
@@ -199,7 +199,7 @@ namespace _2DLogicGame.GraphicObjects
                         {
                             aUpdateNeeded = true;
                         }
-                        aPlayer.Move(gameTime);
+                        aPlayer.Move(parGameTime);
                     }
                     else if (tmpNewKeyBoardState.IsKeyDown(aRight))
                     {
@@ -211,7 +211,7 @@ namespace _2DLogicGame.GraphicObjects
                         {
                             aUpdateNeeded = true;
                         }
-                        aPlayer.Move(gameTime);
+                        aPlayer.Move(parGameTime);
                     }
                     else if (tmpNewKeyBoardState.IsKeyDown(aLeft))
                     {
@@ -224,7 +224,7 @@ namespace _2DLogicGame.GraphicObjects
                             aUpdateNeeded = true;
                         }
 
-                        aPlayer.Move(gameTime);
+                        aPlayer.Move(parGameTime);
                     }
                     else if (tmpNewKeyBoardState.IsKeyDown(aDown))
                     {
@@ -236,7 +236,7 @@ namespace _2DLogicGame.GraphicObjects
                         {
                             aUpdateNeeded = true;
                         }
-                        aPlayer.Move(gameTime);
+                        aPlayer.Move(parGameTime);
                     }
                     else
                     {
@@ -287,7 +287,7 @@ namespace _2DLogicGame.GraphicObjects
 
               }
 
-              base.Update(gameTime);
+              base.Update(parGameTime);
           } */
 
         /// <summary>

@@ -67,7 +67,7 @@ namespace _2DLogicGame
         {
 
             aIP = parIP;
-            
+
             aLogicGame = parGame;
 
             aChatManager = parChatManager;
@@ -125,7 +125,7 @@ namespace _2DLogicGame
                 aStopWatch.Start();
                 long tmpStartTime = aStopWatch.ElapsedMilliseconds;
                 int tmpTimeToSleep;
-                
+
 
                 // aClient.MessageReceivedEvent.WaitOne();
                 NetIncomingMessage tmpIncommingMessage;
@@ -160,9 +160,11 @@ namespace _2DLogicGame
 
                             Debug.WriteLine("Klient - Klient sa uspesne pripojil!");
 
-                            aLevelManager.InitLevelByNumber(2);
 
-                            RequestConnectedClients();
+                            //Init Level
+                            //Request Connect
+
+
                         }
                         break;
                     case NetIncomingMessageType.UnconnectedData:
@@ -211,7 +213,7 @@ namespace _2DLogicGame
                             HandleLevelInitDataFromServer(tmpIncommingMessage, aDictionaryPlayerData[aMyIdentifier].PlayerID);
                         }
 
-                        if (tmpReceivedByte == (byte) PacketMessageType.LevelData)
+                        if (tmpReceivedByte == (byte)PacketMessageType.LevelData)
                         {
                             if (aDictionaryPlayerData[aMyIdentifier].PlayerID == 1)
                             {
@@ -250,11 +252,11 @@ namespace _2DLogicGame
                             aDictionaryPlayerData[tmpRUID].PrepareDownloadedData(tmpIncommingMessage, aPlayerController.GameTime); //Ide o data o spoluhracoch
 
                         }
-                        if (tmpReceivedByte == (byte) PacketMessageType.LevelWonChanged) //Level sa zmenil - Vyhrali sme - alebo reset
+                        if (tmpReceivedByte == (byte)PacketMessageType.LevelWonChanged) //Level sa zmenil - Vyhrali sme - alebo reset
                         {
                             HandleLevelChange(tmpIncommingMessage.ReadVariableInt32());
                         }
-                        if (tmpReceivedByte == (byte) PacketMessageType.DefaultPosChanged)
+                        if (tmpReceivedByte == (byte)PacketMessageType.DefaultPosChanged)
                         {
                             HandlePositionChange(tmpIncommingMessage);
                         }
@@ -378,13 +380,17 @@ namespace _2DLogicGame
                 {
                     if (aDictionaryPlayerData.Count <= 0) //Ak este ziaden hrac nie je ulozeny v databaze, vieme ze ide o mna
                     {
+
+                        aLevelManager.InitLevelByNumber(3);
+                        this.RequestConnectedClients();
+                        this.RequestLevelData();
                         aDictionaryPlayerData.Add(tmpRUID, new ClientSide.PlayerClientData(tmpID, tmpNickname, tmpRUID, aLogicGame, aLevelManager.PlayerDefaultPositions[tmpID], new Vector2(40, 64), parIsMe: true)); //Pridame nove data o hracovi do uloziska, na zaklade Remote UID a pri udajoch o hracovi zadame, ze ide o nas
                         aPlayerController.SetPlayer(aDictionaryPlayerData[tmpRUID]);
                         aClientObjects.AddComponent(aDictionaryPlayerData[tmpRUID]);
                         aLogicGame.Components.Add(aPlayerController);
                         aMyIdentifier = tmpRUID;
                         aDictionaryPlayerData[aMyIdentifier].Connected = true;
-                        
+
 
                     }
                     else
@@ -680,7 +686,7 @@ namespace _2DLogicGame
                 }
             }
 
-                RequestLevelData();
+            RequestLevelData();
 
         }
 

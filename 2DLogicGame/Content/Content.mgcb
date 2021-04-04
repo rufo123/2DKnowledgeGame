@@ -40,6 +40,11 @@
 /processor:PassThroughProcessor
 /build:Levels/level1.xml
 
+#begin Levels/levelEnglish.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:Levels/levelEnglish.xml
+
 #begin Levels/levelMath.xml
 /importer:XmlImporter
 /processor:PassThroughProcessor
@@ -263,4 +268,9 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Sprites/Items/wrongIndicator.png
+
+#begin Vocabulary/vocabulary.xml
+/importer:XmlImporter
+/processor:PassThroughProcessor
+/build:Vocabulary/vocabulary.xml
 

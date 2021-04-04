@@ -179,9 +179,7 @@ namespace _2DLogicGame.ServerSide.Questions_ServeSide
                     aCurrentQuestionNumber = rand.Next(0, aQuestionsList.Count);
                     tmpIsQuestionUnique = aDictionaryOfAlreadySentAnswers.TryAdd(aCurrentQuestionNumber, true);
                 }
-
             }
-
         }
 
         public void AddButton(ButtonBlockServer parButton)

@@ -72,4 +72,17 @@ namespace XMLData
 
         public char GoodAnswer; //Charakterizovana A, B, C, D
     }
+
+    public class Vocabulary
+    {
+        [ContentSerializer(ElementName = "Vocabulary", CollectionItemName = "Word")]
+        public List<VocabularyItems> VocabularyItems;
+    }
+
+    public class VocabularyItems
+    {
+        public string English;
+
+        public string Slovak;
+    }
 }

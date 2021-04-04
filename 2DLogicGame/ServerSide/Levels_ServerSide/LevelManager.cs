@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
 using _2DLogicGame.ServerSide.Blocks_ServerSide;
+using _2DLogicGame.ServerSide.LevelEnglish_Server;
 using _2DLogicGame.ServerSide.LevelMath_Server;
 using _2DLogicGame.ServerSide.Questions_ServeSide;
 using Assimp;
@@ -188,6 +189,10 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
                     InitLevel("Levels\\levelQuestions");
                     aCurrentLevelNumber = 2;
                     break;
+                case 3:
+                    InitLevel("Levels\\levelEnglish");
+                    aCurrentLevelNumber = 3;
+                    break;
                 default:
                     LevelName = "NONE";
                     break;
@@ -245,6 +250,9 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
                     return aLevelMap.GetMathProblemManager().UpdateIsReady;
                 case "Questions":
                     return aLevelMap.GetQuestionManager().UpdateIsReady;
+                case "English":
+                    return aLevelMap.GetEnglishManager().UpdateIsReady;
+                    break;
                 default:
                     break;
             }
@@ -260,6 +268,8 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
                     return false;
                 case "Questions":
                     return aLevelMap.GetQuestionManager().NeedsReset;
+                case "English":
+                    return false;
                 default:
                     break;
             }
@@ -290,10 +300,10 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
                     {
                         return false;
                     }
-                    break;
+                case "English":
+                    return false;
                 default:
                     return false;
-                    break;
             }
         }
 
@@ -312,6 +322,12 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
                 case "Questions":
                     parOutgoingMessage = aLevelMap.GetQuestionManager().PrepareQuestionData(parOutgoingMessage);
                     aLevelMap.GetQuestionManager().UpdateIsReady = false;
+                    break;
+                case "English":
+                    parOutgoingMessage = aLevelMap.GetEnglishManager().PrepareVocabularyData(parOutgoingMessage);
+                    aLevelMap.GetEnglishManager().UpdateIsReady = false;
+                    return parOutgoingMessage;
+                    
                     break;
                 default:
                     return parOutgoingMessage;
@@ -337,6 +353,10 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
                 case "Questions":
                     aLevelMap.GetQuestionManager().QuestionFeedback = QuestionFeedback.Initialization;
                     parOutgoingMessage = aLevelMap.GetQuestionManager().PrepareQuestionData(parOutgoingMessage);
+                    return parOutgoingMessage;
+                case "English":
+                    aLevelMap.GetEnglishManager().VocabularyFeedback = VocabularyFeedback.Init;
+                    parOutgoingMessage = aLevelMap.GetEnglishManager().PrepareVocabularyData(parOutgoingMessage);
                     return parOutgoingMessage;
                 default:
                     return parOutgoingMessage;

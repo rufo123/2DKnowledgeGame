@@ -11,11 +11,11 @@ namespace LevelCreator
         public static void Main(string[] args)
         {
             Console.WriteLine("Co si zelate vytvorit?");
-            Console.WriteLine("Level - L | Otazky - Q");
+            Console.WriteLine("Level - L | Otazky - Q | Slovnik - V");
 
             string tmpChooseChar = Console.ReadLine();
 
-            while (!tmpChooseChar.Equals("L") && !tmpChooseChar.Equals("Q"))
+            while (!tmpChooseChar.Equals("L") && !tmpChooseChar.Equals("Q") && !tmpChooseChar.Equals("V"))
             {
                 tmpChooseChar = Console.ReadLine();
             }
@@ -23,6 +23,10 @@ namespace LevelCreator
             if (tmpChooseChar == "L")
             {
                 CreatorLevel tmpCreatorLevel = new CreatorLevel();
+            }
+            else if (tmpChooseChar == "V")
+            {
+                CreatorVocabulary tmpCreatorVocabulary = new CreatorVocabulary();
             }
             else
             {

@@ -192,7 +192,7 @@ namespace _2DLogicGame.GraphicObjects
         {
             aDictionaryInputBlocks.Add(aNumberOrders, parInputBlock);  //Key je charakterizovany tym, ze ci ide o jednotky, desiatky, stovky a podobne
 
-            if (aNumberOrders > 0) 
+            if (aNumberOrders > 0)
             {
                 aNumberOrders /=
                     10; //Vzdycky ideme o jedno menej, na zaciatku napr. stovky potom desiatky, potom jednotky a koniec napr.
@@ -209,7 +209,7 @@ namespace _2DLogicGame.GraphicObjects
             {
                 int tmpReturnNumber = 0;
                 int tmpCounterOfOrders = (int)Math.Pow(10, aDictionaryInputBlocks.Count - 1);
-                
+
                 while (tmpCounterOfOrders > aNumberOrders
                 ) //Pokial sa nedostaneme na koniec jednotiek, desiatok, stoviek....
                 {
@@ -312,9 +312,12 @@ namespace _2DLogicGame.GraphicObjects
                     {
                         if (aButtonList[i].IsTurnedOn == true)
                         {
-                            aMathProblem.ChangeEquation(aEquations[i + 1]);
-                            tmpIsAnyButtonTurnedOn = true;
-                            aMathProblem.Shown = true;
+                            if (aEquations.Count > 0)
+                            {
+                                aMathProblem.ChangeEquation(aEquations[i + 1]);
+                                tmpIsAnyButtonTurnedOn = true;
+                                aMathProblem.Shown = true;
+                            }
                         }
 
                         if (aButtonList[i].IsPressed == true)

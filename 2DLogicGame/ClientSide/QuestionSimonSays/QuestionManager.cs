@@ -149,9 +149,8 @@ namespace _2DLogicGame.ClientSide.QuestionSimonSays
         {
             if (aQuestionUI != null)
             {
-                QuestionFeedback tmpFeedback = new QuestionFeedback();
 
-                tmpFeedback = (QuestionFeedback)parIncomingMessage.ReadByte();
+                QuestionFeedback tmpFeedback = (QuestionFeedback)parIncomingMessage.ReadByte();
 
                 bool tmpNeedsCompleteReset = (tmpFeedback == QuestionFeedback.IncorrectFinalAnswers);
 

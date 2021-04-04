@@ -198,6 +198,9 @@ namespace _2DLogicGame
                             aClientReadThread = new Thread(new ThreadStart(aClientClass.ReadMessages));
                             aClientReadThread.Start();
 
+                           
+                        
+
 
                         }
                         else if (aMenu.TaskToExecute == MenuTasksToBeExecuted.Play_Start)
@@ -213,6 +216,7 @@ namespace _2DLogicGame
                             aClientReadThread = new Thread(new ThreadStart(aClientClass.ReadMessages));
                             aClientReadThread.Start();
 
+                            
 
                         }
                         
@@ -267,6 +271,12 @@ namespace _2DLogicGame
             //Kontrola ci LevelManager nepotrebuje odoslat update | Kontrola ci nie je potrebny respawn hracov
             if (aLevelManager != null && aClientClass != null)
             {
+
+                if (aClientClass.Connected && aLevelManager.LevelName == "NONE")
+                {
+                    
+
+                }
 
                 //Skontrolujem ci aj LevelManager nepotrebuje nieco aktualizovat
                 aLevelManager.Update(parGameTime: gameTime);

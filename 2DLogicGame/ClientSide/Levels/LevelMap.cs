@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
+using _2DLogicGame.ClientSide.English;
 using _2DLogicGame.ClientSide.QuestionSimonSays;
 using _2DLogicGame.GraphicObjects;
 using Microsoft.Xna.Framework;
@@ -39,9 +40,14 @@ namespace _2DLogicGame.ClientSide.Levels
         private MathProblemManager aMathProblemManager;
 
         /// <summary>
-        /// Atribut, reprezentujuci manazer opazok - typ QuestionManager
+        /// Atribut, reprezentujuci manazer otazok - typ QuestionManager
         /// </summary>
         private QuestionManager aQuestionsManager;
+
+        /// <summary>
+        /// Atribut, reprezentujuci manazer anglickych - slovenskych slov - typ EnglishManager
+        /// </summary>
+        private EnglishManager aEnglishManager;
 
         /// <summary>
         /// Atribut, Reprezentujuci Vysku a Sirku Blokov, napr 64 - Defaultne
@@ -93,6 +99,13 @@ namespace _2DLogicGame.ClientSide.Levels
                         aQuestionsManager.Destroy();
                         aQuestionsManager = null;
                     }
+                    break;
+                case "English":
+                    if (aEnglishManager != null)
+                    {
+                        aEnglishManager.Destroy();
+                        aEnglishManager = null;
+                    }
 
                     break;
                 default:
@@ -117,6 +130,9 @@ namespace _2DLogicGame.ClientSide.Levels
                     break;
                 case "Questions": //Ak ide o level Questions - potrebujeme inicializovat specificke komponenty
                     aQuestionsManager = new QuestionManager(aLogicGame);
+                    break;
+                case "English":
+                    aEnglishManager = new EnglishManager(aLogicGame);
                     break;
                 default:
                     break;
@@ -181,15 +197,20 @@ namespace _2DLogicGame.ClientSide.Levels
                     if (aMathProblemManager != null && parLevelName == "Math") //Ak vieme ze pojde o level typu Math, odosleme MathProblem manazeru, informacie o Button Blokoch
                     {
                         aMathProblemManager.AddButton(tmpButtonBlock);
-                    } else if (aQuestionsManager != null && parLevelName == "Questions")
+                    }
+                    else if (aQuestionsManager != null && parLevelName == "Questions")
                     {
                         aQuestionsManager.AddButton(tmpButtonBlock);
-                        
+
+                    }
+                    else if (aEnglishManager != null && parLevelName == "English")
+                    {
+                        aEnglishManager.AddButton(tmpButtonBlock);
                     }
                 }
                 else if (parBlockPositions[i].BlockName == "mathInputBlock")
                 {
-                    InputBlock tmpInputBlock = new InputBlock(aLogicGame, tmpBlockPosition, parHasStates:true, parCountOfFrames:5);
+                    InputBlock tmpInputBlock = new InputBlock(aLogicGame, tmpBlockPosition, parHasStates: true, parCountOfFrames: 5);
                     aBlockPositionDictionary.Add(tmpBlockPosition, tmpInputBlock);
                     aBlockList.Add(tmpInputBlock);
 
@@ -274,6 +295,16 @@ namespace _2DLogicGame.ClientSide.Levels
             if (aQuestionsManager != null)
             {
                 return aQuestionsManager;
+            }
+
+            return null;
+        }
+
+        public EnglishManager GetEnglishManager()
+        {
+            if (aEnglishManager != null)
+            {
+                return aEnglishManager;
             }
 
             return null;

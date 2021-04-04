@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using _2DLogicGame.GraphicObjects;
 using _2DLogicGame.ServerSide.Blocks_ServerSide;
+using _2DLogicGame.ServerSide.LevelEnglish_Server;
 using _2DLogicGame.ServerSide.LevelMath_Server;
 using _2DLogicGame.ServerSide.Questions_ServeSide;
 using XMLData;
@@ -29,6 +30,8 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
         private MathProblemServerManager aMathProblemServerManager;
 
         private QuestionsManagerServer aQuestionsServerManager;
+
+        private EnglishManagerServer aEnglishServerManager;
 
         /// <summary>
         /// Atribut, Reprezentujuci Vysku a Sirku Blokov, napr 64 - Defaultne
@@ -65,6 +68,9 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
                     aQuestionsServerManager.Destroy();
                     aQuestionsServerManager = null;
                     break;
+                case "English":
+                    aEnglishServerManager = null;
+                    break;
                 default:
                     break;
             }
@@ -84,6 +90,9 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
                     break;
                 case "Questions":
                     aQuestionsServerManager = new QuestionsManagerServer(aLogicGame);
+                    break;
+                case "English":
+                    aEnglishServerManager = new EnglishManagerServer(aLogicGame);
                     break;
                 default:
                     break;
@@ -152,6 +161,10 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
                     {
                         aQuestionsServerManager.AddButton(tmpButtonBlock);
                     }
+                    else if (aEnglishServerManager != null && parLevelName == "English")
+                    {
+                        aEnglishServerManager.AddButton(tmpButtonBlock);
+                    }
                 }
                 else if (parBlockPositions[i].BlockName == "mathInputBlock")
                 {
@@ -217,7 +230,6 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
             {
                 return aMathProblemServerManager;
             }
-
             return null;
         }
 
@@ -227,7 +239,15 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
             {
                 return aQuestionsServerManager;
             }
+            return null;
+        }
 
+        public EnglishManagerServer GetEnglishManager()
+        {
+            if (aEnglishServerManager != null)
+            {
+                return aEnglishServerManager;
+            }
             return null;
         }
     }
