@@ -94,6 +94,11 @@ namespace _2DLogicGame.ServerSide.Questions_ServeSide
         private int aQuestionPoints;
 
         /// <summary>
+        /// Atribut, ktory sluzi na uchovavanie poctu bodov, ktore boli stratene pri resete, pokial niekde nacitame tieto data, je dobre tuto hodnotu zresetovat
+        /// </summary>
+        private int aQuestionPointsLost;
+
+        /// <summary>
         /// Atribut, ktory signalizuje, ze je potrebny Reset Levelu
         /// </summary>
         private bool aNeedsReset;
@@ -118,7 +123,16 @@ namespace _2DLogicGame.ServerSide.Questions_ServeSide
             get => aNeedsReset;
             set => aNeedsReset = value;
         }
-
+        public int QuestionPointsLost
+        {
+            get => aQuestionPointsLost;
+            set => aQuestionPointsLost = value;
+        }
+        public int QuestionPoints
+        {
+            get => aQuestionPoints;
+            set => aQuestionPoints = value;
+        }
 
         /// <summary>
         /// Konstruktor triedy, ktora sa stara o spravu Otazok na serveri
@@ -140,6 +154,7 @@ namespace _2DLogicGame.ServerSide.Questions_ServeSide
             aOldSumNumber = 0;
             aCountOfAlreadySentAnswers = 0;
             aQuestionPoints = 0;
+            aQuestionPointsLost = 0;
         }
 
         /// <summary>
@@ -214,7 +229,9 @@ namespace _2DLogicGame.ServerSide.Questions_ServeSide
             aDictionaryOfAlreadySentAnswers.Clear();
             aGoodAnswersList.Clear();
             aCountOfAlreadySentAnswers = 0;
+            aQuestionPointsLost = aQuestionPoints;
             aQuestionPoints = 0;
+            
         }
 
         /// <summary>

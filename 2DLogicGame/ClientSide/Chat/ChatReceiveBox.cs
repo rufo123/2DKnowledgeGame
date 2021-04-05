@@ -267,10 +267,9 @@ namespace _2DLogicGame.ClientSide.Chat
                 }
                 aChatInputDummyTexture.SetData<Color>(tmpColor); //Samozrejme nastavime Data o Farbe pre Dummy Texturu
 
-                base.LoadContent();
-
-
             }
+
+            base.LoadContent();
         }
 
         /// <summary>

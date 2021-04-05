@@ -31,7 +31,6 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
         /// </summary>
         private LevelMap aLevelMap;
 
-
         /// <summary>
         /// Boolean, ktory reprezentuje, ci je Level Nacitany alebo nie
         /// </summary>
@@ -62,10 +61,13 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
         /// </summary>
         private bool aWinInfoRequested;
 
-
         private int aMaxPlayers = 2;
 
         private int aCurrentLevelNumber;
+
+        private int aPointsFromPreviousLevels;
+
+        private int aPointsForThisLevel;
 
         public string LevelName
         {
@@ -107,12 +109,15 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
 
         public LevelManager(LogicGame parLogicGame)
         {
+            aPointsForThisLevel = 0;
+            aPointsFromPreviousLevels = 0;
             aLevelBlockData = new List<BlockData>();
             aLevelMap = new LevelMap(parLogicGame);
             aLogicGame = parLogicGame;
             aPlayerDefaultPositionsDictionary = new Dictionary<int, Vector2>(aMaxPlayers); //2 Hraci Max
             aCurrentLevelNumber = 0;
             aDictionaryPlayerDataWithKeyID = new Dictionary<int, PlayerServerData>(aMaxPlayers);
+  
         }
 
         public bool LoadBlockXmlData(string parLevelXmlPath)
@@ -204,6 +209,9 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
             LevelMap.DestroyMap(aLevelName);
             aPlayerDefaultPositionsDictionary.Clear();
             InitLevelByNumber(++aCurrentLevelNumber);
+            //Ak dojde k zmene urovne, pripocitame celkove body
+            aPointsFromPreviousLevels += aPointsForThisLevel;
+            aPointsForThisLevel = 0;
         }
 
         public void ResetLevel()
@@ -239,8 +247,8 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
             aLevelMap.GetBlocksPositionDictionary().TryGetValue(parBlockPositionVector, out tmpBlock);
             return tmpBlock;
 
-
         }
+
 
         public bool IsUpdateNeeded()
         {
@@ -252,12 +260,29 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
                     return aLevelMap.GetQuestionManager().UpdateIsReady;
                 case "English":
                     return aLevelMap.GetEnglishManager().UpdateIsReady;
-                    break;
                 default:
                     break;
             }
 
             return false;
+        }
+
+        public void UpdatePoints()
+        {
+            switch (aLevelName)
+            {
+                case "Math":
+                    aPointsForThisLevel =  aLevelMap.GetMathProblemManager().MathPoints;
+                    break;
+                case "Questions":
+                    aPointsForThisLevel = aLevelMap.GetQuestionManager().QuestionPoints;
+                    break;
+                case "English":
+                    aPointsForThisLevel =  aLevelMap.GetEnglishManager().EnglishPoints;
+                    break;
+                default:
+                    break;
+            }
         }
 
         public bool LevelNeedsReset()
@@ -301,7 +326,14 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
                         return false;
                     }
                 case "English":
-                    return false;
+                    if (aLevelMap.GetEnglishManager().VocabularyFeedback == VocabularyFeedback.AllCorrect)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 default:
                     return false;
             }
@@ -310,6 +342,8 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
 
         public NetOutgoingMessage PrepareLevelDataForUpload(NetOutgoingMessage parOutgoingMessage)
         {
+            parOutgoingMessage.WriteVariableInt32(aPointsFromPreviousLevels + aPointsForThisLevel);
+            Debug.WriteLine("Points " + aPointsFromPreviousLevels + aPointsForThisLevel);
             switch (aLevelName)
             {
                 case "Math": //Budeme vediet na isto ze ide o level typu Math
@@ -327,8 +361,6 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
                     parOutgoingMessage = aLevelMap.GetEnglishManager().PrepareVocabularyData(parOutgoingMessage);
                     aLevelMap.GetEnglishManager().UpdateIsReady = false;
                     return parOutgoingMessage;
-                    
-                    break;
                 default:
                     return parOutgoingMessage;
             }
@@ -337,6 +369,8 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
 
         public NetOutgoingMessage PrepareLevelInitDataForUpload(NetOutgoingMessage parOutgoingMessage)
         {
+            parOutgoingMessage.WriteVariableInt32(aPointsFromPreviousLevels + aPointsForThisLevel);
+
             switch (aLevelName)
             {
                 case "Math":

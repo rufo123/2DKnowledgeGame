@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Text;
 using _2DLogicGame.ClientSide.MathProblem;
 using _2DLogicGame.ServerSide.Blocks_ServerSide;
@@ -113,11 +114,16 @@ namespace _2DLogicGame.ServerSide.LevelMath_Server
             set => aIdOfLastButtonSucceeded = value;
         }
 
-
         public bool UpdateIsReady
         {
             get => aUpdateIsReady;
             set => aUpdateIsReady = value;
+        }
+
+        public int MathPoints
+        {
+            get => aMathPoints;
+            set => aMathPoints = value;
         }
 
         public MathProblemServerManager()
@@ -333,7 +339,7 @@ namespace _2DLogicGame.ServerSide.LevelMath_Server
                     }
                 }
 
-                if (tmpCountOfStandingPlayers >= 1) //Debug Len jeden
+                if (tmpCountOfStandingPlayers >= 2) //Debug Len jeden
                 {
                     Debug.WriteLine("Server - Vyhra");
                     aProblemFeedback = Feedback.AllSolved;

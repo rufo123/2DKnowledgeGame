@@ -237,6 +237,7 @@ namespace _2DLogicGame
 
                     if (aLevelManager.IsUpdateNeeded())
                     {
+                        aLevelManager.UpdatePoints();
                         NetOutgoingMessage tmpOutgoingMessage = aServer.CreateMessage();
                         tmpOutgoingMessage.Write((byte)PacketMessageType.LevelData);
                         tmpOutgoingMessage = aLevelManager.PrepareLevelDataForUpload(tmpOutgoingMessage);

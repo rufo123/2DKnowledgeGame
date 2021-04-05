@@ -100,6 +100,13 @@ namespace _2DLogicGame.ClientSide.Levels
 
         private LevelTransformScreen aLevelTransformScreen;
 
+        private LevelPointsCounter aLevelPointsCounter;
+
+        /// <summary>
+        /// Atribut, reprezentujuci body hry
+        /// </summary>
+        private int aGamePoints;
+
         private bool aLevelUpdateIsReady = false;
 
         public bool IsLevelInitalized
@@ -132,6 +139,11 @@ namespace _2DLogicGame.ClientSide.Levels
         {
             get => aLevelReset;
             set => aLevelReset = value;
+        }
+        public int GamePoints
+        {
+            get => aGamePoints;
+            set => aGamePoints = value;
         }
 
         /// <summary>
@@ -226,6 +238,12 @@ namespace _2DLogicGame.ClientSide.Levels
         /// <param name="parLevelNumber">Parameter reprezentujuci cislo levelu - typ int</param>
         public void InitLevelByNumber(int parLevelNumber)
         {
+            if (aLevelPointsCounter == null) //Ak este nie je vytvoreny counter, vytvorime ho
+            {
+                aLevelPointsCounter = new LevelPointsCounter(aLogicGame, new Vector2(aLogicGame.RenderTarget.Width / 2F + aLogicGame.CameraX, 0), new Vector2(200, 100));
+                aPlayScreenComponentCollection.AddComponent(aLevelPointsCounter);
+            }
+
             switch (parLevelNumber)
             {
                 case 1:
@@ -323,6 +341,14 @@ namespace _2DLogicGame.ClientSide.Levels
         /// <param name="parAmIFirstPlayer"></param>
         public void HandleLevelData(NetIncomingMessage parMessage, bool parAmIFirstPlayer)
         {
+
+            aGamePoints = parMessage.ReadVariableInt32();
+
+            if (aLevelPointsCounter != null)
+            {
+                aLevelPointsCounter.SetPoints(aGamePoints);
+            }
+
             switch (aLevelName)
             {
                 case "Math":
@@ -387,7 +413,7 @@ namespace _2DLogicGame.ClientSide.Levels
             if (aLevelMap.GetQuestionManager() != null && aLevelMap.GetQuestionManager().NeedsReset)
             {
                 ResetLevel();
-                
+
 
             }
 
@@ -400,6 +426,13 @@ namespace _2DLogicGame.ClientSide.Levels
         /// <param name="parLevelName"></param>
         public void HandleLevelInitData(NetIncomingMessage parMessage, string parLevelName, int parPlayerID)
         {
+
+            aGamePoints = parMessage.ReadVariableInt32();
+
+            if (aLevelPointsCounter != null)
+            {
+                aLevelPointsCounter.SetPoints(aGamePoints);
+            }
 
             bool tmpAmIFirst = false;
 

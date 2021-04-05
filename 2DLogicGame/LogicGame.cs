@@ -310,16 +310,12 @@ namespace _2DLogicGame
 
             base.Update(gameTime);
 
-            
             //ControlRequest
-
-
 
         }
 
         protected override void Draw(GameTime gameTime)
         {
-
             this.GraphicsDevice.SetRenderTarget(aRenderTarget);
 
             if (aServerClass != null && aClientClass != null)

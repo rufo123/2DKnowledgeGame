@@ -125,13 +125,14 @@ namespace _2DLogicGame.ClientSide.English
 
                 if (tmpFeedBack == VocabularyFeedback.CorrectAnswer)
                 {
+                    for (int i = 0; i < 2; i++)
+                    {
+                        int tmpButtonID = parNetIncomingMessage.ReadVariableInt32();
 
-                    int tmpAnswerSuccededID = parNetIncomingMessage.ReadVariableInt32();
+                        aButtonList[tmpButtonID].WantsToInteract = false; //Prve tlacidlo zlava - ID Tlacitka dostaneme -> 2 * Cislo
+                        aButtonList[tmpButtonID].ChangeToSuccessState();
+                    }
 
-                    aButtonList[tmpAnswerSuccededID * 2].WantsToInteract = false; //Prve tlacidlo zlava - ID Tlacitka dostaneme -> 2 * Cislo
-                    aButtonList[tmpAnswerSuccededID * 2].ChangeToSuccessState();
-                    aButtonList[tmpAnswerSuccededID * 2 + 1].WantsToInteract = false; //Prve tlacidlo zprava - ID Tlacitka dostaneme -> 2 * Cislo - 1
-                    aButtonList[tmpAnswerSuccededID * 2 + 1].ChangeToSuccessState();
                 }
 
             }

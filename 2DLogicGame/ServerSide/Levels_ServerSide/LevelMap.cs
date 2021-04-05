@@ -26,7 +26,6 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
         /// </summary>
         private List<BlockServer> aBlockList;
 
-
         private MathProblemServerManager aMathProblemServerManager;
 
         private QuestionsManagerServer aQuestionsServerManager;
@@ -48,7 +47,7 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
 
 
 
-        public LevelMap(LogicGame parLogicGame, int parDefaultBlockDimension = 64)
+        public LevelMap(LogicGame parLogicGame, int parDefaultBlockDimension = 64) //GamePoints budu referencia,
         {
             aDefaultBlockDimension = parDefaultBlockDimension;
             aBlockPositionDictionary = new Dictionary<Vector2, BlockServer>(31 * 16);
@@ -145,6 +144,9 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
                     if (aMathProblemServerManager != null && parLevelName == "Math") //Ak vieme ze pojde o level typu Math, odosleme MathProblem manazeru, informacie o Button Blokoch
                     {
                         aMathProblemServerManager.AddEndBlock(tmpEndBlock);
+                    } else if (aEnglishServerManager != null && parLevelName == "English")
+                    {
+                        aEnglishServerManager.AddEndBlock(tmpEndBlock);
                     }
                 }
                 else if (parBlockPositions[i].BlockName == "mathGenerateBlock")
@@ -198,6 +200,12 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
                 }
 
             }
+
+            if (aEnglishServerManager != null && parLevelName == "English")
+            {
+                aEnglishServerManager.LevelIsLoaded = true; //Davame informaciu English Manageru, ze uroven je nacitana a teraz moze zapocat, swapovanie vocabulary.
+            }
+
         }
         /// <summary>
         /// Metoda, ktora vrati List Blokov v podobe DrawableGameComponentov
