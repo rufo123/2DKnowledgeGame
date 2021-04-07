@@ -3,9 +3,11 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using _2DLogicGame.ClientSide.Levels;
+using _2DLogicGame.ServerSide.Database;
 
 namespace _2DLogicGame
 {
@@ -143,6 +145,8 @@ namespace _2DLogicGame
 
             Graphics.ApplyChanges();
 
+            StatisticsHandler tmpStatisticsHandler = new StatisticsHandler();
+            List<string> tst = tmpStatisticsHandler.DownloadScoreboard();
 
             aScale = 1F / (1080F / _graphics.GraphicsDevice.Viewport.Height);
         }
