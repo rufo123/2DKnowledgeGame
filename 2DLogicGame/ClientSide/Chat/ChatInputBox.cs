@@ -175,10 +175,12 @@ namespace _2DLogicGame.ClientSide.Chat
                     aPreviousCharacterPressed = '0';
                 }
                 aLogicGame.Window.TextInput += TextInputHandle;
+                aLogicGame.GameState = GameState.Typing;
             }
             else //Opacny Pripad
             {
                 aLogicGame.Window.TextInput -= TextInputHandle;
+                aLogicGame.GameState = GameState.Playing;
             }
             base.Update(gameTime);
         }
@@ -207,7 +209,7 @@ namespace _2DLogicGame.ClientSide.Chat
             {
                 if (tmpKeyPressed == Keys.Back)
                 { //Ak je momentalne stlacene tlacitko rovne - BACKSPACU
-                    this.TructMessage(); //Odstranime posledny charakter zo momentalne pisanej spravy
+                    this.TruncMessage(); //Odstranime posledny charakter zo momentalne pisanej spravy
                     Debug.WriteLine(aMessageToSend); //Debug - Sprava do konzole
                 }
                 if (aLogicGame.Font72.Characters.Contains(tmpCharacter)) //Overime si ci Font72 Hry obsahuje charakter, ktory sa snazime napisat
@@ -250,7 +252,7 @@ namespace _2DLogicGame.ClientSide.Chat
         /// <summary>
         /// Metoda, ktora odstranuje posledny charakter zo spravy
         /// </summary>
-        public void TructMessage()
+        public void TruncMessage()
         {
             if (aMessageToSend.Length > 0) //Ak sprava obsahuje nejaky charakter
             {

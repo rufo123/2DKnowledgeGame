@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Text;
+using _2DLogicGame.GraphicObjects.Scoreboard;
 using MySql.Data.MySqlClient;
 
 namespace _2DLogicGame.ServerSide.Database
 {
-    class StatisticsHandler
+    public class StatisticsHandler
     {
         /// <summary>
         /// Atribut, ktory reprezentuje pripojenie k databaze - typ DatabaseConnection.
@@ -22,7 +23,7 @@ namespace _2DLogicGame.ServerSide.Database
         /// <summary>
         /// Atribut, list - ktory reprezentuje 10 najlepsich hracov vybranych z databazy - typ List<string>
         /// </summary>
-        private List<string> aListStats;
+        private List<ScoreboardItems> aListStats;
 
         /// <summary>
         /// Atribut, ktoreho hodnota reprezentuje ci pripojenie k databaze prebehlo uspesne, alebo nie - typ bool.
@@ -39,7 +40,7 @@ namespace _2DLogicGame.ServerSide.Database
         {
             aDatabaseConnection = new DatabaseConnection();
             aIsConnected = aDatabaseConnection.Connect();
-            aListStats = new List<string>(10);
+            aListStats = new List<ScoreboardItems>(10);
 
         }
 
@@ -95,7 +96,7 @@ namespace _2DLogicGame.ServerSide.Database
             }
         }
 
-        public List<string> DownloadScoreboard()
+        public List<ScoreboardItems> DownloadScoreboard()
         {
             if (!aIsConnected) //Najprv sa skusime znovu pripojit k databaze, ak sa prvotne spojenie nepodarilo
             {
@@ -112,7 +113,7 @@ namespace _2DLogicGame.ServerSide.Database
 
                     aMySqlCommand.Connection = aDatabaseConnection.MySqlConnection;
                     //INSERT INTO knowledge_stats (player1Name, player2Name, points, time) Values(@DBParPlayer1Name, @DBParPlayer2Name, @DBParPoints, @DBParTime)
-                    aMySqlCommand.CommandText = "SELECT id, player1Name, player2Name, points, time FROM knowledge_stats ORDER BY points ASC, time";
+                    aMySqlCommand.CommandText = "SELECT id, player1Name, player2Name, points, time FROM knowledge_stats ORDER BY points DESC, time ASC";
 
                     aMySqlCommand.Prepare();
 
@@ -120,19 +121,19 @@ namespace _2DLogicGame.ServerSide.Database
 
                     if (tmpDataReader.HasRows)
                     {
-                        string tmpNewString = "";
                         while (tmpDataReader.Read())
                         {
-                            for (int i = 0; i < 5; i++)
-                            {
-                                tmpNewString +=" " + tmpDataReader.GetString(i);
-                            }
+                            int tmpID = tmpDataReader.GetInt32(0);
+                            string tmpPl1Name = tmpDataReader.GetString(1);
+                            string tmpPl2Name = tmpDataReader.GetString(2);
+                            int tmpPoints = tmpDataReader.GetInt32(3);
+                            int tmpTime = tmpDataReader.GetInt32(4);
 
-                            aListStats.Add(tmpNewString);
+                            ScoreboardItems tmpScoreboardItems = new ScoreboardItems(tmpID, tmpPl1Name, tmpPl2Name, tmpPoints, tmpTime);
+                            aListStats.Add(tmpScoreboardItems);
 
-                            tmpNewString = "";
                         }
-
+                        tmpDataReader.Close();
                         return aListStats;
                     }
 

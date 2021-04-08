@@ -21,7 +21,14 @@ namespace _2DLogicGame
 
         private Color aColorMenuItem; //Farba Menu Itemu - Color
         private Color aColorSelectedItem; //Farba Celeho Menu Boxu - Color
+        private Color aColorUnFocusedSelectedItem; //Farba Selected Itemu, pokial na neho neukazujeme - Color
+
         private double aBoxTextSize; //Velkost Menu Boxu - Double
+
+        /// <summary>
+        /// Atribut, ktory reprezentuje ci je MenuBox povoleny, ci sa hrac nachadza v hlavnom menu alebo v podmenu - typ bool.
+        /// </summary>
+        private bool aBoxEnabled;
 
         private float aMenuItemSize;
 
@@ -29,9 +36,25 @@ namespace _2DLogicGame
 
         private double aTimeSinceLastKeyPress = 0;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje ci sa pouzivatel pokusa vybrat si nejaky item z MenuBoxu, alebo je niekde inde - typ bool.
+        /// </summary>
+        private bool aSelectingFromMenuBox;
 
+        public bool SelectingFromMenuBox
+        {
+            get => aSelectingFromMenuBox;
+            set => aSelectingFromMenuBox = value;
+        }
 
-       
+        public bool BoxEnabled
+        {
+            get => aBoxEnabled;
+            set => aBoxEnabled = value;
+        }
+
+        public MenuItem Set { get; set; }
+        internal MenuItem SelectedItem { get => aSelectedItem; set => aSelectedItem = value; }
 
         /// <summary>
         /// Zatial reprezentuje MenuBox, ktory obsahuje Menu Itemy
@@ -40,39 +63,51 @@ namespace _2DLogicGame
         /// <param name="parPosition"> Parameter Pozicia - Vector</param>
         /// <param name="parItemMenuColor"> Parameter Farba Menu Itemu - Color</param>
         /// <param name="parSelectedItemColor">Parameter </param>
+        /// <param name="parNotFocusedSelected">Parameter, ktory specifikuje farby, ktora sa zobrazi pokial sme si zvolili nejaky item, ale momentalne na neho neukazujeme.</param>
         /// <param name="parBoxTextSize"></param>
-        public MenuBox(LogicGame parGame, Vector2 parPosition, Color parItemMenuColor, Color parSelectedItemColor, double parBoxTextSize) : base(parGame)
+        public MenuBox(LogicGame parGame, Vector2 parPosition, Color parItemMenuColor, Color parSelectedItemColor, Color parNotFocusedSelected, double parBoxTextSize) : base(parGame)
         {
             this.aLogicGame = parGame;
-            aBoxItems = new List<MenuItem>();
+            this.aBoxItems = new List<MenuItem>();
             this.aBoxPosition = parPosition;
             this.SelectedItem = null;
             this.aColorMenuItem = parItemMenuColor;
             this.aColorSelectedItem = parSelectedItemColor;
             this.aBoxTextSize = parBoxTextSize;
+            this.aBoxEnabled = true;
+            this.aSelectingFromMenuBox = true;
+            this.aColorUnFocusedSelectedItem = parNotFocusedSelected;
         }
 
         public override void Draw(GameTime gameTime)
         {
 
-            // aLogicGame.SpriteBatch.Begin();
-
-
-            for (int i = 0; i < aBoxItems.Count; i++)
+            if (aBoxEnabled)
             {
-                Color tmpColor = aColorMenuItem;
 
-                if (aBoxItems[i] == SelectedItem)
+                // aLogicGame.SpriteBatch.Begin();
+
+                for (int i = 0; i < aBoxItems.Count; i++)
                 {
-                    tmpColor = aColorSelectedItem;
+                    Color tmpColor = aColorMenuItem;
+
+                    if (aBoxItems[i] == SelectedItem && this.aSelectingFromMenuBox) //Ak mame nejaky item zvoleny a zaroven pracujeme s menu boxom
+                    {
+                        tmpColor = aColorSelectedItem;
+                    }
+                    else if (aBoxItems[i] == SelectedItem && !this.aSelectingFromMenuBox) //Ak mame nejaky item zvoleny ale neukazujeme na menu box
+                    {
+                        tmpColor = aColorUnFocusedSelectedItem;
+                    }
+
+                    aLogicGame.SpriteBatch.DrawString(aLogicGame.Font72, aBoxItems[i].MenuText, aBoxItems[i].MenuPosition, tmpColor);
+
+
                 }
-
-                aLogicGame.SpriteBatch.DrawString(aLogicGame.Font72, aBoxItems[i].MenuText, aBoxItems[i].MenuPosition, tmpColor);
-
 
             }
 
-          //  aLogicGame.SpriteBatch.End();
+            //  aLogicGame.SpriteBatch.End();
 
 
             base.Draw(gameTime);
@@ -85,27 +120,7 @@ namespace _2DLogicGame
 
         public override void Update(GameTime gameTime)
         {
-
-
-
-            if (aLogicGame.CheckKeyPressedOnce(this.aLogicGame.DownKey))
-            {
-                if (aLogicGame.CurrentPressedKey.IsKeyDown(this.aLogicGame.DownKey)) //Pohyb Hore
-                { //Controller - ThumbStick -> Dohora, Klavesnica - W alebo UP
-                    MoveNextPrev(false); // Posuvanie Dopredu - false
-                } // GamePad.GetState(PlayerIndex.One).ThumbSticks.Left.Y < -0.5f ||
-
-
-            }
-            if (aLogicGame.CheckKeyPressedOnce(this.aLogicGame.UpKey))
-            {
-
-                if (aLogicGame.CurrentPressedKey.IsKeyDown(this.aLogicGame.UpKey)) //Pohyb Dole
-                { //Controller - ThumbStick -> Dohora, Klavesnica - W alebo UP
-                    MoveNextPrev(true); // Posuvanie Dozadu - true
-                } //GamePad.GetState(PlayerIndex.One).ThumbSticks.Left.Y < 0.5f ||
-
-            }
+       
 
             //aTimeSinceLastKeyPress = 0;
 
@@ -121,8 +136,15 @@ namespace _2DLogicGame
             base.LoadContent();
         }
 
-        public MenuItem Set { get; set; }
-        internal MenuItem SelectedItem { get => aSelectedItem; set => aSelectedItem = value; }
+        /// <summary>
+        /// Metoda, ktora vrati nazov itemu, na ktory uzivatel prave "ukazuje" - typ string
+        /// </summary>
+        /// <returns></returns>
+        public string GetNameOfHoverOn()
+        {
+            return SelectedItem.MenuText;
+        }
+
 
         /// <summary>
         /// Metoda, ktora prida MenuItem do MenuBoxu
@@ -135,7 +157,6 @@ namespace _2DLogicGame
             Vector2 tmpPosition = new Vector2(aBoxPosition.X, tmpNewPositionY);
             MenuItem tmpNewMenuItem = new MenuItem(parMenuItemText, tmpPosition, parAction, aBoxTextSize);
             aBoxItems.Add(tmpNewMenuItem);
-
             SelectedItem = tmpNewMenuItem;
 
         }

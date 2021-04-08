@@ -6,7 +6,7 @@ using MySql.Data.MySqlClient;
 
 namespace _2DLogicGame.ServerSide.Database
 {
-    class DatabaseConnection
+    public class DatabaseConnection
     {
 
         private string aServer;

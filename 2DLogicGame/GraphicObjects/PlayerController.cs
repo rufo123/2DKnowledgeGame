@@ -71,7 +71,7 @@ namespace _2DLogicGame.GraphicObjects
 
             this.aGameTime = parGameTime; //Nacitame aj GameTime
 
-            if (aPlayer != null && aPlayer.Connected)
+            if (aPlayer != null && aPlayer.Connected && aGame.GameState != GameState.Typing)
             {
                 KeyboardState tmpNewKeyBoardState = Keyboard.GetState();
 

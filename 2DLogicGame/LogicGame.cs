@@ -4,9 +4,11 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Threading;
 using _2DLogicGame.ClientSide.Levels;
+using _2DLogicGame.GraphicObjects.Scoreboard;
 using _2DLogicGame.ServerSide.Database;
 
 namespace _2DLogicGame
@@ -14,10 +16,12 @@ namespace _2DLogicGame
     public enum GameState
     {
         MainMenu,
+        Submenu,
         Playing,
         Paused,
         Exit,
         Executed,
+        Typing
     }
 
     public class LogicGame : Game
@@ -33,6 +37,11 @@ namespace _2DLogicGame
 
         private MenuBox aMenuBox;
         private Menu aMenu;
+
+        private MenuInput aNickNameInput;
+
+        private MenuInput aIPAddressInput;
+
         private Texture2D bck;
 
         private ClientSide.Chat.Chat aChat;
@@ -57,6 +66,12 @@ namespace _2DLogicGame
 
         private LevelManager aLevelManager;
 
+        private StatisticsHandler aStatisticsHandler;
+
+        private ScoreboardUI aScoreboardUI;
+
+        private ScoreboardController aScoreboardController;
+
         private int aRenderTargetWidth = 1920;
 
         private int aRenderTargetHeight = 1080;
@@ -80,6 +95,8 @@ namespace _2DLogicGame
         public GameState GameState { get => aGameState; set => aGameState = value; }
         public Keys UpKey { get => aUpKey; set => aUpKey = value; }
         public Keys DownKey { get => aDownKey; set => aDownKey = value; }
+        public Keys LeftKey { get => aLeftKey; set => aLeftKey = value; }
+        public Keys RightKey { get => aRightKey; set => aRightKey = value; }
         public Keys ProceedKey { get => aProceedKey; set => aProceedKey = value; }
         public Keys ChatWriteMessageKey { get => aChatWriteMessageKey; set => aChatWriteMessageKey = value; }
         public RenderTarget2D RenderTarget { get => aRenderTarget; }
@@ -93,6 +110,8 @@ namespace _2DLogicGame
 
         private Keys aUpKey = Keys.W;
         private Keys aDownKey = Keys.S;
+        private Keys aLeftKey = Keys.A;
+        private Keys aRightKey = Keys.D;
         private Keys aProceedKey = Keys.Space;
         private Keys aChatWriteMessageKey = Keys.T;
 
@@ -111,16 +130,27 @@ namespace _2DLogicGame
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+            aStatisticsHandler = new StatisticsHandler();
+            aScoreboardUI = new ScoreboardUI(this);
 
-            aMenuBox = new MenuBox(this, new Vector2(1100, 200), Color.FloralWhite, Color.Black, 120);
+            aScoreboardController = new ScoreboardController(aStatisticsHandler, aScoreboardUI);
+
+            aMenuBox = new MenuBox(this, new Vector2(1100, 200), Color.FloralWhite, Color.Black, Color.Gray, 120);
             aMenuBox.AddItem("Host", MenuItemAction.Start_Host);
             aMenuBox.AddItem("Play", MenuItemAction.Start_Play);
             aMenuBox.AddItem("Options", MenuItemAction.Options);
             aMenuBox.AddItem("Stats", MenuItemAction.Stats);
             aMenuBox.AddItem("Exit", MenuItemAction.Exit);
-            aMenu = new Menu(this, aMenuBox);
 
-            aMainMenu = new ComponentCollection(this, aMenu, aMenuBox);
+            aNickNameInput = new MenuInput(this, new Vector2(300, 500), new Vector2(500, 100), 25F, "Nickname", 10);
+
+            aIPAddressInput = new MenuInput(this, new Vector2(300, 700), new Vector2(500, 100), 15F, "IP Address", 15, true);
+
+            aMenu = new Menu(this, aMenuBox, aScoreboardController, aNickNameInput, aIPAddressInput);
+
+            
+            aMainMenu = new ComponentCollection(this, aMenu, aMenuBox, aScoreboardUI, aNickNameInput, aIPAddressInput);
+
 
             ClientSide.Chat.ChatReceiveBox chatReceive = new ClientSide.Chat.ChatReceiveBox(this, Window, 593, 800, Vector2.Zero + new Vector2(10, 10));
             ClientSide.Chat.ChatInputBox chatInput = new ClientSide.Chat.ChatInputBox(this, Window, 1000, 246, new Vector2((aRenderTargetWidth - 1000) / 2, aRenderTargetHeight - 246));
@@ -145,8 +175,7 @@ namespace _2DLogicGame
 
             Graphics.ApplyChanges();
 
-            StatisticsHandler tmpStatisticsHandler = new StatisticsHandler();
-            List<string> tst = tmpStatisticsHandler.DownloadScoreboard();
+
 
             aScale = 1F / (1080F / _graphics.GraphicsDevice.Viewport.Height);
         }
@@ -175,11 +204,21 @@ namespace _2DLogicGame
         protected override void Update(GameTime gameTime)
         {
 
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || CheckKeyPressedOnce(Keys.Escape))
             {
-                Debug.WriteLine("END");
-                GameState = GameState.Exit;
-                Exit();
+                if (GameState == GameState.MainMenu)
+                {
+                    Debug.WriteLine("END");
+                    GameState = GameState.Exit;
+                    Exit();
+                }
+                else
+                {
+                    Debug.WriteLine("BACK_TO_MENU");
+                    GameState = GameState.MainMenu;
+                    this.aMenu.TaskToExecute = MenuTasksToBeExecuted.None;
+                }
+
             }
 
             if (aMenu.TaskToExecute != MenuTasksToBeExecuted.None)
@@ -193,8 +232,16 @@ namespace _2DLogicGame
                         if (aMenu.TaskToExecute == MenuTasksToBeExecuted.Host_Start)
                         {
                             SwitchScene(aMainMenu, aPlayingScreen);
+
+                            string tmpNickName = "Player1";
+
+                            if (aNickNameInput != null && aNickNameInput.InputText != "") //Ak existuje objekt a je definovany aj string
+                            {
+                                tmpNickName = aNickNameInput.InputText;
+                            }
+
                             aServerClass = new Server("Test", this);
-                            aClientClass = new Client("Test", this, aChat, aPlayingScreen, aPlayerController, aLevelManager);
+                            aClientClass = new Client("Test", this, aChat, aPlayingScreen, aPlayerController, aLevelManager, tmpNickName);
 
                             aServerReadThread = new Thread(new ThreadStart(aServerClass.ReadMessages));
                             aServerReadThread.Start();
@@ -202,8 +249,8 @@ namespace _2DLogicGame
                             aClientReadThread = new Thread(new ThreadStart(aClientClass.ReadMessages));
                             aClientReadThread.Start();
 
-                           
-                        
+                            aMenu.TaskToExecute = MenuTasksToBeExecuted.None;
+
 
 
                         }
@@ -212,15 +259,28 @@ namespace _2DLogicGame
 
                             SwitchScene(aMainMenu, aPlayingScreen);
 
-                             string tmpIP = "127.0.0.1";
-                             // string tmpIP = "25.81.200.231";}
+                            string tmpIP = "127.0.0.1";
+                            // string tmpIP = "25.81.200.231";}
 
-                            aClientClass = new Client("Test", this, aChat, aPlayingScreen, aPlayerController, aLevelManager, "Tester", tmpIP);
+                            if (aIPAddressInput != null && aIPAddressInput.InputText != "") //Ak existuje objekt Menu Input IP Adresy a je nejaka definovana
+                            {
+                                tmpIP = aIPAddressInput.InputText;
+                            }
+
+                            string tmpNickName = "Player2";
+
+                            if (aNickNameInput != null && aNickNameInput.InputText != "") //Ak existuje objekt a je definovany aj string
+                            {
+                                tmpNickName = aNickNameInput.InputText;
+                            }
+
+
+                            aClientClass = new Client("Test", this, aChat, aPlayingScreen, aPlayerController, aLevelManager, tmpNickName, tmpIP);
 
                             aClientReadThread = new Thread(new ThreadStart(aClientClass.ReadMessages));
                             aClientReadThread.Start();
 
-                            
+                            aMenu.TaskToExecute = MenuTasksToBeExecuted.None;
 
                         }
                         
@@ -228,13 +288,12 @@ namespace _2DLogicGame
                     case GameState.Paused:
                         break;
                     case GameState.Exit:
-                        Exit();
                         break;
                     default:
                         break;
                 }
 
-                aMenu.TaskToExecute = MenuTasksToBeExecuted.None;
+                
             }
 
 
