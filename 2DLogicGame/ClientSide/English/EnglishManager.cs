@@ -81,7 +81,7 @@ namespace _2DLogicGame.ClientSide.English
             {
                 for (int i = 0; i < aButtonList.Count; i++)
                 {
-                    if (aButtonList[i].IsTurnedOn)
+                    if (aButtonList[i].IsTurnedOn && aEnglishSlovakUI != null)
                     {
                         if (i % 2 == 0)
                         {

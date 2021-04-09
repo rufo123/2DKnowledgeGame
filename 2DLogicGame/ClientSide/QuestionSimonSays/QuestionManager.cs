@@ -250,7 +250,7 @@ namespace _2DLogicGame.ClientSide.QuestionSimonSays
 
         public override void Update(GameTime gameTime)
         {
-            if (aGoodAnswersList.Count > 3) //Ak su vsetky 4 odpovede spravne
+            if (aGoodAnswersList != null && aGoodAnswersList.Count > 3) //Ak su vsetky 4 odpovede spravne
             {
                 if (aQuestionUI != null)
                 {

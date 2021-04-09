@@ -172,7 +172,7 @@ namespace _2DLogicGame
 
         public override void Draw(GameTime gameTime)
         {
-            if (aEnabled)
+            if (aRectangle != null && aTexture != null && aEnabled)
             {
                 string tmpInputText = aInputStringBuilder.ToString();
 

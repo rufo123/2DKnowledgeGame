@@ -82,7 +82,7 @@ namespace _2DLogicGame
         public override void Draw(GameTime gameTime)
         {
 
-            if (aBoxEnabled)
+            if (aBoxItems != null && aBoxEnabled)
             {
 
                 // aLogicGame.SpriteBatch.Begin();

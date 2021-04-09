@@ -130,6 +130,17 @@ namespace _2DLogicGame.ClientSide.Chat
 
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o vycistenie interneho ukladacieho priestoru prijatych sprav
+        /// </summary>
+        public void ResetStorage()
+        {
+            if (aChatReceiveBox != null)
+            {
+                aChatReceiveBox.ClearStorage();
+            }
+        }
+
 
 
     }

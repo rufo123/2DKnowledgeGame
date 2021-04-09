@@ -62,7 +62,7 @@ namespace _2DLogicGame.ClientSide.Chat
         /// <summary>
         /// Atribut, reprezentujuci Zoznam obsahujuci ukladaci priestor pre spravy - typ List
         /// </summary>
-        private List<string> aMessageStorage;
+        private List<string> aMessageStorageList;
 
         /// <summary>
         /// Atribut, reprezentujuci skalovanie velkosti sprav oproti prednastavenej velkosti - Typ Float
@@ -104,34 +104,34 @@ namespace _2DLogicGame.ClientSide.Chat
             aPositionVector = parPosVector;
             aWindowHeight = parHeight;
             aWindowWidth = parWidth;
-            aMessageStorage = new List<string>(10);
+            aMessageStorageList = new List<string>(10);
             aPositionVectorDefault = new Vector2(aPositionVector.X, aPositionVector.Y);
         }
 
         public override void Draw(GameTime gameTime)
         {
-            if (aMessageStorage.Count > aOldStorageSize || aTimeCounter > 0) // Ak pribudla nejaka nova sprava, alebo zacalo odpocitavanie casu, pre zobrazenie Receive Boxu
+            if (aMessageStorageList.Count > aOldStorageSize || aTimeCounter > 0) // Ak pribudla nejaka nova sprava, alebo zacalo odpocitavanie casu, pre zobrazenie Receive Boxu
             {
                 aTimeCounter += gameTime.ElapsedGameTime.TotalSeconds; //Pripocitame kolko "sekund" ubehlo za vykreslenie jedneho framu k pocitadlu casu
 
              //   aLogicGame.SpriteBatch.Begin(); //Zacneme vykreslovanie SpriteBatchu - s ohladom na priehladnost
                 aLogicGame.SpriteBatch.Draw(aChatInputDummyTexture, aPositionVector, aChatOutputRectagle, Color.Black * 0.3F, 0F, Vector2.Zero, 1F, SpriteEffects.None, 0.1F ); //Vykresli ChatInputBox pomocou Textury, Rectangle a farby - Color.White zachovava povodne farby
 
-                if (aMessageStorage.Count > aOldStorageSize) //Zabezpecime, ze po prijati novej spravy sa zresetuje pocitadlo na aku dlhu dobu ma byt zobraeny Receive Box
+                if (aMessageStorageList.Count > aOldStorageSize) //Zabezpecime, ze po prijati novej spravy sa zresetuje pocitadlo na aku dlhu dobu ma byt zobraeny Receive Box
                 {
                     aTimeCounter = gameTime.ElapsedGameTime.TotalSeconds; //Reset na prvy TICK
 
-                    aOldStorageSize = aMessageStorage.Count; //Ked pribudne nova sprava, treba samozrejme aktualizovat aj startu velkost ukladacieho priestoru
+                    aOldStorageSize = aMessageStorageList.Count; //Ked pribudne nova sprava, treba samozrejme aktualizovat aj startu velkost ukladacieho priestoru
                 }
-                for (int countRow = aStartOfMessageDrawing; countRow < aMessageStorage.Count; countRow++) //For cyklus, pocitajuci, kolko riadkov sprav sa ma zobrazit - meni sa dynamicky, zalezi od - Atributu aStartOfMessageDrawing a od poctu sprav v uloznom priestore
+                for (int countRow = aStartOfMessageDrawing; countRow < aMessageStorageList.Count; countRow++) //For cyklus, pocitajuci, kolko riadkov sprav sa ma zobrazit - meni sa dynamicky, zalezi od - Atributu aStartOfMessageDrawing a od poctu sprav v uloznom priestore
                 {
                     Vector2 tmpOffSetVector = CalculateOffSetVector(aPositionVector, aLogicGame.Font72, aMessagesScale, countRow - aStartOfMessageDrawing); //Vypocet OffSet Vectoru - pre vykreslenie na novy riadok
 
 
 
-                    int tmpIndexOfLastCharacter = aMessageStorage[countRow].Length - 1;
-                    string tmpStringWithoutColorCode = aMessageStorage[countRow].Remove(aMessageStorage[countRow].Length - 1);
-                    string tmpColorCode = aMessageStorage[countRow].Substring(tmpIndexOfLastCharacter, 1);
+                    int tmpIndexOfLastCharacter = aMessageStorageList[countRow].Length - 1;
+                    string tmpStringWithoutColorCode = aMessageStorageList[countRow].Remove(aMessageStorageList[countRow].Length - 1);
+                    string tmpColorCode = aMessageStorageList[countRow].Substring(tmpIndexOfLastCharacter, 1);
 
 
                     ChatColors tmpMessageColor = Enum.Parse<ChatColors>(tmpColorCode); //Posledny Charakter je Ulozeny ako farba
@@ -169,7 +169,7 @@ namespace _2DLogicGame.ClientSide.Chat
             Vector2 tmpStringSizeVector = aLogicGame.Font72.MeasureString(parMessage) * parFontScale; //Vektor, ktory reprezentuje velkost celeho stringu pocitajuc uz so skalou
             if (tmpStringSizeVector.X <= parReceiveBoxWidth) //Ak je sirka stringu mensia rovna ako sirka boxu
             {
-                aMessageStorage.Add(parMessage + parMessageColor); //Proste pridame spravu do Uloziska
+                aMessageStorageList.Add(parMessage + parMessageColor); //Proste pridame spravu do Uloziska
             }
             else
             {
@@ -184,13 +184,13 @@ namespace _2DLogicGame.ClientSide.Chat
                     if (tmpNewMessageWidth + aLogicGame.Font72.LineSpacing * parFontScale > parReceiveBoxWidth)
                     { //Ak je Sirka novej spravy + "Spacing Pismen, vynasobeny skalou" vacsi ako sirka boxu
 
-                        aMessageStorage.Add(tmpNewMessage.ToString() + parMessageColor); //Pridame takto nasu, vynatu spravu do uloziska
+                        aMessageStorageList.Add(tmpNewMessage.ToString() + parMessageColor); //Pridame takto nasu, vynatu spravu do uloziska
                         tmpNewMessage.Clear(); //A Stringuilder si vynulujeme, aby sme mohli podobne dokoncit aj zbytok stringu
 
                     }
 
                 }
-                aMessageStorage.Add(tmpNewMessage.ToString() + parMessageColor); //Pokial by sa stalo, ze uz rozdelujeme druhu cast stringu, ale tento uz nie je vacsi ako sirka boxu, mozeme ho v klude ulozit do uloziska
+                aMessageStorageList.Add(tmpNewMessage.ToString() + parMessageColor); //Pokial by sa stalo, ze uz rozdelujeme druhu cast stringu, ale tento uz nie je vacsi ako sirka boxu, mozeme ho v klude ulozit do uloziska
             }
         }
 
@@ -242,13 +242,13 @@ namespace _2DLogicGame.ClientSide.Chat
                 aPositionVector.X = aPositionVectorDefault.X - aLogicGame.CameraX;
             }
 
-            if ((aMessageStorage.Count + 1) * aSpacing > aWindowHeight) //Pozrieme sa ci sa spravy zmestia do Receive Boxu - Velkostne - Ak nie vstupime do vnutra podmienky
+            if ((aMessageStorageList.Count + 1) * aSpacing > aWindowHeight) //Pozrieme sa ci sa spravy zmestia do Receive Boxu - Velkostne - Ak nie vstupime do vnutra podmienky
             {
                 if (aCountOfDrawableRows == 0) //Ak este nie je vypocitany pocet riadkov, ktore sa mozu vykreslit
                 {
                     aCountOfDrawableRows = (int)(aWindowHeight / aSpacing); //Vypocitame ako Vyska okna / spacing
                 }
-                aStartOfMessageDrawing = aMessageStorage.Count - aCountOfDrawableRows; //Zaroven vypocitame index, od ktoreho ma byt zapocate vykreslovanie
+                aStartOfMessageDrawing = aMessageStorageList.Count - aCountOfDrawableRows; //Zaroven vypocitame index, od ktoreho ma byt zapocate vykreslovanie
             }
 
             base.Update(gameTime);
@@ -279,6 +279,17 @@ namespace _2DLogicGame.ClientSide.Chat
         public void StoreMessage(string parMessage, int parMessageColor) 
         {
             ParseMessageIntoRows(aLogicGame.Font72, aMessagesScale, aWindowWidth, parMessage, parMessageColor); //Parsovanie celej spravy do riadkov
+        }
+
+        /// <summary>
+        /// Metoda, ktora sa stara o vycistenie Listu, ktory obsahuje spravy
+        /// </summary>
+        public void ClearStorage()
+        {
+            if (aMessageStorageList != null)
+            {
+                aMessageStorageList.Clear();
+            }
         }
 
         public Color ConvertEnumColor(ChatColors parColor) {

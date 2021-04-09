@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using _2DLogicGame.GraphicObjects;
+using _2DLogicGame.GraphicObjects.Connecting;
 using _2DLogicGame.GraphicObjects.Scoreboard;
 using _2DLogicGame.ServerSide.Database;
 using SharpFont;
@@ -23,7 +24,9 @@ namespace _2DLogicGame
         Exit,
         Enroll_Credits,
         Change_Options,
-        Show_Stats
+        Show_Stats,
+        TryToConnect,
+        Connecting
     }
 
     public class Menu : Microsoft.Xna.Framework.DrawableGameComponent
@@ -40,6 +43,8 @@ namespace _2DLogicGame
         private List<MenuInput> aListOfInputs;
 
         private MenuInput aSelectedInput;
+
+        private ConnectingUI aConnectingUI;
 
         private int aSelectedInputID;
 
@@ -60,11 +65,13 @@ namespace _2DLogicGame
         /// <param name="aScoreboardController"></param>
         /// <param name="parNickNameInput"></param>
         /// <param name="parIpInput"></param>
-        public Menu(LogicGame parGame, MenuBox parMenuBox, ScoreboardController aScoreboardController, MenuInput parNickNameInput, MenuInput parIpInput) : base(parGame)
+        public Menu(LogicGame parGame, MenuBox parMenuBox, ScoreboardController aScoreboardController, MenuInput parNickNameInput, MenuInput parIpInput, ConnectingUI parConnectingUI) : base(parGame)
         {
             this.aLogicGame = parGame;
             this.aMenuBox = parMenuBox;
             this.aScoreboardController = aScoreboardController;
+            this.aConnectingUI = parConnectingUI;
+
             aNickNameInput = parNickNameInput; //Rozdelil som tieto input, preto takto a nedal som ich do listu, lebo sa budu zobrazovat az po prejdeni na urcity menu item
             aIPInput = parIpInput;
 
@@ -80,6 +87,8 @@ namespace _2DLogicGame
             {
                 aSelectedInput = null;
             }
+
+
 
 
             aSelectedInputID = 0;
@@ -112,7 +121,7 @@ namespace _2DLogicGame
 
         public override void Update(GameTime gameTime)
         {
-            if (aMenuBox.BoxEnabled && aLogicGame.GameState != GameState.Typing)
+            if (aMenuBox != null && aLogicGame != null && aMenuBox.BoxEnabled && aLogicGame.GameState != GameState.Typing)
             {
 
                 if (aLogicGame.CheckKeyPressedOnce(this.aLogicGame.DownKey))
@@ -206,27 +215,33 @@ namespace _2DLogicGame
                 }
             }
 
-
-            switch (aMenuBox.GetNameOfHoverOn()) //Ak bude uzivatel ukazovat na Play alebo Host, zobrazia sa mu aj Input Boxy
+            if (aLogicGame != null && aLogicGame.GameState == GameState.MainMenu)
             {
-                case "Play":
-                    if (aNickNameInput != null)
-                    {
-                        aNickNameInput.InputEnabled = true;
-                        aIPInput.InputEnabled = true;
-                    }
-                    break;
-                case "Host":
-                    if (aNickNameInput != null && aIPInput != null)
-                    {
-                        aNickNameInput.InputEnabled = true;
+
+                switch (aMenuBox.GetNameOfHoverOn()
+                ) //Ak bude uzivatel ukazovat na Play alebo Host, zobrazia sa mu aj Input Boxy
+                {
+                    case "Play":
+                        if (aNickNameInput != null)
+                        {
+                            aNickNameInput.InputEnabled = true;
+                            aIPInput.InputEnabled = true;
+                        }
+
+                        break;
+                    case "Host":
+                        if (aNickNameInput != null && aIPInput != null)
+                        {
+                            aNickNameInput.InputEnabled = true;
+                            aIPInput.InputEnabled = false;
+                        }
+
+                        break;
+                    default:
+                        aNickNameInput.InputEnabled = false;
                         aIPInput.InputEnabled = false;
-                    }
-                    break;
-                default:
-                    aNickNameInput.InputEnabled = false;
-                    aIPInput.InputEnabled = false;
-                    break;
+                        break;
+                }
             }
 
 
@@ -237,6 +252,7 @@ namespace _2DLogicGame
                     {
                         aMenuBox.BoxEnabled = true;
                         aScoreboardController.ShowStats(false);
+                        aConnectingUI.StartTimer = false;
                     }
                     MenuHandle(); //Pokial nie je nic zvolene zobrazi sa hlavna cast menu
                     break;
@@ -252,9 +268,43 @@ namespace _2DLogicGame
                         aScoreboardController.ShowStats(true);
                     }
                     break;
+                case MenuTasksToBeExecuted.Exit:
+                    break;
+                case MenuTasksToBeExecuted.TryToConnect:
+                    if (aConnectingUI != null)
+                    {
+                        aMenuBox.BoxEnabled = false;
+                        aConnectingUI.StartTimer = true;
+                        if (aListOfInputs != null)
+                        {
+                            for (int i = 0; i < aListOfInputs.Count; i++)
+                            {
+                                aListOfInputs[i].InputEnabled = false;
+                            }
+                        }
+
+                        TaskToExecute = MenuTasksToBeExecuted.Connecting;
+                    }
+                    break;
+                case MenuTasksToBeExecuted.Connecting:
+                    if (aConnectingUI != null && aLogicGame != null)
+                    {
+                        if (aConnectingUI.ConnectionTimeout <= 0)
+                        {
+                            TaskToExecute = MenuTasksToBeExecuted.None;
+                            aLogicGame.GameState = GameState.MainMenu;
+
+                        }
+                    }
+
+                    break;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    //throw new ArgumentOutOfRangeException();
+                    break;
             }
+
+
+
             base.Update(gameTime);
         }
 

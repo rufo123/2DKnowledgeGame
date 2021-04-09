@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Threading;
 using _2DLogicGame.ClientSide.Levels;
+using _2DLogicGame.GraphicObjects.Connecting;
 using _2DLogicGame.GraphicObjects.Scoreboard;
 using _2DLogicGame.ServerSide.Database;
 
@@ -72,6 +73,8 @@ namespace _2DLogicGame
 
         private ScoreboardController aScoreboardController;
 
+        private ConnectingUI aConnectUI;
+
         private int aRenderTargetWidth = 1920;
 
         private int aRenderTargetHeight = 1080;
@@ -83,6 +86,12 @@ namespace _2DLogicGame
         private float aCameraX;
 
         private float aScale = 1F;
+
+        private int aDebugCalls = 0;
+
+        private int aConnectionTimeout;
+
+   
 
         // Gettery a Settery
 
@@ -130,6 +139,9 @@ namespace _2DLogicGame
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+
+            aConnectionTimeout = 20; //Nastavime cas pre connection timeout
+
             aStatisticsHandler = new StatisticsHandler();
             aScoreboardUI = new ScoreboardUI(this);
 
@@ -146,10 +158,12 @@ namespace _2DLogicGame
 
             aIPAddressInput = new MenuInput(this, new Vector2(300, 700), new Vector2(500, 100), 15F, "IP Address", 15, true);
 
-            aMenu = new Menu(this, aMenuBox, aScoreboardController, aNickNameInput, aIPAddressInput);
+            aConnectUI = new ConnectingUI(this, "Connecting", aConnectionTimeout, '.');
 
-            
-            aMainMenu = new ComponentCollection(this, aMenu, aMenuBox, aScoreboardUI, aNickNameInput, aIPAddressInput);
+
+            aMenu = new Menu(this, aMenuBox, aScoreboardController, aNickNameInput, aIPAddressInput, aConnectUI);
+
+            aMainMenu = new ComponentCollection(this, aMenu, aMenuBox, aScoreboardUI, aNickNameInput, aIPAddressInput, aConnectUI);
 
 
             ClientSide.Chat.ChatReceiveBox chatReceive = new ClientSide.Chat.ChatReceiveBox(this, Window, 593, 800, Vector2.Zero + new Vector2(10, 10));
@@ -159,8 +173,6 @@ namespace _2DLogicGame
             //PlayerController tmpController = new PlayerController(this, tmpPlayer);
 
             aPlayingScreen = new ComponentCollection(this, aChat, chatInput, chatReceive);
-
-            aPlayerController = new GraphicObjects.PlayerController(this);
 
             // Components.Add(tmpController);
 
@@ -204,19 +216,35 @@ namespace _2DLogicGame
         protected override void Update(GameTime gameTime)
         {
 
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || CheckKeyPressedOnce(Keys.Escape))
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || CheckKeyPressedOnce(Keys.Escape) || (aClientClass != null && aClientClass.ClientNeedsToShutdown)) //Ak je stlacene tlacitko ESCAPE alebo o vypnutie poziadal klient.
             {
                 if (GameState == GameState.MainMenu)
                 {
                     Debug.WriteLine("END");
-                    GameState = GameState.Exit;
+                    this.GameState = GameState.Exit;
                     Exit();
                 }
-                else
+                else if (GameState != GameState.MainMenu || (aClientClass != null && aClientClass.ClientNeedsToShutdown)) //Ak nie sme v hlavnom menu, alebo klient poziadal o vypnutie.
                 {
                     Debug.WriteLine("BACK_TO_MENU");
-                    GameState = GameState.MainMenu;
+                    this.GameState = GameState.MainMenu;
                     this.aMenu.TaskToExecute = MenuTasksToBeExecuted.None;
+
+                    aServerClass = null;
+                    aClientClass = null;
+
+                    aLevelManager.DestroyLevel();
+                    aCameraX = 0;
+
+                    if (aChat != null)
+                    {
+                        aChat.ResetStorage();
+                    }
+
+                    SwitchScene(aPlayingScreen, aMainMenu);
+
+
+
                 }
 
             }
@@ -231,7 +259,9 @@ namespace _2DLogicGame
                         
                         if (aMenu.TaskToExecute == MenuTasksToBeExecuted.Host_Start)
                         {
-                            SwitchScene(aMainMenu, aPlayingScreen);
+                            //aLevelManager.InitLevelByNumber(2);
+
+                            // SwitchScene(aMainMenu, aPlayingScreen);}}
 
                             string tmpNickName = "Player1";
 
@@ -240,8 +270,10 @@ namespace _2DLogicGame
                                 tmpNickName = aNickNameInput.InputText;
                             }
 
+                            aPlayerController = new GraphicObjects.PlayerController(this);
+
                             aServerClass = new Server("Test", this);
-                            aClientClass = new Client("Test", this, aChat, aPlayingScreen, aPlayerController, aLevelManager, tmpNickName);
+                            aClientClass = new Client("Test", this, aChat, aPlayingScreen, aPlayerController, aLevelManager, aConnectionTimeout, tmpNickName);
 
                             aServerReadThread = new Thread(new ThreadStart(aServerClass.ReadMessages));
                             aServerReadThread.Start();
@@ -249,15 +281,14 @@ namespace _2DLogicGame
                             aClientReadThread = new Thread(new ThreadStart(aClientClass.ReadMessages));
                             aClientReadThread.Start();
 
-                            aMenu.TaskToExecute = MenuTasksToBeExecuted.None;
+                            aMenu.TaskToExecute = MenuTasksToBeExecuted.TryToConnect;
 
 
 
                         }
                         else if (aMenu.TaskToExecute == MenuTasksToBeExecuted.Play_Start)
                         {
-
-                            SwitchScene(aMainMenu, aPlayingScreen);
+                           
 
                             string tmpIP = "127.0.0.1";
                             // string tmpIP = "25.81.200.231";}
@@ -274,13 +305,14 @@ namespace _2DLogicGame
                                 tmpNickName = aNickNameInput.InputText;
                             }
 
+                            aPlayerController = new GraphicObjects.PlayerController(this);
 
-                            aClientClass = new Client("Test", this, aChat, aPlayingScreen, aPlayerController, aLevelManager, tmpNickName, tmpIP);
+                            aClientClass = new Client("Test", this, aChat, aPlayingScreen, aPlayerController, aLevelManager, aConnectionTimeout, tmpNickName, tmpIP);
 
                             aClientReadThread = new Thread(new ThreadStart(aClientClass.ReadMessages));
                             aClientReadThread.Start();
 
-                            aMenu.TaskToExecute = MenuTasksToBeExecuted.None;
+                            aMenu.TaskToExecute = MenuTasksToBeExecuted.TryToConnect;
 
                         }
                         
@@ -296,6 +328,16 @@ namespace _2DLogicGame
                 
             }
 
+            if (aClientClass != null)
+            {
+                if (aClientClass.Connected && aLevelManager.IsLevelInitalized == false)
+                {
+                    aLevelManager.InitLevelByNumber(2);
+                    SwitchScene(aMainMenu, aPlayingScreen);
+                    
+                }
+            }
+
 
             //Riadenie kolizie s podmienkou existencie Klienta, LevelManazera a vytvoreneho levelu
             if (aClientClass != null && aLevelManager != null && aLevelManager.IsLevelInitalized && aPlayerController != null)
@@ -308,7 +350,7 @@ namespace _2DLogicGame
 
 
             //Odosielanie dat, klienta
-            if (aPlayerController != null)
+            if (aPlayerController != null && aClientClass != null)
             {
                 if (aPlayerController.ConfirmUpdate() == true)
                 {
@@ -356,6 +398,15 @@ namespace _2DLogicGame
 
             }
 
+            if (this.CurrentPressedKey.IsKeyDown(Keys.M))
+            {
+                aConnectUI.StartTimer = true;
+            }
+            else if (this.CurrentPressedKey.IsKeyDown(Keys.N))
+            {
+                aConnectUI.StartTimer = false;
+            }
+
 
             //Riadenie pohybu spoluhracov
             if (aClientClass != null && aLevelManager != null)
@@ -369,9 +420,15 @@ namespace _2DLogicGame
             PreviousPressedKey = CurrentPressedKey;
             CurrentPressedKey = Keyboard.GetState();
 
-            // TODO: Add your update logic here
+            if (aClientClass != null)
+            {
+                aDebugCalls++;
+            }
 
-            base.Update(gameTime);
+            // TODO: Add your update logic here
+          //  Thread.Sleep(1);
+
+              base.Update(gameTime);
 
             //ControlRequest
 
@@ -419,7 +476,7 @@ namespace _2DLogicGame
 
 
             SpriteBatch.Begin(samplerState: SamplerState.PointClamp, depthStencilState: DepthStencilState.None, rasterizerState: RasterizerState.CullNone ,sortMode: SpriteSortMode.BackToFront, blendState: BlendState.AlphaBlend, transformMatrix: Matrix.CreateTranslation(aCameraX, 0, 0));
-            base.Draw(gameTime);
+             base.Draw(gameTime);
 
             SpriteBatch.End();
 
@@ -472,7 +529,7 @@ namespace _2DLogicGame
         protected override void OnExiting(object sender, EventArgs args)
         {
 
-            GameState = GameState.Exit;
+            GameState = GameState.MainMenu;
 
             if (aServerClass != null)
             {

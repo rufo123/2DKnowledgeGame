@@ -310,7 +310,7 @@ namespace _2DLogicGame.GraphicObjects
 
                     for (int i = 0; i < aButtonList.Count; i++)
                     {
-                        if (aButtonList[i].IsTurnedOn == true)
+                        if (aMathProblem != null && aButtonList[i].IsTurnedOn == true)
                         {
                             if (aEquations.Count > 0)
                             {
@@ -327,7 +327,7 @@ namespace _2DLogicGame.GraphicObjects
                     }
                 }
             }
-            if (tmpIsAnyButtonTurnedOn == false)
+            if (aMathProblem != null && tmpIsAnyButtonTurnedOn == false)
             {
                 aMathProblem.Shown = false;
             }

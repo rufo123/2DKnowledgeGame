@@ -105,6 +105,7 @@ namespace _2DLogicGame
                 tmpServerConfig = new NetPeerConfiguration(parAppName)
                 {
                     Port = aPort
+
                 }; //Nastavime si Meno nasej Aplikacie, ktora bude sluzi na validaciu pri pripojeni a Port
 
             tmpServerConfig.EnableMessageType(NetIncomingMessageType
@@ -130,7 +131,7 @@ namespace _2DLogicGame
 
             aDictionaryPlayerData = new Dictionary<long, ServerSide.PlayerServerData>(aMaxPlayers);
 
-            aLevelManager.InitLevelByNumber(3);
+            aLevelManager.InitLevelByNumber(2);
 
             aStopWatch = new Stopwatch();
 
@@ -164,7 +165,7 @@ namespace _2DLogicGame
 
             int tmpTimeToSleep = 0; //Inicializujeme si premennu - reprezentujucu, kolko ma server "spat"
 
-            while (aLogicGame.GameState != GameState.Exit)
+            while (aLogicGame.GameState != GameState.MainMenu)
             {
 
                 long tmpStartTime = aStopWatch.ElapsedMilliseconds; //Nastavime zaciatocny cas
@@ -212,7 +213,7 @@ namespace _2DLogicGame
 
             int tmpTimeToSleep = 0; //Inicializujeme si premennu - reprezentujucu, kolko ma server "spat"
 
-            while (aLogicGame.GameState != GameState.Exit)
+            while (aLogicGame.GameState != GameState.MainMenu)
             {
 
                 long tmpStartTime = aStopWatch.ElapsedMilliseconds; //Nastavime zaciatocny cas
@@ -294,7 +295,7 @@ namespace _2DLogicGame
 
             int tmpTimeToSleep = 0; //Inicializujeme si premennu - reprezentujucu, kolko ma server "spat"
 
-            while (aLogicGame.GameState != GameState.Exit)
+            while (aLogicGame.GameState != GameState.MainMenu)
             {
 
                 long tmpStartTime = aStopWatch.ElapsedMilliseconds; //Nastavime zaciatocny cas
@@ -489,7 +490,7 @@ namespace _2DLogicGame
             }
 
 
-            while (aLogicGame.GameState != GameState.Exit)
+            while (aLogicGame.GameState != GameState.MainMenu)
             {
 
                 long tmpStartTime = aStopWatch.ElapsedMilliseconds; //Nastavime zaciatocny cas
@@ -566,7 +567,7 @@ namespace _2DLogicGame
 
                         tmpReceivedByte = tmpIncommingMessage.ReadByte(); //Zainicializujeme lokalnu premennu typu byte - reprezentujucu prijaty byte
 
-                        if (tmpReceivedByte == (byte)PacketMessageType.Connect) //Ak sa prijaty byte rovna hodnote Enumu - Connect
+                        if (tmpReceivedByte == (byte)PacketMessageType.Connect) //Ak sa prijaty byte rovna hodnote Enumu - TryToConnect
                         {
 
                             Debug.WriteLine("Server - Spojenie bolo uspesne nadviazane!");
@@ -883,7 +884,7 @@ namespace _2DLogicGame
         public void Shutdown()
         {
             aServer.Shutdown("Shutting down Server");
-            if (aServer.Status == NetPeerStatus.NotRunning) //Ak server nebesi
+            if (aServer.Status == NetPeerStatus.NotRunning) //Ak server nebezi
             {
                 aStarted = false; //Nastavime atribut aStarted na FALSE
             }

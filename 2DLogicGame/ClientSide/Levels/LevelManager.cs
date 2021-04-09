@@ -285,6 +285,16 @@ namespace _2DLogicGame.ClientSide.Levels
         }
 
         /// <summary>
+        /// Metoda, ktora znici level
+        /// </summary>
+        public void DestroyLevel()
+        {
+            aPlayScreenComponentCollection.RemoveComponents(aLevelMap.GetBLockList());
+            aLevelMap.DestroyMap(aLevelName);
+            aPlayerDefaultPositionsDictionary.Clear();
+        }
+
+        /// <summary>
         /// Metoda, ktora restartuje level
         /// </summary>
         public void ResetLevel()

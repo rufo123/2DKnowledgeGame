@@ -168,7 +168,7 @@ namespace _2DLogicGame.ClientSide.Chat
                 isInputOpen = !isInputOpen; //Prakticky to robi to, ze sa hodnota boolean zmeni na opacnu hodnotu... Usetrime riadky kodu
             }
 
-            if (isInputOpen) //Otvoreny Input
+            if (aLogicGame != null && isInputOpen) //Otvoreny Input
             {
                 if (Keyboard.GetState().IsKeyDown(aPreviousKeyPressed) == false)
                 {
@@ -177,7 +177,7 @@ namespace _2DLogicGame.ClientSide.Chat
                 aLogicGame.Window.TextInput += TextInputHandle;
                 aLogicGame.GameState = GameState.Typing;
             }
-            else //Opacny Pripad
+            else if (aLogicGame != null && !isInputOpen && aLogicGame.GameState == GameState.Typing) //Opacny Pripad
             {
                 aLogicGame.Window.TextInput -= TextInputHandle;
                 aLogicGame.GameState = GameState.Playing;

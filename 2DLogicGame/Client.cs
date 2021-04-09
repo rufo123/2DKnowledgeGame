@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using _2DLogicGame.ClientSide.Levels;
+using Org.BouncyCastle.Bcpg;
 using SharpDX.D3DCompiler;
 
 namespace _2DLogicGame
@@ -61,9 +62,15 @@ namespace _2DLogicGame
 
         private LevelManager aLevelManager;
 
-        public bool Connected { get => aConnected; set => aConnected = value; }
+        /// <summary>
+        /// Atribut, ktory ked je nastaveny na true, signalizuje klientovi, ze ho treba vypnuty - Shutdown - typ bool.
+        /// </summary>
+        private bool aClientNeedsToShutdown;
 
-        public Client(string parAppName, LogicGame parGame, ClientSide.Chat.Chat parChatManager, ComponentCollection parClientObjects, PlayerController parPlayController, LevelManager parLevelManager, string parNickName = "Player", string parIP = "127.0.0.1")
+        public bool Connected { get => aConnected; set => aConnected = value; }
+        public bool ClientNeedsToShutdown { get => aClientNeedsToShutdown; set => aClientNeedsToShutdown = value; }
+
+        public Client(string parAppName, LogicGame parGame, ClientSide.Chat.Chat parChatManager, ComponentCollection parClientObjects, PlayerController parPlayController, LevelManager parLevelManager, int parTimeoutTime = 20, string parNickName = "Player", string parIP = "127.0.0.1")
         {
 
             aIP = parIP;
@@ -74,7 +81,19 @@ namespace _2DLogicGame
 
             aNickName = parNickName; //Inicializujeme NickName, default - "Player"
 
-            NetPeerConfiguration tmpClientConfig = new NetPeerConfiguration(parAppName); //Vytvorime konfiguraciu klienta
+            int tmpResendHandshakeIntervals = 2; // Defaultny interval v akom sa bude odosielat HandShake
+
+            int tmpMaximumHandshakeAttempts = parTimeoutTime / tmpResendHandshakeIntervals; //Vypocitama maximalny pocet HandShake pokusov zo zadaneho casu
+
+            NetPeerConfiguration tmpClientConfig = new NetPeerConfiguration(parAppName)//Vytvorime konfiguraciu klienta
+            {
+                ResendHandshakeInterval = tmpResendHandshakeIntervals,
+                MaximumHandshakeAttempts = tmpMaximumHandshakeAttempts + 1 //Ak sa takto vypocitany pocet nebude zhodovat s nami zadanym casom, bude to mat rozne nasledky, odpoji sa skor, neskor a pod.
+            }; 
+           
+            Debug.WriteLine(tmpClientConfig.MaximumConnections);
+            Debug.WriteLine(tmpClientConfig.MaximumHandshakeAttempts);
+            Debug.WriteLine(tmpClientConfig.MaximumTransmissionUnit);
 
             //tmpClientConfig.EnableMessageType(NetIncomingMessageType.ConnectionApproval); //Povolime prijmanie spravy typu - ConnectionApproval (Enum)
 
@@ -87,7 +106,7 @@ namespace _2DLogicGame
             aClient.Start(); //Spustime Klienta
 
             NetOutgoingMessage tmpOutgoingMessage = aClient.CreateMessage(); //Vytvorime NetOutgoingMessage
-            tmpOutgoingMessage.Write((byte)PacketMessageType.Connect); //Zapiseme do spravy byte o hodnote Enumu - PacketMessageType.Connect
+            tmpOutgoingMessage.Write((byte)PacketMessageType.Connect); //Zapiseme do spravy byte o hodnote Enumu - PacketMessageType.TryToConnect
             tmpOutgoingMessage.Write(aNickName); //Odosleme String s Nickom Clienta
 
 
@@ -111,6 +130,8 @@ namespace _2DLogicGame
                 aConnected = false;
             }
 
+            aClientNeedsToShutdown = false;
+
 
         }
 
@@ -120,7 +141,7 @@ namespace _2DLogicGame
         /// </summary>
         public void ReadMessages()
         {
-            while (aLogicGame.GameState != GameState.Exit)
+            while (aLogicGame.GameState != GameState.MainMenu)
             {
                 aStopWatch.Start();
                 long tmpStartTime = aStopWatch.ElapsedMilliseconds;
@@ -162,10 +183,25 @@ namespace _2DLogicGame
 
 
                             //Init Level
-                            //Request Connect
+                            //Request TryToConnect
+                        } else if (tmpReceivedByte == (byte) NetConnectionStatus.Disconnected)
+                        {
+                            Debug.WriteLine("Disconnected from Server - Reason: " + tmpIncommingMessage.ReadString());
 
-
+                            if (aLogicGame != null)
+                            {
+                                aClientNeedsToShutdown = true;
+                            }
+                            else //V pripade, ze by Hra neexistovala proste zavolame ShutDown (Neviem ako by sa mohlo stat ale pre istotu)
+                            {
+                                Shutdown();
+                            }
                         }
+                        else if (tmpReceivedByte == (byte) NetConnectionStatus.Disconnecting)
+                        {
+                            Debug.WriteLine("Pog");
+                        }
+
                         break;
                     case NetIncomingMessageType.UnconnectedData:
                         break;
@@ -364,7 +400,7 @@ namespace _2DLogicGame
         /// Metoda, pomocou, ktorej sa pridava hrac do uloziska - Dictionary
         /// </summary>
         /// <param name="parIncommingMessage">Parameter reprezentujuci prichadzajucu spravu - Typ NetIncommingMessage</param>
-        /// <param name="parRequestType">Parameter reprezentujuci o aky typ requestu ide - Connect, alebo Request informacii o ostatnym pouzivateloch - Typ - Enum - PacketInfoRequestType</param>
+        /// <param name="parRequestType">Parameter reprezentujuci o aky typ requestu ide - TryToConnect, alebo Request informacii o ostatnym pouzivateloch - Typ - Enum - PacketInfoRequestType</param>
         /// <returns></returns>
         public bool AddPlayer(NetIncomingMessage parIncommingMessage, PacketInfoRequestType parRequestType)
         {
@@ -381,7 +417,10 @@ namespace _2DLogicGame
                     if (aDictionaryPlayerData.Count <= 0) //Ak este ziaden hrac nie je ulozeny v databaze, vieme ze ide o mna
                     {
 
-                        aLevelManager.InitLevelByNumber(3);
+                        while (aLevelManager.PlayerDefaultPositions == null || aLevelManager.PlayerDefaultPositions.Count <= 0) //Metoda, bude cakat kym sa dokonci Incializacia Levelu a zaroven aj suradnic
+                        {
+
+                        }
                         this.RequestConnectedClients();
                         this.RequestLevelData();
                         aDictionaryPlayerData.Add(tmpRUID, new ClientSide.PlayerClientData(tmpID, tmpNickname, tmpRUID, aLogicGame, aLevelManager.PlayerDefaultPositions[tmpID], new Vector2(40, 64), parIsMe: true)); //Pridame nove data o hracovi do uloziska, na zaklade Remote UID a pri udajoch o hracovi zadame, ze ide o nas
@@ -400,7 +439,7 @@ namespace _2DLogicGame
                     }
 
                     HandleChatMessage(tmpNickname, "Connected", ClientSide.Chat.ChatColors.Purple); //Odosleme spravu o tom, ze sa nejaky hrac pripojil
-                    Debug.WriteLine("Klient - Connect - Data o Hracovi: " + tmpNickname + " boli pridane!");
+                    Debug.WriteLine("Klient - TryToConnect - Data o Hracovi: " + tmpNickname + " boli pridane!");
 
                     return true;
                 }
@@ -475,7 +514,7 @@ namespace _2DLogicGame
         /// <param name="parLevelManager"></param>
         public void TeammateMovementHandler(GameTime parGameTime, LevelManager parLevelManager) //Metoda, na ovladanie pohybu spolhracov
         {
-            if (aDictionaryPlayerData.Count > 1)
+            if (aDictionaryPlayerData != null && aDictionaryPlayerData.Count > 1)
             {
                 foreach (KeyValuePair<long, ClientSide.PlayerClientData> dictItem in aDictionaryPlayerData.ToList())
                 {
@@ -678,12 +717,17 @@ namespace _2DLogicGame
         /// </summary>
         public void HandleRespawnPlayers(GameTime parGameTime)
         {
-            foreach (KeyValuePair<long, ClientSide.PlayerClientData> dictItem in aDictionaryPlayerData.ToList())
+            if (aDictionaryPlayerData != null && aDictionaryPlayerData.Count > 0)
             {
-                //Prejdeme vsetky data v Dictionary
+
+                foreach (KeyValuePair<long, ClientSide.PlayerClientData> dictItem in aDictionaryPlayerData.ToList())
                 {
-                    dictItem.Value.ReSpawn(true, parGameTime);
+                    //Prejdeme vsetky data v Dictionary
+                    {
+                        dictItem.Value.ReSpawn(true, parGameTime);
+                    }
                 }
+
             }
 
             RequestLevelData();
@@ -700,21 +744,31 @@ namespace _2DLogicGame
             aClient.Disconnect("Connection Dropped");
             aClient.Shutdown("Shutting Down Client");
 
-            foreach (KeyValuePair<long, ClientSide.PlayerClientData> dictItem in aDictionaryPlayerData) //Prejdeme vsetky data v Dictionary
+            if (aDictionaryPlayerData != null)
             {
-                aLogicGame.Components.Remove(dictItem.Value);
+                if (aDictionaryPlayerData.Count > 0) //Ak je nieco v Dictionary vymazeme to
+                {
+                    foreach (KeyValuePair<long, ClientSide.PlayerClientData> dictItem in aDictionaryPlayerData
+                    ) //Prejdeme vsetky data v Dictionary
+                    {
+                        aLogicGame.Components.Remove(dictItem.Value);
+                    }
+                }
+                aDictionaryPlayerData.Clear();
+                aDictionaryPlayerData = null;
             }
-
-            aDictionaryPlayerData.Clear();
 
             if (aClient.ConnectionStatus == NetConnectionStatus.Disconnected)
             {
                 aConnected = false;
             }
 
-            aClient = null;
 
             Debug.WriteLine("Shutting Down Client");
+
+            aClient = null;
+
+            
         }
 
 
