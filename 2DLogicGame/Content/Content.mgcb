@@ -60,6 +60,12 @@
 /processor:PassThroughProcessor
 /build:Levels/levelSwap.xml
 
+#begin Music/playing.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Music/playing.mp3
+
 #begin Questions/questions.xml
 /importer:XmlImporter
 /processor:PassThroughProcessor

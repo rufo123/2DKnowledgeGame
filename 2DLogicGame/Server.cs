@@ -131,7 +131,7 @@ namespace _2DLogicGame
 
             aDictionaryPlayerData = new Dictionary<long, ServerSide.PlayerServerData>(aMaxPlayers);
 
-            aLevelManager.InitLevelByNumber(2);
+            aLevelManager.InitLevelByNumber(3);
 
             aStopWatch = new Stopwatch();
 
@@ -142,7 +142,7 @@ namespace _2DLogicGame
 
             aStandableBlocksList = new List<BlockServer>();
 
-             aStandableBlocksHandlerThread = new Thread(new ThreadStart(this.StandableBlocksHandler));
+            aStandableBlocksHandlerThread = new Thread(new ThreadStart(this.StandableBlocksHandler));
             aStandableBlocksHandlerThread.Start();
 
             aLevelManagerThread = new Thread(new ThreadStart(this.LevelUpdateHandler));
@@ -174,8 +174,7 @@ namespace _2DLogicGame
 
                 if (aDictionaryPlayerData.Count > 0) //Ak je niekto pripojeny na server
                 {
-                    foreach (KeyValuePair<long, ServerSide.PlayerServerData> dictItem in
-                        aDictionaryPlayerData.ToList() //ToList -> Nakopiruje cely Dictionary do Listu... 
+                    foreach (KeyValuePair<long, ServerSide.PlayerServerData> dictItem in aDictionaryPlayerData.ToList() //ToList -> Nakopiruje cely Dictionary do Listu... 
                     ) //Prejdeme vsetky data v Dictionary
                     {
 
@@ -183,6 +182,14 @@ namespace _2DLogicGame
 
                         dictItem.Value.Move((float)(aTickRate));
                         var elapsed = aStopWatch.ElapsedMilliseconds;
+
+                        if (dictItem.Value.IsMoving) //Ked sa prvy krat hrac pohne - zapneme casovac, budeme vediet, ze hrac zacal hrat hru...
+                        {
+                            if (aLevelManager != null && aLevelManager.SecondsElapsedByPlaying <= 0) //Osetrenie aby sa casovac zapol prave raz
+                            {
+                                aLevelManager.TimeWhenPlayingStartedInSeconds = (int)aStopWatch.Elapsed.TotalSeconds; //Nastavime aktualnu hodnotu stopiek na cas kedy sa zacal odpocitavat hraci cas
+                            }
+                        }
                     }
 
                 }
@@ -215,6 +222,12 @@ namespace _2DLogicGame
 
             while (aLogicGame.GameState != GameState.MainMenu)
             {
+
+                if (aLevelManager != null && aLevelManager.TimeWhenPlayingStartedInSeconds > 0) //Zacneme aktualizovat cas, len ak uz sa zacalo hrac, resp. jeden hrac sa pohol.
+                {
+                    aLevelManager.SecondsElapsedByPlaying = (int)aStopWatch.Elapsed.TotalSeconds - aLevelManager.TimeWhenPlayingStartedInSeconds;
+                    Debug.WriteLine(aLevelManager.SecondsElapsedByPlaying);
+                }
 
                 long tmpStartTime = aStopWatch.ElapsedMilliseconds; //Nastavime zaciatocny cas
 
@@ -255,16 +268,38 @@ namespace _2DLogicGame
                         aServer.SendToAll(tmpNetOutgoingMessage, NetDeliveryMethod.ReliableOrdered);
                         aLevelManager.ChangeToNextLevel();
 
+                        if (aDictionaryPlayerData.Count > 0) //Ak sa nachadza v Dictionary nejaky hrac, prepiseme jeho aktualnu poziciu na prednastavenu
+                        {
+                            foreach (KeyValuePair<long, ServerSide.PlayerServerData> dictItem in aDictionaryPlayerData.ToList())  //ToList -> Nakopiruje cely Dictionary do Listu... , Prejdeme vsetky data v Dictionary
+                            {
+
+                                if (aLevelManager.GetPositionForPlayerId(dictItem.Value.PlayerID) != null) //Overime si ci nam nevrati Getter NULL, ak nie priradime poziciu
+                                {
+                                    dictItem.Value.Position.X = aLevelManager.GetPositionForPlayerId(dictItem.Value.PlayerID).X;
+                                    dictItem.Value.Position.Y = aLevelManager.GetPositionForPlayerId(dictItem.Value.PlayerID).Y;
+                                }
+                            }
+
+                        }
+
                     }
 
-                    if (aLevelManager.DefaultPosChanged == true)
+                    if (aLevelManager.GameFinished && aLevelManager.GameFinishedInfoSent != true)
+                    {
+                        NetOutgoingMessage tmpNetOutgoingMessage = aServer.CreateMessage();
+                        tmpNetOutgoingMessage.Write((byte)PacketMessageType.GameFinished);
+                        tmpNetOutgoingMessage = aLevelManager.PrepareFinishedMessageData(tmpNetOutgoingMessage);
+                        aServer.SendToAll(tmpNetOutgoingMessage, NetDeliveryMethod.ReliableOrdered);
+                        aLevelManager.GameFinishedInfoSent = true;
+                    }
+
+                    if (aLevelManager.DefaultPosChanged)
                     {
                         NetOutgoingMessage tmpNetOutgoingMessage = aServer.CreateMessage();
                         tmpNetOutgoingMessage.Write((byte)PacketMessageType.DefaultPosChanged);
                         tmpNetOutgoingMessage = aLevelManager.PrepareDefaultPositionUpdate(tmpNetOutgoingMessage);
                         aServer.SendToAll(tmpNetOutgoingMessage, NetDeliveryMethod.ReliableOrdered);
                         aLevelManager.DefaultPosChanged = false;
-
                     }
 
                     if (aLevelManager.LevelNeedsReset())
@@ -288,14 +323,14 @@ namespace _2DLogicGame
         public void StandableBlocksHandler()
         {
 
-            if (aStopWatch.IsRunning != true)
+            if (aStopWatch.IsRunning != true) //
             {
                 aStopWatch.Start(); //Zapneme casovac
             }
 
             int tmpTimeToSleep = 0; //Inicializujeme si premennu - reprezentujucu, kolko ma server "spat"
 
-            while (aLogicGame.GameState != GameState.MainMenu)
+            while (aLogicGame.GameState != GameState.MainMenu && aLevelManager != null && aLevelManager.GameFinished == false) //Nebudeme riesit, ci niekto stoji na bloku ak hraci dokoncili hru
             {
 
                 long tmpStartTime = aStopWatch.ElapsedMilliseconds; //Nastavime zaciatocny cas
@@ -343,7 +378,7 @@ namespace _2DLogicGame
         public void CollisionHandler(LevelManager parLevelManager, EntityServer parEntity, long parID)
         {
 
-            if (aDictionaryPlayerData != null && aDictionaryPlayerData.Count > 0)
+            if (aDictionaryPlayerData != null && aDictionaryPlayerData.Count > 0 && aLevelManager != null && aLevelManager.GameFinished == false) //Koliziu uz nebudeme riesit, ak hraci dokoncili level
             {
 
                 //Prejdeme vsetky data v Dictionary
@@ -447,6 +482,7 @@ namespace _2DLogicGame
                                         break;
                                     default:
                                         throw new ArgumentOutOfRangeException();
+
                                 }
 
                                 //Spravca Interakcie
@@ -492,6 +528,11 @@ namespace _2DLogicGame
 
             while (aLogicGame.GameState != GameState.MainMenu)
             {
+
+                if (aLevelManager != null && aLevelManager.SecondsElapsedByPlaying > 0)
+                {
+                    // Debug.WriteLine(aLevelManager.SecondsElapsedByPlaying.Elapsed.TotalSeconds);
+                }
 
                 long tmpStartTime = aStopWatch.ElapsedMilliseconds; //Nastavime zaciatocny cas
                 int tmpTimeToSleep; //Inicializujeme si premennu - reprezentujucu, kolko ma server "spat"
@@ -883,6 +924,11 @@ namespace _2DLogicGame
         /// </summary>
         public void Shutdown()
         {
+            if (aLevelManager != null && aLevelManager.GameFinished == false && aLevelManager.PointsFromPreviousLevels > 0) //Ak vypiname server, ale hraci nedokoncili hru - odosleme data do databazy - Pozor! - Aby sa predislo spamu v databaze musia dokoncit aspon 1 level
+            {//Ak porovname ci body za predosle urovne boli vacsie ako 0, zabezpecime, ze hraci dokoncili aspon 1 uroven
+                aLevelManager.SetFinish();
+            }
+
             aServer.Shutdown("Shutting down Server");
             if (aServer.Status == NetPeerStatus.NotRunning) //Ak server nebezi
             {
@@ -896,8 +942,6 @@ namespace _2DLogicGame
             aStandableBlocksHandlerThread.Join();
 
             Debug.WriteLine("Shutting Down Server");
-
-
         }
 
     }

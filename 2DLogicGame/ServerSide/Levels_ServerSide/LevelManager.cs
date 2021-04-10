@@ -2,8 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using _2DLogicGame.ServerSide.Blocks_ServerSide;
+using _2DLogicGame.ServerSide.Database;
 using _2DLogicGame.ServerSide.LevelEnglish_Server;
 using _2DLogicGame.ServerSide.LevelMath_Server;
 using _2DLogicGame.ServerSide.Questions_ServeSide;
@@ -69,6 +72,36 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
 
         private int aPointsForThisLevel;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje casovac hracieho casu, zapne sa vtedy, ked sa jeden z hracov pohne.
+        /// </summary>
+        private int aSecondElapsedByPlaying;
+
+        /// <summary>
+        /// Atribut, ktory specifikuje cas, kedy sa zacala hrat hra - teda kedy sa hrac pohol - nastavuje Server.
+        /// </summary>
+        private int aTimeWhenPlayingStartedInSeconds;
+
+        /// <summary>
+        /// Atribut, ktory reprezentuje handler statistiky, ktory spolupracuje s databazou - vyuziva sa na odosielanie dat o dokonceni mapy
+        /// </summary>
+        private StatisticsHandler aPlayerStatisticsHandler;
+
+        /// <summary>
+        /// Atribut, ktory reprezentuje ci uz hra skoncila, indikator toho, ze ak este neboli odoslanie informacie do databazy - hraci ukoncili hru predcasne. Aby sa taketo data odoslali dodatocne pri ukonceni.
+        /// </summary>
+        private bool aGameFinished;
+
+        /// <summary>
+        /// Atribut, ktory reprezentuje cislo posledneho levelu - default 3
+        /// </summary>
+        private int aNumberOfFinalLevel;
+
+        /// <summary>
+        /// Atribut, ktory reprezentuje ci bola odoslava informacia pre klientov o tom, ze hra bola uspesne dokoncena.
+        /// </summary>
+        private bool aGameFinishedInfoSent;
+
         public string LevelName
         {
             get => aLevelName;
@@ -106,6 +139,35 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
             set => aWinInfoRequested = value;
         }
 
+        public int SecondsElapsedByPlaying
+        {
+            get => aSecondElapsedByPlaying;
+            set => aSecondElapsedByPlaying = value;
+        }
+
+        public int TimeWhenPlayingStartedInSeconds
+        {
+            get => aTimeWhenPlayingStartedInSeconds;
+            set => aTimeWhenPlayingStartedInSeconds = value;
+        }
+
+        public bool GameFinished
+        {
+            get => aGameFinished;
+            set => aGameFinished = value;
+        }
+
+        public int PointsFromPreviousLevels
+        {
+            get => aPointsFromPreviousLevels;
+            set => aPointsFromPreviousLevels = value;
+        }
+
+        public bool GameFinishedInfoSent
+        {
+            get => aGameFinishedInfoSent;
+            set => aGameFinishedInfoSent = value;
+        }
 
         public LevelManager(LogicGame parLogicGame)
         {
@@ -117,7 +179,13 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
             aPlayerDefaultPositionsDictionary = new Dictionary<int, Vector2>(aMaxPlayers); //2 Hraci Max
             aCurrentLevelNumber = 0;
             aDictionaryPlayerDataWithKeyID = new Dictionary<int, PlayerServerData>(aMaxPlayers);
-  
+            aSecondElapsedByPlaying = 0;
+            aTimeWhenPlayingStartedInSeconds = 0;
+            aGameFinished = false;
+            aPlayerStatisticsHandler = new StatisticsHandler();
+            aNumberOfFinalLevel = 3;
+            aGameFinishedInfoSent = false;
+
         }
 
         public bool LoadBlockXmlData(string parLevelXmlPath)
@@ -150,7 +218,7 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
 
                         PlayerServerData tmpOutData = null;
                         if (aDictionaryPlayerDataWithKeyID.TryGetValue(i + 1, out tmpOutData))
-                        { 
+                        {
                             tmpOutData.ReSpawn(true);
                         }
 
@@ -212,6 +280,11 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
             //Ak dojde k zmene urovne, pripocitame celkove body
             aPointsFromPreviousLevels += aPointsForThisLevel;
             aPointsForThisLevel = 0;
+
+            if (aCurrentLevelNumber > aNumberOfFinalLevel) //Ak je cislo levelu vacsie ako finalny level, vieme ze hraci dokoncili hru
+            {
+                SetFinish(); //Vysledok pojde do databazy
+            }
         }
 
         public void ResetLevel()
@@ -219,6 +292,26 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
             LevelMap.DestroyMap(aLevelName);
             aPlayerDefaultPositionsDictionary.Clear();
             InitLevelByNumber(aCurrentLevelNumber);
+        }
+
+        public void SetFinish()
+        {
+            if (aPlayerStatisticsHandler != null && aPlayerStatisticsHandler.IsConnected && aGameFinished == false)
+            {
+                aGameFinished = true; //Nastavime - hra skoncila na true
+
+                if (aDictionaryPlayerDataWithKeyID != null && aDictionaryPlayerDataWithKeyID.Count == 2 && aSecondElapsedByPlaying > 0)
+                {
+                    string tmpPlayer1Name = aDictionaryPlayerDataWithKeyID[1].PlayerNickName;
+                    string tmpPlayer2Name = aDictionaryPlayerDataWithKeyID[2].PlayerNickName;
+                    int tmpPoints = aPointsForThisLevel + aPointsFromPreviousLevels;
+                    int tmpFinishedInSecond = aSecondElapsedByPlaying;
+
+                    aPlayerStatisticsHandler.UploadNewScore(tmpPlayer1Name, tmpPlayer2Name, tmpPoints, tmpFinishedInSecond);
+
+                    aGameFinished = true;
+                }
+            }
         }
 
 
@@ -272,13 +365,13 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
             switch (aLevelName)
             {
                 case "Math":
-                    aPointsForThisLevel =  aLevelMap.GetMathProblemManager().MathPoints;
+                    aPointsForThisLevel = aLevelMap.GetMathProblemManager().MathPoints;
                     break;
                 case "Questions":
                     aPointsForThisLevel = aLevelMap.GetQuestionManager().QuestionPoints;
                     break;
                 case "English":
-                    aPointsForThisLevel =  aLevelMap.GetEnglishManager().EnglishPoints;
+                    aPointsForThisLevel = aLevelMap.GetEnglishManager().EnglishPoints;
                     break;
                 default:
                     break;
@@ -339,6 +432,28 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
             }
         }
 
+
+        /// <summary>
+        /// Metoda, ktora vrati prednastavenu poziciu hraca na zaklade zadaneho ID
+        /// <param name="parPlayerID">Parameter, reprezentujuci ciselne id hraca - napr. 1, 2 a pod.</param>
+        /// </summary>
+        public Vector2 GetPositionForPlayerId(int parPlayerID)
+        {
+            if (aPlayerDefaultPositionsDictionary != null && aPlayerDefaultPositionsDictionary.Count > 0)
+            {
+                if (aPlayerDefaultPositionsDictionary.TryGetValue(parPlayerID, out Vector2 tmpDefaultPosVector2))
+                {
+                    return tmpDefaultPosVector2;
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+
+            return null;
+        }
 
         public NetOutgoingMessage PrepareLevelDataForUpload(NetOutgoingMessage parOutgoingMessage)
         {
@@ -401,6 +516,13 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
         {
             int tmpNewLevel = aCurrentLevelNumber + 1;
             parOutgoingMessage.WriteVariableInt32(tmpNewLevel); //Na aky level sa ma zmenit
+            return parOutgoingMessage;
+        }
+
+        public NetOutgoingMessage PrepareFinishedMessageData(NetOutgoingMessage parOutgoingMessage)
+        {
+            parOutgoingMessage.WriteVariableInt32(aPointsForThisLevel + aPointsFromPreviousLevels);
+            parOutgoingMessage.WriteVariableInt32(SecondsElapsedByPlaying);
             return parOutgoingMessage;
         }
 

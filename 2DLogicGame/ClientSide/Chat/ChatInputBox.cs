@@ -122,7 +122,7 @@ namespace _2DLogicGame.ClientSide.Chat
             if (isInputOpen)
             {
                 // aLogicGame.SpriteBatch.Begin();
-                aLogicGame.SpriteBatch.Draw(aChatInputTexture2D, aPositionVector ,aChatInputRectangle, Color.White, 0F, Vector2.Zero, 1F,  SpriteEffects.None, 0.1F); //Vykrasli ChatInputBox pomocou Textury, Rectangle a farby - Color.White zachovava povodne farby
+                aLogicGame.SpriteBatch.Draw(aChatInputTexture2D, aPositionVector ,aChatInputRectangle, Color.White, 0F, Vector2.Zero, 1F,  SpriteEffects.None, 0.15F); //Vykrasli ChatInputBox pomocou Textury, Rectangle a farby - Color.White zachovava povodne farby
 
                 float tmpNextStringSize = (aLogicGame.Font72.MeasureString(aMessageToSend).X * aFontScale) + aLogicGame.Font72.LineSpacing; //Reprezentuje buducu moznu velkost Stringu s ohladom na Skalovanie
                 float tmpPreviousStringSize = ((aLogicGame.Font72.MeasureString(aMessageToSend).X * (aFontScale + aFontEnlargingConstant)) + aLogicGame.Font72.LineSpacing); //Reprezentuje predoslu velkost Stringu s ohladom na Skalovanie
@@ -143,7 +143,7 @@ namespace _2DLogicGame.ClientSide.Chat
 
                 Vector2 tmpVectorChat = aPositionVector + new Vector2(aWindowWidth / 2 - (int)tmpStringSizeVector.X / 2, aWindowHeight / 2 - (aLogicGame.Font72.LineSpacing * aFontScale)/2); //Pomocny Pozicny Vektor pre Text Input Boxu
 
-                aLogicGame.SpriteBatch.DrawString(aLogicGame.Font72, aMessageToSend, tmpVectorChat, Color.White, 0f, Vector2.Zero, aFontScale, SpriteEffects.None, 0F); //Vykresli String
+                aLogicGame.SpriteBatch.DrawString(aLogicGame.Font72, aMessageToSend, tmpVectorChat, Color.White, 0f, Vector2.Zero, aFontScale, SpriteEffects.None, 0.1F); //Vykresli String
                 //aLogicGame.SpriteBatch.End();
 
             }
@@ -172,7 +172,7 @@ namespace _2DLogicGame.ClientSide.Chat
             {
                 if (Keyboard.GetState().IsKeyDown(aPreviousKeyPressed) == false)
                 {
-                    aPreviousCharacterPressed = '0';
+                    aPreviousCharacterPressed = (char)Keys.None;
                 }
                 aLogicGame.Window.TextInput += TextInputHandle;
                 aLogicGame.GameState = GameState.Typing;

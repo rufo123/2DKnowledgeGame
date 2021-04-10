@@ -297,6 +297,11 @@ namespace _2DLogicGame
                             HandlePositionChange(tmpIncommingMessage);
                         }
 
+                        if (tmpReceivedByte == (byte) PacketMessageType.GameFinished)
+                        {
+                            HandleGameFinished(tmpIncommingMessage);
+                        }
+
                         break;
                     case NetIncomingMessageType.Receipt:
                         break;
@@ -422,7 +427,7 @@ namespace _2DLogicGame
 
                         }
                         this.RequestConnectedClients();
-                        this.RequestLevelData();
+                        // this.RequestLevelData();
                         aDictionaryPlayerData.Add(tmpRUID, new ClientSide.PlayerClientData(tmpID, tmpNickname, tmpRUID, aLogicGame, aLevelManager.PlayerDefaultPositions[tmpID], new Vector2(40, 64), parIsMe: true)); //Pridame nove data o hracovi do uloziska, na zaklade Remote UID a pri udajoch o hracovi zadame, ze ide o nas
                         aPlayerController.SetPlayer(aDictionaryPlayerData[tmpRUID]);
                         aClientObjects.AddComponent(aDictionaryPlayerData[tmpRUID]);
@@ -730,8 +735,13 @@ namespace _2DLogicGame
 
             }
 
-            RequestLevelData();
+            // RequestLevelData();
 
+        }
+
+        public void HandleGameFinished(NetIncomingMessage parIncomingMessage)
+        {
+            aLevelManager.HandleGameFinishedData(parIncomingMessage);
         }
 
 

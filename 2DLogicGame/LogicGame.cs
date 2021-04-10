@@ -11,6 +11,7 @@ using _2DLogicGame.ClientSide.Levels;
 using _2DLogicGame.GraphicObjects.Connecting;
 using _2DLogicGame.GraphicObjects.Scoreboard;
 using _2DLogicGame.ServerSide.Database;
+using Microsoft.Xna.Framework.Media;
 
 namespace _2DLogicGame
 {
@@ -75,6 +76,8 @@ namespace _2DLogicGame
 
         private ConnectingUI aConnectUI;
 
+        private LevelGameCompletedScreen aCompletedScreen;
+
         private int aRenderTargetWidth = 1920;
 
         private int aRenderTargetHeight = 1080;
@@ -123,6 +126,16 @@ namespace _2DLogicGame
         private Keys aRightKey = Keys.D;
         private Keys aProceedKey = Keys.Space;
         private Keys aChatWriteMessageKey = Keys.T;
+        private Keys aMusicLower = Keys.Subtract; //Hudba tichsie
+        private Keys aMusicHigher = Keys.Add; //Hudba hlasnejsie
+        private Keys aMusicStartStop = Keys.M; //Zapnutie hudby
+
+        //ODSTRANIT
+
+        private Song aSong;
+        private float aOldVolumeLevel;
+
+        //ODSTRANIT
 
 
         public LogicGame()
@@ -133,6 +146,12 @@ namespace _2DLogicGame
             this.IsFixedTimeStep = false;
             this.TargetElapsedTime = TimeSpan.FromSeconds(1D / 30D);
             aCameraX = 0;
+
+            //ODSTRANIT
+
+            aOldVolumeLevel = 0;
+
+            //ODSTRANIT
         }
 
 
@@ -144,6 +163,8 @@ namespace _2DLogicGame
 
             aStatisticsHandler = new StatisticsHandler();
             aScoreboardUI = new ScoreboardUI(this);
+
+            aCompletedScreen = new LevelGameCompletedScreen(this);
 
             aScoreboardController = new ScoreboardController(aStatisticsHandler, aScoreboardUI);
 
@@ -172,11 +193,11 @@ namespace _2DLogicGame
             //Player tmpPlayer = new Player(0, this, new Vector2(800, 500), new Vector2(49, 64), Color.White);
             //PlayerController tmpController = new PlayerController(this, tmpPlayer);
 
-            aPlayingScreen = new ComponentCollection(this, aChat, chatInput, chatReceive);
+            aPlayingScreen = new ComponentCollection(this, aChat, chatInput, chatReceive, aCompletedScreen);
 
             // Components.Add(tmpController);
 
-            aLevelManager = new LevelManager(this, aPlayingScreen);
+            aLevelManager = new LevelManager(this, aPlayingScreen, aCompletedScreen);
 
 
             base.Initialize();
@@ -194,6 +215,12 @@ namespace _2DLogicGame
 
         protected override void LoadContent()
         {
+            //ODSTRANIT
+
+            aSong = Content.Load<Song>("Music\\playing");
+
+            //ODSTRANIT
+
 
             Font72 = Content.Load<SpriteFont>("Fonts\\StickRegular72");
 
@@ -233,7 +260,7 @@ namespace _2DLogicGame
                     aServerClass = null;
                     aClientClass = null;
 
-                    aLevelManager.DestroyLevel();
+                    aLevelManager.DestroyLevelManagerData();
                     aCameraX = 0;
 
                     if (aChat != null)
@@ -242,6 +269,8 @@ namespace _2DLogicGame
                     }
 
                     SwitchScene(aPlayingScreen, aMainMenu);
+
+                    MediaPlayer.Stop();
 
 
 
@@ -332,9 +361,52 @@ namespace _2DLogicGame
             {
                 if (aClientClass.Connected && aLevelManager.IsLevelInitalized == false)
                 {
-                    aLevelManager.InitLevelByNumber(2);
+                    aLevelManager.InitLevelByNumber(3);
                     SwitchScene(aMainMenu, aPlayingScreen);
-                    
+                    MediaPlayer.Play(aSong);
+                    MediaPlayer.IsRepeating = true;
+                    MediaPlayer.Volume = 0.1F;
+
+
+                }
+            }
+
+            if (aGameState == GameState.Playing)
+            {
+                if (aSong != null)
+                {
+                    if (aGameState != GameState.Typing)
+                    {
+                        if (CheckKeyPressedOnce(aMusicHigher))
+                        {
+                            if (MediaPlayer.Volume < 1)
+                            {
+                                MediaPlayer.Volume += 0.1F;
+                            }
+
+                        } else if (CheckKeyPressedOnce(aMusicLower))
+                        {
+
+                            if (MediaPlayer.Volume > 0)
+                            {
+                                MediaPlayer.Volume -=0.1F;
+                            }
+
+                        } else if (CheckKeyPressedOnce(aMusicStartStop))
+                        {
+                            if (MediaPlayer.Volume <= 0)
+                            {
+                                MediaPlayer.Volume = aOldVolumeLevel;
+                            }
+                            else
+                            {
+                                aOldVolumeLevel = MediaPlayer.Volume;
+                                MediaPlayer.Volume = 0;
+                            }
+
+                        }
+
+                    }
                 }
             }
 

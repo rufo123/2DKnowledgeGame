@@ -38,15 +38,16 @@ namespace _2DLogicGame.GraphicObjects
             aWantsToShow = false;
             Visibility = 0F;
             aTimer = 0;
+            DefaultBlockCollisionType = BlockCollisionType.Standable; //Nastavime, ze prednastavena kolizie je - da na moste stat.
         }
 
-        public void Show(bool parStayHidden)
+        public void Show(bool parMakeBridgeVisible)
         {
             //Kedze sa nam most objavi nad vodou, odstranime koliziu bloku pod mostom
             aWaterBlock.BlockCollisionType = BlockCollisionType.None;
             this.BlockCollisionType = BlockCollisionType.Standable;
 
-            if (parStayHidden) //Pokial pride poziadavka, ze most sa ma aj vykreslit
+            if (parMakeBridgeVisible) //Pokial pride poziadavka, ze most sa ma aj vykreslit
             {
                 aWantsToShow = true;
             }
@@ -55,7 +56,7 @@ namespace _2DLogicGame.GraphicObjects
         public override void Update(GameTime gameTime)
         {
 
-            if (aWantsToShow == true)
+            if (aWantsToShow)
             {
                 IsHidden = false;
             }

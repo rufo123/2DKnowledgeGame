@@ -12,6 +12,8 @@ using Assimp;
 using Lidgren.Network;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content.Pipeline.Serialization.Intermediate;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Media;
 using SharpFont;
 using XMLData;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
@@ -102,6 +104,13 @@ namespace _2DLogicGame.ClientSide.Levels
 
         private LevelPointsCounter aLevelPointsCounter;
 
+        private LevelGameCompletedScreen aGameCompletedScreen;
+
+        /// <summary>
+        /// Atribut, ktory reprezentuje ci je hra dokoncena alebo nie - typ bool.
+        /// </summary>
+        private bool aGameCompleted;
+
         /// <summary>
         /// Atribut, reprezentujuci body hry
         /// </summary>
@@ -146,12 +155,16 @@ namespace _2DLogicGame.ClientSide.Levels
             set => aGamePoints = value;
         }
 
+        
+
+
         /// <summary>
         /// Konstruktor LevelManageru -
         /// </summary>
         /// <param name="parLogicGame">Parameter reprezentujuci hru - typu LogicGame</param>
         /// <param name="parPlayingScreenComponentCollection">Paramter reprezentujuci kolekciu komponentov na hracej obrazovke - typ ComponentCollection</param>
-        public LevelManager(LogicGame parLogicGame, ComponentCollection parPlayingScreenComponentCollection)
+        /// <param name="parGameCompletedScreen">Parameter, reprezentujuci objekt - LevelGameCompletedScreeen - obrazovka po dokonceni hry - typ LevelGameCompletedScreen.></param>
+        public LevelManager(LogicGame parLogicGame, ComponentCollection parPlayingScreenComponentCollection, LevelGameCompletedScreen parGameCompletedScreen)
         {
             aLogicGame = parLogicGame;
             aPlayScreenComponentCollection = parPlayingScreenComponentCollection;
@@ -167,6 +180,8 @@ namespace _2DLogicGame.ClientSide.Levels
             aCurrentLevelNumber = 0;
             aLevelReset = false;
             aLevelChanged = false;
+            aGameCompletedScreen = parGameCompletedScreen;
+            aGameCompleted = false;
         }
 
         /// <summary>
@@ -287,11 +302,21 @@ namespace _2DLogicGame.ClientSide.Levels
         /// <summary>
         /// Metoda, ktora znici level
         /// </summary>
-        public void DestroyLevel()
+        public void DestroyLevelManagerData()
         {
             aPlayScreenComponentCollection.RemoveComponents(aLevelMap.GetBLockList());
-            aLevelMap.DestroyMap(aLevelName);
+            if (aLevelMap != null)
+            {
+                aLevelMap.DestroyMap(aLevelName);
+            }
             aPlayerDefaultPositionsDictionary.Clear();
+            aGameCompleted = false;
+            aGameCompletedScreen.ShowEndScreen = false;
+            this.IsLevelInitalized = false;
+            if (aLevelTransformScreen != null)
+            {
+                this.aLevelTransformScreen.Ending = false;
+            }
         }
 
         /// <summary>
@@ -343,6 +368,26 @@ namespace _2DLogicGame.ClientSide.Levels
             aLevelMap.GetBlocksPositionDictionary().TryGetValue(parBlockPositionVector, out tmpBlock);
             return tmpBlock;
         }
+
+
+        /// <summary>
+        /// Metoda, ktora sa stara o spracovanie spravy o dokonceni hry
+        /// </summary>
+        /// <param name="parMessage">Parameter, reprezentujuci prichadzajucu spravu - typ NetIncommingMessage - buffer.</param>
+        public void HandleGameFinishedData(NetIncomingMessage parMessage)
+        {
+            int tmpPoints = parMessage.ReadVariableInt32();
+            int tmpTimeSeconds = parMessage.ReadVariableInt32();
+
+            if (aGameCompletedScreen != null)
+            {
+                aGameCompletedScreen.SetEndingData(tmpPoints, tmpTimeSeconds);
+            }
+
+            aGameCompleted = true;
+        }
+
+
 
         /// <summary>
         /// Metoda, ktora spravuje prichadzajuce data o leveli
@@ -416,15 +461,29 @@ namespace _2DLogicGame.ClientSide.Levels
                 {
                     ChangeLevel(aLevelNumberRequested);
 
-                    aLevelTransformScreen.NeedsFadeIn = true;
+
+                    if (aGameCompleted != true) //Ak nie je hra dokoncena, predpokladame, ze nasleduje dalsi level a to znamena ze odtmavime obrazovku
+                    {
+                        aLevelTransformScreen.NeedsFadeIn = true;
+                    }
+                    else
+                    {
+                        if (aGameCompletedScreen != null)
+                        {
+                            aLevelTransformScreen.Ending = true;
+                            aGameCompletedScreen.ShowEndScreen = true;
+                            if (aLevelPointsCounter != null)
+                            {
+                                aLevelPointsCounter.Visible = false;
+                            }
+                        }
+                    }
                 }
             }
 
             if (aLevelMap.GetQuestionManager() != null && aLevelMap.GetQuestionManager().NeedsReset)
             {
                 ResetLevel();
-
-
             }
 
         }

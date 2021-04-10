@@ -69,7 +69,7 @@ namespace _2DLogicGame.GraphicObjects
         {
             aScoreboardItems = parScoreboardItems;
             aSize = new Vector2(1920 * (5 / 7F),  1080 * (5 / 7F));
-            aPosition = new Vector2((1920 - aSize.X) / 2F, (1080 - aSize.Y) / 2F);
+            aPosition = new Vector2((1920 - aSize.X) / 2F, (1080 - aSize.Y) / 3.5F);
         }
 
         public override void Initialize()

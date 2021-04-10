@@ -187,7 +187,11 @@ namespace _2DLogicGame.GraphicObjects
             set => aEntityIsStandingOnTop = value;
         }
 
-
+        public BlockCollisionType DefaultBlockCollisionType
+        {
+            get => aDefaultBlockCollisionType;
+            set => aDefaultBlockCollisionType = value;
+        }
 
 
         /// <summary>

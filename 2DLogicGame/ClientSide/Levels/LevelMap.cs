@@ -60,6 +60,7 @@ namespace _2DLogicGame.ClientSide.Levels
             set => aDefaultBlockDimension = value;
         }
 
+
         /// <summary>
         /// Konstruktor, reprezentujuci mapu levelu
         /// Inicializuje Hru, Defaultnu Velkost bloku, Dictionary pozicii blokov a List Blokov

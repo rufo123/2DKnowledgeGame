@@ -113,7 +113,7 @@ namespace _2DLogicGame.ServerSide.Database
 
                     aMySqlCommand.Connection = aDatabaseConnection.MySqlConnection;
                     //INSERT INTO knowledge_stats (player1Name, player2Name, points, time) Values(@DBParPlayer1Name, @DBParPlayer2Name, @DBParPoints, @DBParTime)
-                    aMySqlCommand.CommandText = "SELECT id, player1Name, player2Name, points, time FROM knowledge_stats ORDER BY points DESC, time ASC";
+                    aMySqlCommand.CommandText = "SELECT id, player1Name, player2Name, points, time FROM knowledge_stats ORDER BY points DESC, time ASC LIMIT 10";
 
                     aMySqlCommand.Prepare();
 

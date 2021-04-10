@@ -240,7 +240,7 @@ namespace _2DLogicGame
                 if (Keyboard.GetState().IsKeyDown(aPreviousKeyPressed) == false
                 ) //Preto je v update metode, aby sa toto mohlo periodicky kontrolovat, inak by podmienka bola v TextInputHandle
                 {
-                    aPreviousCharacterPressed = '0';
+                    aPreviousCharacterPressed = (char)Keys.None;
                 }
             }
 
@@ -265,10 +265,11 @@ namespace _2DLogicGame
                     RemoveCharacterFromMessage();
                     Debug.WriteLine(aInputStringBuilder.ToString());
                 }
-                if (aGame.Font48.Characters.Contains(tmpCharacter)) //Overime si ci Font (Font48) Hry obsahuje charakter, ktory sa snazime napisat
+                if (aGame.Font48.Characters.Contains(tmpCharacter) && tmpCharacter != (char)aGame.ProceedKey) //Overime si ci Font (Font48) Hry obsahuje charakter, ktory sa snazime napisat
                 {
                     if (aNumbersOnly)
                     {
+                        
                         if (char.IsNumber(tmpCharacter) || tmpCharacter == '.') //Ak su povolene len cisla, skontrolujeme ci charakter reprezentuje cislo
                         {
                             AddCharacterToMessage(tmpCharacter);

@@ -12,7 +12,8 @@ public enum PacketMessageType {
     LevelData = 6,
     RequestLevelInitData = 7,
     LevelWonChanged = 8, //Level bol vyhrany a ide sa zmenit
-    DefaultPosChanged = 9
+    DefaultPosChanged = 9,
+    GameFinished = 10
 }
 
 public enum PacketInfoRequestType { 

@@ -215,9 +215,8 @@ namespace _2DLogicGame
                 }
             }
 
-            if (aLogicGame != null && aLogicGame.GameState == GameState.MainMenu)
+            if (aLogicGame != null && (aLogicGame.GameState == GameState.MainMenu || aLogicGame.GameState == GameState.Submenu))
             {
-
                 switch (aMenuBox.GetNameOfHoverOn()
                 ) //Ak bude uzivatel ukazovat na Play alebo Host, zobrazia sa mu aj Input Boxy
                 {
@@ -235,11 +234,16 @@ namespace _2DLogicGame
                             aNickNameInput.InputEnabled = true;
                             aIPInput.InputEnabled = false;
                         }
-
                         break;
                     default:
-                        aNickNameInput.InputEnabled = false;
-                        aIPInput.InputEnabled = false;
+                        if (aListOfInputs != null)
+                        {
+                            for (int i = 0; i < aListOfInputs.Count; i++)
+                            {
+                                aListOfInputs[i].InputEnabled = false;
+                            }
+                        }
+
                         break;
                 }
             }

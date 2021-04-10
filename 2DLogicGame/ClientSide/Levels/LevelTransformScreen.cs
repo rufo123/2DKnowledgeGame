@@ -58,6 +58,11 @@ namespace _2DLogicGame.ClientSide.Levels
         /// </summary>
         private float aCameraOffset;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje ci sa ma zobrazit tmava obrazovka reprezentujuca koniec hry - typ bool.
+        /// </summary>
+        private bool aEnding;
+
         public float CameraOffset
         {
             get => aCameraOffset;
@@ -74,6 +79,12 @@ namespace _2DLogicGame.ClientSide.Levels
         {
             get => aNeedsFadeIn;
             set => aNeedsFadeIn = value;
+        }
+
+        public bool Ending
+        {
+            get => aEnding;
+            set => aEnding = value;
         }
 
         /// <summary>
@@ -93,9 +104,10 @@ namespace _2DLogicGame.ClientSide.Levels
         public override void Initialize()
         {
             aPositionScreenVector2 = new Vector2(aGame.GraphicsDevice.Viewport.X, aGame.GraphicsDevice.Viewport.Y); //Zaciatocna pozicia ViewPortu
-            aSizeScreenVector2 = new Vector2(aGame.GraphicsDevice.Adapter.CurrentDisplayMode.Width* aGame.Scale + aGame.CameraX, aGame.GraphicsDevice.Adapter.CurrentDisplayMode.Height * aGame.Scale); //Velkost ViewPortu
+            aSizeScreenVector2 = new Vector2(aGame.GraphicsDevice.Adapter.CurrentDisplayMode.Width * aGame.Scale + aGame.CameraX, aGame.GraphicsDevice.Adapter.CurrentDisplayMode.Height * aGame.Scale); //Velkost ViewPortu
             aCameraOffset = 0F;
             aNeedsFadeIn = true;
+            aEnding = false;
             base.Initialize();
         }
 
@@ -144,7 +156,7 @@ namespace _2DLogicGame.ClientSide.Levels
                     aTransitionTimer = 0F;
                 }
 
-                if (aVisibility >= 1F) 
+                if (aVisibility >= 1F)
                 {
                     aVisibility = 1F;
                     aNeedsFadeOut = false;
@@ -166,11 +178,18 @@ namespace _2DLogicGame.ClientSide.Levels
                 }
             }
 
-            Vector2 tmpNewPosition = aPositionScreenVector2;
-            tmpNewPosition.X -= aCameraOffset;
+            if (aEnding)
+            {
+                aVisibility = 1F;
+            }
 
-            aGame.SpriteBatch.Draw(aScreenTexture, tmpNewPosition, aScreenRectangle, Color.Black * aVisibility, 0F, Vector2.Zero, 1F, SpriteEffects.None, 0F);
-            
+            if (aNeedsFadeOut || (aNeedsFadeIn && aVisibility > 0F) || aEnding) {
+
+                Vector2 tmpNewPosition = aPositionScreenVector2;
+                tmpNewPosition.X -= aCameraOffset;
+
+                aGame.SpriteBatch.Draw(aScreenTexture, tmpNewPosition, aScreenRectangle, Color.Black * aVisibility, 0F, Vector2.Zero, 1F, SpriteEffects.None, 0.5F);
+            }
             base.Draw(gameTime);
         }
 
