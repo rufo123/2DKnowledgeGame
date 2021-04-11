@@ -39,6 +39,15 @@
     <PackageReference Include="MySql.Data" Version="8.0.23" />
   </ItemGroup>
   <ItemGroup>
+    <None Update="Content\Configuration\controlsConfig.txt">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Content\Configuration\controlsDefaultConfig.txt">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Content\Configuration\controlsDefaultConfigtxt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Content\Fonts\StickRegular28.spritefont">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

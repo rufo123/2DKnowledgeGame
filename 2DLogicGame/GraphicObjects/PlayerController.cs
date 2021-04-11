@@ -16,8 +16,6 @@ namespace _2DLogicGame.GraphicObjects
 
         private LogicGame aGame;
 
-        private Keys aUp = Keys.W, aRight = Keys.D, aDown = Keys.S, aLeft = Keys.A;
-
         private Keys aOldKeyPressed = Keys.None;
 
         private bool aUpdateNeeded = false;
@@ -78,9 +76,9 @@ namespace _2DLogicGame.GraphicObjects
                 Keys tmpCurrentKeyPresed = Keys.None;
 
 
-                if (tmpNewKeyBoardState.IsKeyDown(aUp))
+                if (tmpNewKeyBoardState.IsKeyDown(aGame.UpKey))
                 {
-                    tmpCurrentKeyPresed = aUp;
+                    tmpCurrentKeyPresed = aGame.UpKey;
                     aPlayer.SetDirection(Entity.Direction.UP);
 
                     if (tmpCurrentKeyPresed != aOldKeyPressed)
@@ -90,9 +88,9 @@ namespace _2DLogicGame.GraphicObjects
 
                     aPlayer.IsTryingToMove = true;
                 }
-                else if (tmpNewKeyBoardState.IsKeyDown(aRight))
+                else if (tmpNewKeyBoardState.IsKeyDown(aGame.RightKey))
                 {
-                    tmpCurrentKeyPresed = aRight;
+                    tmpCurrentKeyPresed = aGame.RightKey;
                     aPlayer.SetDirection(Entity.Direction.RIGHT);
 
                     if (tmpCurrentKeyPresed != aOldKeyPressed)
@@ -102,9 +100,9 @@ namespace _2DLogicGame.GraphicObjects
 
                     aPlayer.IsTryingToMove = true;
                 }
-                else if (tmpNewKeyBoardState.IsKeyDown(aLeft))
+                else if (tmpNewKeyBoardState.IsKeyDown(aGame.LeftKey))
                 {
-                    tmpCurrentKeyPresed = aLeft;
+                    tmpCurrentKeyPresed = aGame.LeftKey;
                     aPlayer.SetDirection(Entity.Direction.LEFT);
 
                     if (tmpCurrentKeyPresed != aOldKeyPressed)
@@ -114,9 +112,9 @@ namespace _2DLogicGame.GraphicObjects
 
                     aPlayer.IsTryingToMove = true;
                 }
-                else if (tmpNewKeyBoardState.IsKeyDown(aDown))
+                else if (tmpNewKeyBoardState.IsKeyDown(aGame.DownKey))
                 {
-                    tmpCurrentKeyPresed = aDown;
+                    tmpCurrentKeyPresed = aGame.DownKey;
                     aPlayer.SetDirection(Entity.Direction.DOWN);
 
                     if (tmpCurrentKeyPresed != aOldKeyPressed)

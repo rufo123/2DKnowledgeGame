@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Threading;
+using _2DLogicGame.ClientSide;
 using _2DLogicGame.ClientSide.Levels;
 using _2DLogicGame.GraphicObjects.Connecting;
 using _2DLogicGame.GraphicObjects.Scoreboard;
@@ -78,6 +79,8 @@ namespace _2DLogicGame
 
         private LevelGameCompletedScreen aCompletedScreen;
 
+        private OptionsController aOptionsController;
+
         private int aRenderTargetWidth = 1920;
 
         private int aRenderTargetHeight = 1080;
@@ -111,6 +114,9 @@ namespace _2DLogicGame
         public Keys RightKey { get => aRightKey; set => aRightKey = value; }
         public Keys ProceedKey { get => aProceedKey; set => aProceedKey = value; }
         public Keys ChatWriteMessageKey { get => aChatWriteMessageKey; set => aChatWriteMessageKey = value; }
+        public Keys MusicLower { get => aMusicLower; set => aMusicLower = value; }
+        public Keys MusicHigher { get => aMusicHigher; set => aMusicHigher = value; }
+        public Keys MusicStartStop { get => aMusicStartStop; set => aMusicStartStop = value; }
         public RenderTarget2D RenderTarget { get => aRenderTarget; }
         public GraphicsDeviceManager Graphics { get => _graphics; set => _graphics = value; }
         public float Scale { get => aScale; }
@@ -159,6 +165,21 @@ namespace _2DLogicGame
         {
             // TODO: Add your initialization logic here
 
+            aOptionsController = new OptionsController(this);
+
+            aOptionsController.AddOption("Hore", aUpKey, KeyTypes.UpKey);
+            aOptionsController.AddOption("Dole", aDownKey, KeyTypes.DownKey);
+            aOptionsController.AddOption("Dolava", aLeftKey, KeyTypes.LeftKey);
+            aOptionsController.AddOption("Doprava", aRightKey, KeyTypes.RightKey);
+            aOptionsController.AddOption("Potvrdit", aProceedKey, KeyTypes.ProceedKey);
+            aOptionsController.AddOption("Pisat", aChatWriteMessageKey, KeyTypes.ChatWriteMessageKey);
+            aOptionsController.AddOption("Hudba - Tichsie", aMusicLower, KeyTypes.MusicLower);
+            aOptionsController.AddOption("Hudba - Hlasnejsie", aMusicHigher, KeyTypes.MusicHigher);
+            aOptionsController.AddOption("Hudba - Stisit/Zapnut", aMusicStartStop, KeyTypes.MusicStartTop);
+
+            aOptionsController.AddButton("Save", MenuButtonAction.Save);
+            aOptionsController.AddButton("Reset", MenuButtonAction.ResetToDefault);
+
             aConnectionTimeout = 20; //Nastavime cas pre connection timeout
 
             aStatisticsHandler = new StatisticsHandler();
@@ -182,9 +203,9 @@ namespace _2DLogicGame
             aConnectUI = new ConnectingUI(this, "Connecting", aConnectionTimeout, '.');
 
 
-            aMenu = new Menu(this, aMenuBox, aScoreboardController, aNickNameInput, aIPAddressInput, aConnectUI);
+            aMenu = new Menu(this, aMenuBox, aScoreboardController, aNickNameInput, aIPAddressInput, aConnectUI, aOptionsController);
 
-            aMainMenu = new ComponentCollection(this, aMenu, aMenuBox, aScoreboardUI, aNickNameInput, aIPAddressInput, aConnectUI);
+            aMainMenu = new ComponentCollection(this, aMenu, aMenuBox, aScoreboardUI, aNickNameInput, aIPAddressInput, aConnectUI, aOptionsController);
 
 
             ClientSide.Chat.ChatReceiveBox chatReceive = new ClientSide.Chat.ChatReceiveBox(this, Window, 593, 800, Vector2.Zero + new Vector2(10, 10));
@@ -199,6 +220,7 @@ namespace _2DLogicGame
 
             aLevelManager = new LevelManager(this, aPlayingScreen, aCompletedScreen);
 
+            aOptionsController.InitKeysFromConfig();
 
             base.Initialize();
 
@@ -243,6 +265,8 @@ namespace _2DLogicGame
         protected override void Update(GameTime gameTime)
         {
 
+           
+
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || CheckKeyPressedOnce(Keys.Escape) || (aClientClass != null && aClientClass.ClientNeedsToShutdown)) //Ak je stlacene tlacitko ESCAPE alebo o vypnutie poziadal klient.
             {
                 if (GameState == GameState.MainMenu)
@@ -250,7 +274,7 @@ namespace _2DLogicGame
                     Debug.WriteLine("END");
                     this.GameState = GameState.Exit;
                     Exit();
-                }
+                } 
                 else if (GameState != GameState.MainMenu || (aClientClass != null && aClientClass.ClientNeedsToShutdown)) //Ak nie sme v hlavnom menu, alebo klient poziadal o vypnutie.
                 {
                     Debug.WriteLine("BACK_TO_MENU");
@@ -276,6 +300,11 @@ namespace _2DLogicGame
 
                 }
 
+            }
+
+            if (this.GameState == GameState.Exit)
+            {
+                Exit();
             }
 
             if (aMenu.TaskToExecute != MenuTasksToBeExecuted.None)
@@ -361,7 +390,7 @@ namespace _2DLogicGame
             {
                 if (aClientClass.Connected && aLevelManager.IsLevelInitalized == false)
                 {
-                    aLevelManager.InitLevelByNumber(3);
+                    aLevelManager.InitLevelByNumber(2);
                     SwitchScene(aMainMenu, aPlayingScreen);
                     MediaPlayer.Play(aSong);
                     MediaPlayer.IsRepeating = true;

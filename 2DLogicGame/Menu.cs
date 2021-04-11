@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using _2DLogicGame.ClientSide;
 using _2DLogicGame.GraphicObjects;
 using _2DLogicGame.GraphicObjects.Connecting;
 using _2DLogicGame.GraphicObjects.Scoreboard;
@@ -46,6 +47,8 @@ namespace _2DLogicGame
 
         private ConnectingUI aConnectingUI;
 
+        private OptionsController aOptionsController;
+
         private int aSelectedInputID;
 
         private MenuTasksToBeExecuted aTaskToExecute;
@@ -65,7 +68,7 @@ namespace _2DLogicGame
         /// <param name="aScoreboardController"></param>
         /// <param name="parNickNameInput"></param>
         /// <param name="parIpInput"></param>
-        public Menu(LogicGame parGame, MenuBox parMenuBox, ScoreboardController aScoreboardController, MenuInput parNickNameInput, MenuInput parIpInput, ConnectingUI parConnectingUI) : base(parGame)
+        public Menu(LogicGame parGame, MenuBox parMenuBox, ScoreboardController aScoreboardController, MenuInput parNickNameInput, MenuInput parIpInput, ConnectingUI parConnectingUI, OptionsController parOptionsController) : base(parGame)
         {
             this.aLogicGame = parGame;
             this.aMenuBox = parMenuBox;
@@ -89,7 +92,7 @@ namespace _2DLogicGame
             }
 
 
-
+            aOptionsController = parOptionsController;
 
             aSelectedInputID = 0;
         }
@@ -257,12 +260,19 @@ namespace _2DLogicGame
                         aMenuBox.BoxEnabled = true;
                         aScoreboardController.ShowStats(false);
                         aConnectingUI.StartTimer = false;
+                        aOptionsController.EnabledOptions = false;
                     }
                     MenuHandle(); //Pokial nie je nic zvolene zobrazi sa hlavna cast menu
                     break;
                 case MenuTasksToBeExecuted.Enroll_Credits:
                     break;
                 case MenuTasksToBeExecuted.Change_Options:
+                    if (aOptionsController != null)
+                    {
+                        aMenuBox.BoxEnabled = false;
+                        aOptionsController.EnabledOptions = true;
+                    }
+
                     break;
                 case MenuTasksToBeExecuted.Show_Stats:
                     if (aScoreboardController != null)
@@ -398,8 +408,6 @@ namespace _2DLogicGame
                     {
                         aSelectedInputID = 0;
                     }
-
-
                     while (aListOfInputs[aSelectedInputID].InputEnabled == false) //Budeme prechadzat itemy az pokial nenajdeme taky, ktory je povolen, az potom pojde dalsia kontrola
                     {
                         aSelectedInputID++;
@@ -408,7 +416,6 @@ namespace _2DLogicGame
                             aSelectedInputID = 0;
                         }
                     }
-
                     if (aSelectedInputID < aListOfInputs.Count)
                     {
 
@@ -428,7 +435,6 @@ namespace _2DLogicGame
                     {
                         aSelectedInputID = aListOfInputs.Count - 1;
                     }
-
                     while (aListOfInputs[aSelectedInputID].InputEnabled == false) //Budeme prechadzat itemy az pokial nenajdeme taky, ktory je povoleny, az potom pojde dalsia kontrola
                     {
                         aSelectedInputID--;
@@ -438,7 +444,6 @@ namespace _2DLogicGame
                             aSelectedInputID = aListOfInputs.Count - 1;
                         }
                     }
-
                     if (aSelectedInputID >= 0)
                     {
 

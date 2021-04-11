@@ -63,6 +63,11 @@ namespace _2DLogicGame.GraphicObjects
         private Texture2D aAnswerBackTexture2D;
 
         /// <summary>
+        /// Atribut, ktory specifikuje skalu textu otazky - typ float.
+        /// </summary>
+        private float aQuestionScale;
+
+        /// <summary>
         /// Atribut, ktory povoli zobrazovanie objektu - typ bool
         /// </summary>
         private bool aShowEnabled;
@@ -91,6 +96,8 @@ namespace _2DLogicGame.GraphicObjects
 
             aAnswerPosition = new Vector2(parPositionVector2.X + aSize.X / 20, parPositionVector2.Y + aSize.Y / 3);
             aAnswerSize = new Vector2(aSize.X / (2 + ((float)6 / 17)), aSize.Y / (4 + ((float)43 / 120)));
+
+            aQuestionScale = 1F;
 
         }
 
@@ -138,15 +145,40 @@ namespace _2DLogicGame.GraphicObjects
         {
             if (aShowEnabled)
             {
-
                 //Prepocitanie suradnic, aby bol text otazky presne v strede
-                Vector2 tmpQuestionSize = aLogicGame.Font48.MeasureString(aCurrentQuestionText) * 1F;
+
+                Vector2 tmpQuestionSize = aLogicGame.Font48.MeasureString(aCurrentQuestionText) * aQuestionScale;
+
+
+                while (aLogicGame.Font48.MeasureString(aCurrentQuestionText).X * aQuestionScale >= aQuestionBackRectangle.Size.X * aLogicGame.Scale && aQuestionScale >= 0F) //Ak je velkost otazky vacsia ako sirka obrazovky
+                {
+                    aQuestionScale -= 0.1F; //Zmensime skalu
+
+                    if (aQuestionScale < 0F)
+                    {
+                        aQuestionScale = 0F;
+                    }
+                }
+
+                while (aLogicGame.Font48.MeasureString(aCurrentQuestionText).X * aQuestionScale < aQuestionBackRectangle.Size.X * aLogicGame.Scale && aQuestionScale < 1F) //A naopak ak skala nie je 1-kova a velkost otazky je mensia ako sirka obrazovky, zvacsime text otazky.
+                {
+                    aQuestionScale += 0.1F;
+
+                    if (aQuestionScale > 1F)
+                    {
+                        aQuestionScale = 1F;
+                    }
+                }
+
+                
+
+
                 Vector2 tmpQuestionPosition = new Vector2(aPositon.X, aPositon.Y);
                 tmpQuestionPosition.X += aSize.X / 2 - tmpQuestionSize.X / 2;
-                tmpQuestionPosition.Y += aAnswerSize.Y / 3;
+                tmpQuestionPosition.Y += (aQuestionBackRectangle.Size.Y / 3F) / 2F - tmpQuestionSize.Y / 2F;
 
 
-                aLogicGame.SpriteBatch.DrawString(aLogicGame.Font48, aCurrentQuestionText, tmpQuestionPosition, Color.White, 0F, Vector2.Zero, 1F, SpriteEffects.None, 0.2F);
+                aLogicGame.SpriteBatch.DrawString(aLogicGame.Font48, aCurrentQuestionText, tmpQuestionPosition, Color.White, 0F, Vector2.Zero, aQuestionScale, SpriteEffects.None, 0.2F);
 
                 aLogicGame.SpriteBatch.Draw(aQuestionsBackTexture2D, aPositon, aQuestionBackRectangle, Color.White * 0.2F, 0F, Vector2.Zero, 1F, SpriteEffects.None, 0.3F);
 

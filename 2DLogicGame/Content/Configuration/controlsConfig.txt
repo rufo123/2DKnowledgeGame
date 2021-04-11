@@ -1,0 +1,18 @@
+#Hore
+UpKey=W
+#Dole
+DownKey=S
+#Dolava
+LeftKey=A
+#Doprava
+RightKey=D
+#Potvrdit
+ProceedKey=Space
+#Pisat
+ChatWriteMessageKey=T
+#Hudba - Tichsie
+MusicLower=Subtract
+#Hudba - Hlasnejsie
+MusicHigher=Add
+#Hudba - Stisit/Zapnut
+MusicStartTop=M
