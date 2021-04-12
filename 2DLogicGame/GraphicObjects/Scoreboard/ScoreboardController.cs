@@ -58,5 +58,19 @@ namespace _2DLogicGame.GraphicObjects.Scoreboard
 
         }
 
+        /// <summary>
+        /// Metoda, ktora vrati hodnotu true/false na zaklade toho ci bolo pripojenie k databaze uspesne.
+        /// </summary>
+        /// <returns>Vrati hodnot true/false - ci je pripojenie k databaze uspesne.</returns>
+        public bool IsConnected()
+        {
+            if (aStatisticsHandler != null)
+            {
+                return aStatisticsHandler.IsConnected;
+            }
+
+            return false;
+        }
+
     }
 }

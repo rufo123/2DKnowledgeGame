@@ -18,9 +18,7 @@ namespace _2DLogicGame.ClientSide
         MusicLower = 6,
         MusicHigher = 7,
         MusicStartTop = 8
-
     }
-
 
     public class MenuOptionKeyWithToolTip
     {

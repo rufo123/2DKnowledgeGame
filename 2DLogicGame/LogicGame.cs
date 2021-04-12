@@ -81,6 +81,10 @@ namespace _2DLogicGame
 
         private OptionsController aOptionsController;
 
+        private MenuStatsIndicator aMenuStatIndicator;
+
+        private float aReconnectDatabaseTimer;
+
         private int aRenderTargetWidth = 1920;
 
         private int aRenderTargetHeight = 1080;
@@ -189,6 +193,8 @@ namespace _2DLogicGame
 
             aScoreboardController = new ScoreboardController(aStatisticsHandler, aScoreboardUI);
 
+            aMenuStatIndicator = new MenuStatsIndicator(this, new Vector2(1050, 900), "Statistika");
+
             aMenuBox = new MenuBox(this, new Vector2(1100, 200), Color.FloralWhite, Color.Black, Color.Gray, 120);
             aMenuBox.AddItem("Host", MenuItemAction.Start_Host);
             aMenuBox.AddItem("Play", MenuItemAction.Start_Play);
@@ -203,9 +209,9 @@ namespace _2DLogicGame
             aConnectUI = new ConnectingUI(this, "Connecting", aConnectionTimeout, '.');
 
 
-            aMenu = new Menu(this, aMenuBox, aScoreboardController, aNickNameInput, aIPAddressInput, aConnectUI, aOptionsController);
+            aMenu = new Menu(this, aMenuBox, aScoreboardController, aNickNameInput, aIPAddressInput, aConnectUI, aOptionsController, aMenuStatIndicator);
 
-            aMainMenu = new ComponentCollection(this, aMenu, aMenuBox, aScoreboardUI, aNickNameInput, aIPAddressInput, aConnectUI, aOptionsController);
+            aMainMenu = new ComponentCollection(this, aMenu, aMenuBox, aScoreboardUI, aNickNameInput, aIPAddressInput, aConnectUI, aOptionsController, aMenuStatIndicator);
 
 
             ClientSide.Chat.ChatReceiveBox chatReceive = new ClientSide.Chat.ChatReceiveBox(this, Window, 593, 800, Vector2.Zero + new Vector2(10, 10));
@@ -221,6 +227,8 @@ namespace _2DLogicGame
             aLevelManager = new LevelManager(this, aPlayingScreen, aCompletedScreen);
 
             aOptionsController.InitKeysFromConfig();
+
+            aReconnectDatabaseTimer = 0F;
 
             base.Initialize();
 
@@ -264,8 +272,6 @@ namespace _2DLogicGame
 
         protected override void Update(GameTime gameTime)
         {
-
-           
 
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || CheckKeyPressedOnce(Keys.Escape) || (aClientClass != null && aClientClass.ClientNeedsToShutdown)) //Ak je stlacene tlacitko ESCAPE alebo o vypnutie poziadal klient.
             {
@@ -386,7 +392,7 @@ namespace _2DLogicGame
                 
             }
 
-            if (aClientClass != null)
+            if (aClientClass != null) //Inicializacia Levelu
             {
                 if (aClientClass.Connected && aLevelManager.IsLevelInitalized == false)
                 {
@@ -395,9 +401,23 @@ namespace _2DLogicGame
                     MediaPlayer.Play(aSong);
                     MediaPlayer.IsRepeating = true;
                     MediaPlayer.Volume = 0.1F;
-
-
                 }
+            }
+
+            if (aMenu != null && (aGameState == GameState.MainMenu || aGameState == GameState.Submenu) && aStatisticsHandler != null && aMenuStatIndicator != null) //Pokus o pripojenie sa do databazy, pokial by sa pripojenie nezdarilo
+            {
+                aMenuStatIndicator.TurnOnOff(aStatisticsHandler.IsConnected ? IndicatorState.On : IndicatorState.Off); //Ak je pripojenie k databaze uspesne - on, inak off.
+
+                if (!aStatisticsHandler.IsConnected) //Ak sa pripojenie k databaze nezdarilo
+                {
+                    aReconnectDatabaseTimer += gameTime.ElapsedGameTime.Seconds; //Zacneme pripocitavat sekundy do casovaca
+
+                    if (aReconnectDatabaseTimer > 60) //Ak casovac dosiahne hodnotu 60 sekund - 1 minuty
+                    {
+                        aStatisticsHandler.RetryConnect(); //Pokusime sa znova pripojit
+                    }
+                }
+
             }
 
             if (aGameState == GameState.Playing)

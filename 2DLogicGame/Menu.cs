@@ -49,6 +49,8 @@ namespace _2DLogicGame
 
         private OptionsController aOptionsController;
 
+        private MenuStatsIndicator aStatusIndicator;
+
         private int aSelectedInputID;
 
         private MenuTasksToBeExecuted aTaskToExecute;
@@ -68,12 +70,13 @@ namespace _2DLogicGame
         /// <param name="aScoreboardController"></param>
         /// <param name="parNickNameInput"></param>
         /// <param name="parIpInput"></param>
-        public Menu(LogicGame parGame, MenuBox parMenuBox, ScoreboardController aScoreboardController, MenuInput parNickNameInput, MenuInput parIpInput, ConnectingUI parConnectingUI, OptionsController parOptionsController) : base(parGame)
+        public Menu(LogicGame parGame, MenuBox parMenuBox, ScoreboardController aScoreboardController, MenuInput parNickNameInput, MenuInput parIpInput, ConnectingUI parConnectingUI, OptionsController parOptionsController, MenuStatsIndicator parStatusIndicator) : base(parGame)
         {
             this.aLogicGame = parGame;
             this.aMenuBox = parMenuBox;
             this.aScoreboardController = aScoreboardController;
             this.aConnectingUI = parConnectingUI;
+            this.aStatusIndicator = parStatusIndicator;
 
             aNickNameInput = parNickNameInput; //Rozdelil som tieto input, preto takto a nedal som ich do listu, lebo sa budu zobrazovat az po prejdeni na urcity menu item
             aIPInput = parIpInput;
@@ -109,7 +112,7 @@ namespace _2DLogicGame
         {
 
             //  aLogicGame.SpriteBatch.Begin();
-            aLogicGame.SpriteBatch.Draw(aMenuBackground, new Vector2(0, 0), Color.White);
+            aLogicGame.SpriteBatch.Draw(aMenuBackground, new Vector2(0, 0), null, Color.White, 0F, Vector2.Zero, 1F, SpriteEffects.None, 0.1F);
             // aLogicGame.SpriteBatch.End();
 
 
@@ -261,6 +264,7 @@ namespace _2DLogicGame
                         aScoreboardController.ShowStats(false);
                         aConnectingUI.StartTimer = false;
                         aOptionsController.EnabledOptions = false;
+                        aStatusIndicator.IndicatorEnabled = true;
                     }
                     MenuHandle(); //Pokial nie je nic zvolene zobrazi sa hlavna cast menu
                     break;
@@ -271,15 +275,17 @@ namespace _2DLogicGame
                     {
                         aMenuBox.BoxEnabled = false;
                         aOptionsController.EnabledOptions = true;
+                        aStatusIndicator.IndicatorEnabled = false;
                     }
 
                     break;
                 case MenuTasksToBeExecuted.Show_Stats:
-                    if (aScoreboardController != null)
+                    if (aScoreboardController != null && aScoreboardController != null && aScoreboardController.IsConnected())
                     {
                         aMenuBox.BoxEnabled = false;
                         aScoreboardController.InitScoreboard();
                         aScoreboardController.ShowStats(true);
+                        aStatusIndicator.IndicatorEnabled = false;
                     }
                     break;
                 case MenuTasksToBeExecuted.Exit:
@@ -289,6 +295,7 @@ namespace _2DLogicGame
                     {
                         aMenuBox.BoxEnabled = false;
                         aConnectingUI.StartTimer = true;
+                        aStatusIndicator.IndicatorEnabled = false;
                         if (aListOfInputs != null)
                         {
                             for (int i = 0; i < aListOfInputs.Count; i++)
@@ -303,6 +310,7 @@ namespace _2DLogicGame
                 case MenuTasksToBeExecuted.Connecting:
                     if (aConnectingUI != null && aLogicGame != null)
                     {
+                        aStatusIndicator.IndicatorEnabled = false;
                         if (aConnectingUI.ConnectionTimeout <= 0)
                         {
                             TaskToExecute = MenuTasksToBeExecuted.None;
