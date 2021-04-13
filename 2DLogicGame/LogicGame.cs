@@ -416,7 +416,7 @@ namespace _2DLogicGame
             {
                 if (aClientClass.Connected && aLevelManager.IsLevelInitalized == false)
                 {
-                    aLevelManager.InitLevelByNumber(3);
+                    aLevelManager.InitLevelByNumber(1);
                     SwitchScene(aMainMenu, aPlayingScreen);
                     MediaPlayer.Play(aSong);
                     MediaPlayer.IsRepeating = true;
