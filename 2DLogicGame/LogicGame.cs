@@ -409,7 +409,7 @@ namespace _2DLogicGame
                         break;
                 }
 
-
+                
             }
 
             if (aClientClass != null) //Inicializacia Levelu
@@ -531,6 +531,7 @@ namespace _2DLogicGame
 
                 if (aLevelManager.LevelChanged)
                 {
+                    aClientClass.RequestLevelData();
                     aClientClass.HandleRespawnPlayers(gameTime);
                     aLevelManager.LevelChanged = false;
 
