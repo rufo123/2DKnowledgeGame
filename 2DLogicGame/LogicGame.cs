@@ -83,6 +83,8 @@ namespace _2DLogicGame
 
         private MenuStatsIndicator aMenuStatIndicator;
 
+        private LevelQuitConfirm aLevelQuitConfirm;
+
         private float aReconnectDatabaseTimer;
 
         private int aRenderTargetWidth = 1920;
@@ -101,7 +103,7 @@ namespace _2DLogicGame
 
         private int aConnectionTimeout;
 
-   
+
 
         // Gettery a Settery
 
@@ -191,6 +193,8 @@ namespace _2DLogicGame
 
             aCompletedScreen = new LevelGameCompletedScreen(this);
 
+            aLevelQuitConfirm = new LevelQuitConfirm(this, new Vector2(aRenderTargetWidth / 2F, aRenderTargetHeight / 2F), new Vector2(500, 300));
+
             aScoreboardController = new ScoreboardController(aStatisticsHandler, aScoreboardUI);
 
             aMenuStatIndicator = new MenuStatsIndicator(this, new Vector2(1050, 900), "Statistika");
@@ -215,12 +219,12 @@ namespace _2DLogicGame
 
 
             ClientSide.Chat.ChatReceiveBox chatReceive = new ClientSide.Chat.ChatReceiveBox(this, Window, 593, 800, Vector2.Zero + new Vector2(10, 10));
-            ClientSide.Chat.ChatInputBox chatInput = new ClientSide.Chat.ChatInputBox(this, Window, 1000, 246, new Vector2((aRenderTargetWidth - 1000) / 2, aRenderTargetHeight - 246));
+            ClientSide.Chat.ChatInputBox chatInput = new ClientSide.Chat.ChatInputBox(this, Window, 1000, 246, new Vector2((aRenderTargetWidth - 1000) / 2F, aRenderTargetHeight - 246));
             aChat = new ClientSide.Chat.Chat(this, chatInput, chatReceive);
             //Player tmpPlayer = new Player(0, this, new Vector2(800, 500), new Vector2(49, 64), Color.White);
             //PlayerController tmpController = new PlayerController(this, tmpPlayer);
 
-            aPlayingScreen = new ComponentCollection(this, aChat, chatInput, chatReceive, aCompletedScreen);
+            aPlayingScreen = new ComponentCollection(this, aChat, chatInput, chatReceive, aCompletedScreen, aLevelQuitConfirm);
 
             // Components.Add(tmpController);
 
@@ -234,7 +238,7 @@ namespace _2DLogicGame
 
             Graphics.PreferredBackBufferWidth = aBackBufferWidth;
             Graphics.PreferredBackBufferHeight = aBackBufferHeight;
-            
+
 
             Graphics.ApplyChanges();
 
@@ -280,10 +284,24 @@ namespace _2DLogicGame
                     Debug.WriteLine("END");
                     this.GameState = GameState.Exit;
                     Exit();
+                }
+                else if (GameState == GameState.Playing && aChat != null && aChat.ChatInputBox.IsInputOpen && !aClientClass.ClientNeedsToShutdown) //Ak hrac nie je menu a ma otvorene okno na pisanie, zavrieme ho.
+                {
+                    aChat.ChatInputBox.IsInputOpen = false;
+                }
+                else if (GameState == GameState.Playing && aLevelQuitConfirm != null && !aLevelQuitConfirm.ShowConfirm && !aClientClass.ClientNeedsToShutdown) //Ak hrac nie je v menu a stlaci ESC, zobrazime potvrdzovacie okno, pre vypnutie hry.
+                {
+                    aLevelQuitConfirm.ShowConfirm = true;
                 } 
-                else if (GameState != GameState.MainMenu || (aClientClass != null && aClientClass.ClientNeedsToShutdown)) //Ak nie sme v hlavnom menu, alebo klient poziadal o vypnutie.
+                else if ((GameState != GameState.MainMenu && aLevelQuitConfirm != null && aLevelQuitConfirm.ShowConfirm) || GameState == GameState.Submenu || (aClientClass != null && aClientClass.ClientNeedsToShutdown)) //Ak nie sme v hlavnom menu, alebo klient poziadal o vypnutie.
                 {
                     Debug.WriteLine("BACK_TO_MENU");
+
+                    if (aLevelQuitConfirm != null && aLevelQuitConfirm.ShowConfirm) //Ak je otvorene okno s potvrdenim navratu do menu, zavrieme ho.
+                    {
+                        aLevelQuitConfirm.ShowConfirm = false;
+                    }
+
                     this.GameState = GameState.MainMenu;
                     this.aMenu.TaskToExecute = MenuTasksToBeExecuted.None;
 
@@ -301,11 +319,13 @@ namespace _2DLogicGame
                     SwitchScene(aPlayingScreen, aMainMenu);
 
                     MediaPlayer.Stop();
-
-
-
                 }
+            }
 
+            if (CheckKeyPressedOnce(aProceedKey) && aLevelQuitConfirm != null && aLevelQuitConfirm.ShowConfirm)  //Ak je stlacene tlacidlo potvrdenia - ProceedKey - prednastavene - Space - Medzernik.
+            { //A ak bolo pri stlaceni potvrdenia otvorene potvrdzovacie okno, zavrieme ho.
+
+                aLevelQuitConfirm.ShowConfirm = false;
             }
 
             if (this.GameState == GameState.Exit)
@@ -320,7 +340,7 @@ namespace _2DLogicGame
                     case GameState.MainMenu:
                         break;
                     case GameState.Playing:
-                        
+
                         if (aMenu.TaskToExecute == MenuTasksToBeExecuted.Host_Start)
                         {
                             //aLevelManager.InitLevelByNumber(2);
@@ -352,7 +372,7 @@ namespace _2DLogicGame
                         }
                         else if (aMenu.TaskToExecute == MenuTasksToBeExecuted.Play_Start)
                         {
-                           
+
 
                             string tmpIP = "127.0.0.1";
                             // string tmpIP = "25.81.200.231";}
@@ -379,7 +399,7 @@ namespace _2DLogicGame
                             aMenu.TaskToExecute = MenuTasksToBeExecuted.TryToConnect;
 
                         }
-                        
+
                         break;
                     case GameState.Paused:
                         break;
@@ -389,14 +409,14 @@ namespace _2DLogicGame
                         break;
                 }
 
-                
+
             }
 
             if (aClientClass != null) //Inicializacia Levelu
             {
                 if (aClientClass.Connected && aLevelManager.IsLevelInitalized == false)
                 {
-                    aLevelManager.InitLevelByNumber(2);
+                    aLevelManager.InitLevelByNumber(3);
                     SwitchScene(aMainMenu, aPlayingScreen);
                     MediaPlayer.Play(aSong);
                     MediaPlayer.IsRepeating = true;
@@ -433,15 +453,17 @@ namespace _2DLogicGame
                                 MediaPlayer.Volume += 0.1F;
                             }
 
-                        } else if (CheckKeyPressedOnce(aMusicLower))
+                        }
+                        else if (CheckKeyPressedOnce(aMusicLower))
                         {
 
                             if (MediaPlayer.Volume > 0)
                             {
-                                MediaPlayer.Volume -=0.1F;
+                                MediaPlayer.Volume -= 0.1F;
                             }
 
-                        } else if (CheckKeyPressedOnce(aMusicStartStop))
+                        }
+                        else if (CheckKeyPressedOnce(aMusicStartStop))
                         {
                             if (MediaPlayer.Volume <= 0)
                             {
@@ -500,18 +522,20 @@ namespace _2DLogicGame
 
                 if (aClientClass.Connected && aLevelManager.LevelName == "NONE")
                 {
-                    
+
 
                 }
 
                 //Skontrolujem ci aj LevelManager nepotrebuje nieco aktualizovat
                 aLevelManager.Update(parGameTime: gameTime);
 
-                if (aLevelManager.LevelChanged) 
+                if (aLevelManager.LevelChanged)
                 {
                     aClientClass.HandleRespawnPlayers(gameTime);
                     aLevelManager.LevelChanged = false;
-                } else if (aLevelManager.LevelReset)
+
+                }
+                else if (aLevelManager.LevelReset)
                 {
                     aClientClass.HandleRespawnPlayers(gameTime);
                     aLevelManager.LevelReset = false;
@@ -533,7 +557,7 @@ namespace _2DLogicGame
             if (aClientClass != null && aLevelManager != null)
             {
                 aClientClass.TeammateMovementHandler(gameTime, aLevelManager);
-                
+
             }
 
 
@@ -547,9 +571,9 @@ namespace _2DLogicGame
             }
 
             // TODO: Add your update logic here
-          //  Thread.Sleep(1);
+            //  Thread.Sleep(1);
 
-              base.Update(gameTime);
+            base.Update(gameTime);
 
             //ControlRequest
 
@@ -596,8 +620,8 @@ namespace _2DLogicGame
 
 
 
-            SpriteBatch.Begin(samplerState: SamplerState.PointClamp, depthStencilState: DepthStencilState.None, rasterizerState: RasterizerState.CullNone ,sortMode: SpriteSortMode.BackToFront, blendState: BlendState.AlphaBlend, transformMatrix: Matrix.CreateTranslation(aCameraX, 0, 0));
-             base.Draw(gameTime);
+            SpriteBatch.Begin(samplerState: SamplerState.PointClamp, depthStencilState: DepthStencilState.None, rasterizerState: RasterizerState.CullNone, sortMode: SpriteSortMode.BackToFront, blendState: BlendState.AlphaBlend, transformMatrix: Matrix.CreateTranslation(aCameraX, 0, 0));
+            base.Draw(gameTime);
 
             SpriteBatch.End();
 

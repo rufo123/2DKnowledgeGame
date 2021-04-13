@@ -155,8 +155,6 @@ namespace _2DLogicGame.ClientSide.Levels
             set => aGamePoints = value;
         }
 
-        
-
 
         /// <summary>
         /// Konstruktor LevelManageru -

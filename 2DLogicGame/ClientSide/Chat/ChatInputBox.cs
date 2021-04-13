@@ -91,6 +91,11 @@ namespace _2DLogicGame.ClientSide.Chat
         /// Getter a Setter - Boolean - Je Sprava Uz Uskladnena? 
         /// </summary>
         public bool IsMessageReadyToBeStored { get => isMessageReadyToBeStored; set => isMessageReadyToBeStored = value; }
+        public bool IsInputOpen
+        {
+            get => isInputOpen;
+            set => isInputOpen = value;
+        }
 
         /// <summary>
         /// Konštruktor ChatInputBoxu - Vytvori ChatInputBox
@@ -222,7 +227,17 @@ namespace _2DLogicGame.ClientSide.Chat
                 {
                     Debug.WriteLine("Chat Window Closed"); //Debug - Sprava do konzole, ze Chat je zatvoreny
                     isInputOpen = false; //Nastavime premennu, ktora symbolizuje ci je Input Otvoreny na - FALSE
-                    IsMessageReadyToBeStored = true; //Nastavime premennu, ktora symbolizuje ci je Sprava Pripravena Na Ulozene (Pred odoslanim) na - TRUE
+
+                    if (aMessageToSend == "") //Ak je sprava na odoslanie prazdna, resp. nenapisali sme nic. Neodosleme ju a pre istotu ju celu zmazeme
+                    {
+                        DeleteMessage();
+                    }
+                    else //Ak nie je prazdna, nastavime premennu aIsMessageReadyToBeStored na true.
+                    {
+                        IsMessageReadyToBeStored = true; //Nastavime premennu, ktora symbolizuje ci je Sprava Pripravena Na Ulozene (Pred odoslanim) na - TRUE
+                    }
+
+                    
                 }
             }
 

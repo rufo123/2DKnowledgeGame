@@ -131,7 +131,7 @@ namespace _2DLogicGame
 
             aDictionaryPlayerData = new Dictionary<long, ServerSide.PlayerServerData>(aMaxPlayers);
 
-            aLevelManager.InitLevelByNumber(2);
+            aLevelManager.InitLevelByNumber(3);
 
             aStopWatch = new Stopwatch();
 
@@ -268,7 +268,7 @@ namespace _2DLogicGame
                         aServer.SendToAll(tmpNetOutgoingMessage, NetDeliveryMethod.ReliableOrdered);
                         aLevelManager.ChangeToNextLevel();
 
-                        if (aDictionaryPlayerData.Count > 0) //Ak sa nachadza v Dictionary nejaky hrac, prepiseme jeho aktualnu poziciu na prednastavenu
+                        if (aDictionaryPlayerData.Count > 0 ) //Ak sa nachadza v Dictionary nejaky hrac, prepiseme jeho aktualnu poziciu na prednastavenu
                         {
                             foreach (KeyValuePair<long, ServerSide.PlayerServerData> dictItem in aDictionaryPlayerData.ToList())  //ToList -> Nakopiruje cely Dictionary do Listu... , Prejdeme vsetky data v Dictionary
                             {
@@ -279,9 +279,7 @@ namespace _2DLogicGame
                                     dictItem.Value.Position.Y = aLevelManager.GetPositionForPlayerId(dictItem.Value.PlayerID).Y;
                                 }
                             }
-
                         }
-
                     }
 
                     if (aLevelManager.GameFinished && aLevelManager.GameFinishedInfoSent != true)

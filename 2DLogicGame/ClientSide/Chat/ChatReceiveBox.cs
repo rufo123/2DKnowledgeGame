@@ -88,6 +88,12 @@ namespace _2DLogicGame.ClientSide.Chat
         /// Atribut, ktory reprezentuje - na kolko sekund sa ukaze ReceiveBox po prijati spravy - Typ Int
         /// </summary>
         private int aReceiveBoxShownFor = 5;
+      
+        public double TimeCounter
+        {
+            get => aTimeCounter;
+            set => aTimeCounter = value;
+        }
 
         /// <summary>
         /// Konstruktor Chat Receive Boxu

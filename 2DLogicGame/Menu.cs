@@ -199,7 +199,7 @@ namespace _2DLogicGame
 
             }
 
-            if (!aMenuBox.SelectingFromMenuBox) //Ak si uz nevyberame z Menu Boxu ale z inputov
+            if (aMenuBox != null && !aMenuBox.SelectingFromMenuBox) //Ak si uz nevyberame z Menu Boxu ale z inputov
             {
                 for (int i = 0; i < aListOfInputs.Count; i++)
                 {
@@ -249,7 +249,6 @@ namespace _2DLogicGame
                                 aListOfInputs[i].InputEnabled = false;
                             }
                         }
-
                         break;
                 }
             }
@@ -259,7 +258,7 @@ namespace _2DLogicGame
             {
                 case MenuTasksToBeExecuted.None:
                     if (aScoreboardController != null)
-                    {
+                    { 
                         aMenuBox.BoxEnabled = true;
                         aScoreboardController.ShowStats(false);
                         aConnectingUI.StartTimer = false;

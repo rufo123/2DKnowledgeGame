@@ -188,7 +188,7 @@ namespace _2DLogicGame.ClientSide.Levels
                 Vector2 tmpNewPosition = aPositionScreenVector2;
                 tmpNewPosition.X -= aCameraOffset;
 
-                aGame.SpriteBatch.Draw(aScreenTexture, tmpNewPosition, aScreenRectangle, Color.Black * aVisibility, 0F, Vector2.Zero, 1F, SpriteEffects.None, 0.5F);
+                aGame.SpriteBatch.Draw(aScreenTexture, tmpNewPosition, aScreenRectangle, Color.Black * aVisibility, 0F, Vector2.Zero, 1F, SpriteEffects.None, 0.19F);
             }
             base.Draw(gameTime);
         }

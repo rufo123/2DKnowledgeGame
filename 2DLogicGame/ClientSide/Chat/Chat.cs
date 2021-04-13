@@ -44,6 +44,18 @@ namespace _2DLogicGame.ClientSide.Chat
 
         public bool IsMessageWaitingToBeSent { get => isMessageWaitingToBeSent;  }
 
+        public ChatInputBox ChatInputBox
+        {
+            get => aChatInputBox;
+            set => aChatInputBox = value;
+        }
+
+        public ChatReceiveBox ChatReceiveBox
+        {
+            get => aChatReceiveBox;
+            set => aChatReceiveBox = value;
+        }
+
         public Chat(LogicGame parGame, ChatInputBox parChatInputBox, ChatReceiveBox parChatReceiveBox) : base(parGame)
         {
             aMessagesToBeSent = new Queue<string>(2);
@@ -76,6 +88,11 @@ namespace _2DLogicGame.ClientSide.Chat
                     StoreMessageToSend(aChatInputBox.MessageToSend);
 
                 }
+            }
+
+            if (aChatInputBox != null && aChatInputBox.IsInputOpen && aChatReceiveBox != null)
+            {
+                aChatReceiveBox.TimeCounter += gameTime.ElapsedGameTime.Milliseconds;
             }
 
             base.Update(gameTime);
