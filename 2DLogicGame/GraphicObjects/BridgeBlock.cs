@@ -25,7 +25,7 @@ namespace _2DLogicGame.GraphicObjects
         private bool aWantsToShow;
 
         private int aTimer;
-
+        
         public BridgeBlock(LogicGame parGame, Vector2 parPosition, WaterBlock parWaterBlock, Texture2D parTexture = null) : base(parGame, parPosition, parTexture, parCollisionType: BlockCollisionType.Zap)
         {
             SetImageLocation("Sprites\\Blocks\\bridgeBlock");

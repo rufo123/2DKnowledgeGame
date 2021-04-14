@@ -100,10 +100,19 @@ namespace _2DLogicGame.ClientSide.Levels
         /// </summary>
         private bool aLevelReset;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje Level Transform Obrazovku - typ LevelTransformScreen.
+        /// </summary>
         private LevelTransformScreen aLevelTransformScreen;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje Objekt - Pocitadlo Bodov - typ LevelPointCounter.
+        /// </summary>
         private LevelPointsCounter aLevelPointsCounter;
 
+        /// <summary>
+        /// Atribut, reprezentujuci Game Completed obrazovky - typ GameCompletedScreen.
+        /// </summary>
         private LevelGameCompletedScreen aGameCompletedScreen;
 
         /// <summary>
@@ -154,7 +163,11 @@ namespace _2DLogicGame.ClientSide.Levels
             get => aGamePoints;
             set => aGamePoints = value;
         }
-
+        public bool GameCompleted
+        {
+            get => aGameCompleted;
+            set => aGameCompleted = value;
+        }
 
         /// <summary>
         /// Konstruktor LevelManageru -

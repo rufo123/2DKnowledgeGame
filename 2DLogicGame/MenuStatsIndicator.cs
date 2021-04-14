@@ -34,7 +34,7 @@ namespace _2DLogicGame
         private IndicatorState aIndicatorState;
 
         private bool aEnabled;
-
+        
         private string aStatusMiniText;
 
         public IndicatorState IndicatorState

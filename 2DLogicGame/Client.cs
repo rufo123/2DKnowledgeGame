@@ -62,6 +62,8 @@ namespace _2DLogicGame
 
         private LevelManager aLevelManager;
 
+        private string aDisconnectMessage;
+
         /// <summary>
         /// Atribut, ktory ked je nastaveny na true, signalizuje klientovi, ze ho treba vypnuty - Shutdown - typ bool.
         /// </summary>
@@ -69,6 +71,7 @@ namespace _2DLogicGame
 
         public bool Connected { get => aConnected; set => aConnected = value; }
         public bool ClientNeedsToShutdown { get => aClientNeedsToShutdown; set => aClientNeedsToShutdown = value; }
+        public string DisconnectMessage { get => GetCustomDisconnectMessage(); set => aDisconnectMessage = value; }
 
         public Client(string parAppName, LogicGame parGame, ClientSide.Chat.Chat parChatManager, ComponentCollection parClientObjects, PlayerController parPlayController, LevelManager parLevelManager, int parTimeoutTime = 20, string parNickName = "Player", string parIP = "127.0.0.1")
         {
@@ -88,9 +91,9 @@ namespace _2DLogicGame
             NetPeerConfiguration tmpClientConfig = new NetPeerConfiguration(parAppName)//Vytvorime konfiguraciu klienta
             {
                 ResendHandshakeInterval = tmpResendHandshakeIntervals,
-                MaximumHandshakeAttempts = tmpMaximumHandshakeAttempts + 1 //Ak sa takto vypocitany pocet nebude zhodovat s nami zadanym casom, bude to mat rozne nasledky, odpoji sa skor, neskor a pod.
-            }; 
-           
+                MaximumHandshakeAttempts = tmpMaximumHandshakeAttempts //Ak sa takto vypocitany pocet nebude zhodovat s nami zadanym casom, bude to mat rozne nasledky, odpoji sa skor, neskor a pod, aby sme ziskali Disconnect Message, pocet nechame takto a nepridame + 1, tzn. Ak bude cas 20 sekund, vypne sa to pri 18 a pod.
+            };
+
             Debug.WriteLine(tmpClientConfig.MaximumConnections);
             Debug.WriteLine(tmpClientConfig.MaximumHandshakeAttempts);
             Debug.WriteLine(tmpClientConfig.MaximumTransmissionUnit);
@@ -132,6 +135,7 @@ namespace _2DLogicGame
 
             aClientNeedsToShutdown = false;
 
+            aDisconnectMessage = "";
 
         }
 
@@ -184,9 +188,15 @@ namespace _2DLogicGame
 
                             //Init Level
                             //Request TryToConnect
-                        } else if (tmpReceivedByte == (byte) NetConnectionStatus.Disconnected)
+                        }
+                        else if (tmpReceivedByte == (byte)NetConnectionStatus.Disconnected)
                         {
-                            Debug.WriteLine("Disconnected from Server - Reason: " + tmpIncommingMessage.ReadString());
+
+                            aDisconnectMessage = tmpIncommingMessage.ReadString();
+
+                            Debug.WriteLine("Disconnected from Server - Reason: " + aDisconnectMessage);
+
+
 
                             if (aLogicGame != null)
                             {
@@ -197,7 +207,7 @@ namespace _2DLogicGame
                                 Shutdown();
                             }
                         }
-                        else if (tmpReceivedByte == (byte) NetConnectionStatus.Disconnecting)
+                        else if (tmpReceivedByte == (byte)NetConnectionStatus.Disconnecting)
                         {
                             Debug.WriteLine("Pog");
                         }
@@ -297,7 +307,7 @@ namespace _2DLogicGame
                             HandlePositionChange(tmpIncommingMessage);
                         }
 
-                        if (tmpReceivedByte == (byte) PacketMessageType.GameFinished)
+                        if (tmpReceivedByte == (byte)PacketMessageType.GameFinished)
                         {
                             HandleGameFinished(tmpIncommingMessage);
                         }
@@ -611,7 +621,6 @@ namespace _2DLogicGame
                                 case BlockCollisionType.None:
                                     break;
                                 case BlockCollisionType.Wall: //Prekazka typu Stena
-                                    parLevelManager.GetBlockByPosition(tmpTilePositVector2).ChangeColor(true, Color.White); /////////////// ZMAZAT
 
                                     if (tmpIsBlocked == false) //Preto je tu tato podmienka, aby sme zabranili tomu, ze ak sa uz Entita detegovala jednu koliziu, neprepise ju..
                                     {
@@ -744,6 +753,20 @@ namespace _2DLogicGame
             aLevelManager.HandleGameFinishedData(parIncomingMessage);
         }
 
+        /// <summary>
+        /// Metoda, ktora prelozi Disconnect Message, pokial je v anglictine - pokial ju nezachyti, neprelozi ju.
+        /// </summary>
+        /// <returns>Vrati, pokial bola zachytena, prelozenu Disconnect Message.</returns>
+        public string GetCustomDisconnectMessage()
+        {
+            switch (aDisconnectMessage)
+            {
+                case "Failed to establish connection - no response from remote host":
+                    return "Pripojenie sa nezdarilo - Ziadna odpoved od hostitela.";
+                default:
+                    return aDisconnectMessage;
+            }
+        }
 
         /// <summary>
         /// Metoda, ktora ma za nasledok "vypnutie klienta"
@@ -778,7 +801,7 @@ namespace _2DLogicGame
 
             aClient = null;
 
-            
+
         }
 
 

@@ -85,11 +85,11 @@ namespace LevelCreator
                         continue;
                     }
 
-                    if (!aBlockDictionary.ContainsKey(tmpReadChar))
+                    if (!aBlockDictionary.ContainsKey(tmpReadChar) && tmpReadChar != '0') //Budeme ignorovat nacitanie ak je charakter - 0
                     {
                         Console.WriteLine("Znak " + tmpReadChar + " sa este nenachadza v Dictionary");
                         Console.WriteLine();
-                        Console.WriteLine("Zadaj meno pre znak " + tmpReadChar);
+                        Console.WriteLine("Zadaj meno pre znak " + tmpReadChar + ", zadaj IGNORE(Case Sens.) pre ignorovanie tohto typu.");
                         Console.WriteLine();
                         string tmpNameOfBlock = Console.ReadLine(); //Nazov Bloku - napr. waterBlock
 
@@ -112,17 +112,21 @@ namespace LevelCreator
 
                     }
 
-                    Console.WriteLine("Blok - " + aBlockDictionary[tmpReadChar].BlockName + " X " + aPositionX + " Y " + aPositionY);
-
-                    // tmpNewLevel.BlockPositionDictionary.Add(new Vector2(aPositionX, aPositionY), aBlockDictionary[tmpReadChar]); //Pocitam s tym, ze pozicie nebudu rovnake
-
-                  
-
-
                     BlockData tmpBlockData = new BlockData();
-                    tmpBlockData.BlockName = aBlockDictionary[tmpReadChar].BlockName;
-                    tmpBlockData.Position = new Vector2(aPositionX, aPositionY);
-                    tmpBlockData.AdditionalData = aBlockDictionary[tmpReadChar].AdditionalData;
+
+                    if (tmpReadChar != '0')
+                    {
+
+                        Console.WriteLine("Blok - " + aBlockDictionary[tmpReadChar].BlockName + " X " + aPositionX + " Y " + aPositionY);
+
+                        // tmpNewLevel.BlockPositionDictionary.Add(new Vector2(aPositionX, aPositionY), aBlockDictionary[tmpReadChar]); //Pocitam s tym, ze pozicie nebudu rovnake
+
+                        
+                        tmpBlockData.BlockName = aBlockDictionary[tmpReadChar].BlockName;
+                        tmpBlockData.Position = new Vector2(aPositionX, aPositionY);
+                        tmpBlockData.AdditionalData = aBlockDictionary[tmpReadChar].AdditionalData;
+
+                    }
 
                     if (tmpReadChar == 'S' || tmpReadChar == 's') //Oznacenie - Spawn Hraca
                     {
@@ -137,7 +141,13 @@ namespace LevelCreator
                         tmpPlayerIdCounter++;
                     }
 
-                    tmpNewLevel.BlockDataList.Add(tmpBlockData);
+
+                    if (tmpReadChar != '0' && tmpBlockData != null)
+                    {
+                        tmpNewLevel.BlockDataList.Add(tmpBlockData);
+
+                    }
+
                     aPositionX++; //Po nacitani bloku, zvysime X-ovu suradnicu
                 }
             }
@@ -162,7 +172,7 @@ namespace LevelCreator
             //Poznamka od Veduceho - Mozno by bolo dobre spravit to, ze ak sa tam nejaky blok opakuje vela krat napríklad 0 - cize vzduch. Tak to tam proste nedať. 
             //Proste to neulozit do XML-ka -> To znamena, ze pri nacitani by tam ostal vzduch. Alebo zadefinovat, ze pri nacitani, tam kde nie je nic, dat napriklad travu...
 
-            
+
         }
 
     }

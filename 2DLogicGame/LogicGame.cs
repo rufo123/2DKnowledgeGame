@@ -45,6 +45,8 @@ namespace _2DLogicGame
 
         private MenuInput aIPAddressInput;
 
+        private MenuErrors aMenuErrors;
+
         private Texture2D bck;
 
         private ClientSide.Chat.Chat aChat;
@@ -84,6 +86,8 @@ namespace _2DLogicGame
         private MenuStatsIndicator aMenuStatIndicator;
 
         private LevelQuitConfirm aLevelQuitConfirm;
+
+        private Texture2D aLevelBackgroundTexture;
 
         private float aReconnectDatabaseTimer;
 
@@ -212,10 +216,11 @@ namespace _2DLogicGame
 
             aConnectUI = new ConnectingUI(this, "Connecting", aConnectionTimeout, '.');
 
+            aMenuErrors = new MenuErrors(this, new Vector2(aRenderTargetWidth / 2F, 50));
 
-            aMenu = new Menu(this, aMenuBox, aScoreboardController, aNickNameInput, aIPAddressInput, aConnectUI, aOptionsController, aMenuStatIndicator);
+            aMenu = new Menu(this, aMenuBox, aScoreboardController, aNickNameInput, aIPAddressInput, aConnectUI, aOptionsController, aMenuStatIndicator, aMenuErrors);
 
-            aMainMenu = new ComponentCollection(this, aMenu, aMenuBox, aScoreboardUI, aNickNameInput, aIPAddressInput, aConnectUI, aOptionsController, aMenuStatIndicator);
+            aMainMenu = new ComponentCollection(this, aMenu, aMenuBox, aScoreboardUI, aNickNameInput, aIPAddressInput, aConnectUI, aOptionsController, aMenuStatIndicator, aMenuErrors);
 
 
             ClientSide.Chat.ChatReceiveBox chatReceive = new ClientSide.Chat.ChatReceiveBox(this, Window, 593, 800, Vector2.Zero + new Vector2(10, 10));
@@ -233,6 +238,8 @@ namespace _2DLogicGame
             aOptionsController.InitKeysFromConfig();
 
             aReconnectDatabaseTimer = 0F;
+
+            aLevelBackgroundTexture = new Texture2D(this.GraphicsDevice, aRenderTargetWidth, aRenderTargetHeight);
 
             base.Initialize();
 
@@ -270,12 +277,22 @@ namespace _2DLogicGame
 
             aMainMenu.SetVisibility(true);
 
+            if (aLevelBackgroundTexture != null)
+            {
+                aLevelBackgroundTexture = this.Content.Load<Texture2D>("Sprites\\Backgrounds\\gameBCK");
+            }
+
 
             // TODO: use this.Content to load your game content here
         }
 
         protected override void Update(GameTime gameTime)
         {
+
+            if (aClientClass != null && aClientClass.ClientNeedsToShutdown)
+            {
+                aMenuErrors.SetErrorMessage(aClientClass.DisconnectMessage);
+            }
 
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || CheckKeyPressedOnce(Keys.Escape) || (aClientClass != null && aClientClass.ClientNeedsToShutdown)) //Ak je stlacene tlacitko ESCAPE alebo o vypnutie poziadal klient.
             {
@@ -292,9 +309,9 @@ namespace _2DLogicGame
                 else if (GameState == GameState.Playing && aLevelQuitConfirm != null && !aLevelQuitConfirm.ShowConfirm && !aClientClass.ClientNeedsToShutdown) //Ak hrac nie je v menu a stlaci ESC, zobrazime potvrdzovacie okno, pre vypnutie hry.
                 {
                     aLevelQuitConfirm.ShowConfirm = true;
-                } 
-                else if ((GameState != GameState.MainMenu && aLevelQuitConfirm != null && aLevelQuitConfirm.ShowConfirm) || GameState == GameState.Submenu || (aClientClass != null && aClientClass.ClientNeedsToShutdown)) //Ak nie sme v hlavnom menu, alebo klient poziadal o vypnutie.
-                {
+                }
+                else if ((GameState != GameState.MainMenu && aLevelQuitConfirm != null && aLevelQuitConfirm.ShowConfirm) || GameState == GameState.Submenu || (aClientClass != null && aClientClass.ClientNeedsToShutdown) || (aLevelManager != null && aLevelManager.GameCompleted)) //Ak nie sme v hlavnom menu, alebo klient poziadal o vypnutie.
+                {//Do menu sa dostaneme hned pokia - Je uz zobrazeny Confirm Box a stlacime Escape | sme v submenu | Client poziadal o vypnutie | Hra bola dokoncena.
                     Debug.WriteLine("BACK_TO_MENU");
 
                     if (aLevelQuitConfirm != null && aLevelQuitConfirm.ShowConfirm) //Ak je otvorene okno s potvrdenim navratu do menu, zavrieme ho.
@@ -321,6 +338,7 @@ namespace _2DLogicGame
                     MediaPlayer.Stop();
                 }
             }
+
 
             if (CheckKeyPressedOnce(aProceedKey) && aLevelQuitConfirm != null && aLevelQuitConfirm.ShowConfirm)  //Ak je stlacene tlacidlo potvrdenia - ProceedKey - prednastavene - Space - Medzernik.
             { //A ak bolo pri stlaceni potvrdenia otvorene potvrdzovacie okno, zavrieme ho.
@@ -357,15 +375,31 @@ namespace _2DLogicGame
                             aPlayerController = new GraphicObjects.PlayerController(this);
 
                             aServerClass = new Server("Test", this);
-                            aClientClass = new Client("Test", this, aChat, aPlayingScreen, aPlayerController, aLevelManager, aConnectionTimeout, tmpNickName);
 
-                            aServerReadThread = new Thread(new ThreadStart(aServerClass.ReadMessages));
-                            aServerReadThread.Start();
 
-                            aClientReadThread = new Thread(new ThreadStart(aClientClass.ReadMessages));
-                            aClientReadThread.Start();
+                            if (aServerClass != null && aServerClass.Started)
+                            {
+                                aClientClass = new Client("Test", this, aChat, aPlayingScreen, aPlayerController, aLevelManager, aConnectionTimeout, tmpNickName);
 
-                            aMenu.TaskToExecute = MenuTasksToBeExecuted.TryToConnect;
+                                aServerReadThread = new Thread(new ThreadStart(aServerClass.ReadMessages));
+                                aServerReadThread.Start();
+
+                                aClientReadThread = new Thread(new ThreadStart(aClientClass.ReadMessages));
+                                aClientReadThread.Start();
+
+                                aMenu.TaskToExecute = MenuTasksToBeExecuted.TryToConnect;
+                            }
+                            else //Pokial sa stane ze Port a IP uz je obsadena, Host nebude fungovat
+                            {
+                                aMenu.TaskToExecute = MenuTasksToBeExecuted.None;
+
+                                aPlayerController = null;
+
+                                if (aMenuErrors != null)
+                                {
+                                    aMenuErrors.SetErrorMessage("IP Adresa/Port je uz obsadena/y.");
+                                }
+                            }
 
 
 
@@ -409,7 +443,7 @@ namespace _2DLogicGame
                         break;
                 }
 
-                
+
             }
 
             if (aClientClass != null) //Inicializacia Levelu
@@ -609,7 +643,6 @@ namespace _2DLogicGame
                     GraphicsDevice.Clear(Color.Orange);
                 }
 
-
             }
 
             else
@@ -622,6 +655,12 @@ namespace _2DLogicGame
 
 
             SpriteBatch.Begin(samplerState: SamplerState.PointClamp, depthStencilState: DepthStencilState.None, rasterizerState: RasterizerState.CullNone, sortMode: SpriteSortMode.BackToFront, blendState: BlendState.AlphaBlend, transformMatrix: Matrix.CreateTranslation(aCameraX, 0, 0));
+
+            if (aClientClass != null && aClientClass.Connected)
+            {
+                SpriteBatch.Draw(aLevelBackgroundTexture, Vector2.Zero, new Rectangle(0, 0, aLevelBackgroundTexture.Width, aLevelBackgroundTexture.Height), Color.White, 0F, Vector2.Zero, 1F, SpriteEffects.None, 1F);
+            }
+
             base.Draw(gameTime);
 
             SpriteBatch.End();
@@ -677,7 +716,7 @@ namespace _2DLogicGame
 
             GameState = GameState.MainMenu;
 
-            if (aServerClass != null)
+            if (aServerClass != null && aServerClass.Started)
             {
                 aServerReadThread.Join();
             }

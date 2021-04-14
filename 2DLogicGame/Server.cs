@@ -113,41 +113,58 @@ namespace _2DLogicGame
 
             aServer = new NetServer(tmpServerConfig); //Inicializujeme Server s nami zadanou Konfiguraciou
 
+            bool tmpServerAlreadyRunning = false;
 
-            aServer.Start(); //Zapneme nas Web Server
-            //Ked volame Start() - Lidgren nabinduje vhodny Network Socket a vytvori na pozadi Thread, ktory spracuje prave Sietovanie...
-
-            if (aServer.Status == NetPeerStatus.Running)
+            try
             {
-                //Ak server bezi, nastavime atribut aStared na TRUE
-                aStarted = true;
+                aServer.Start(); //Zapneme nas Web Server
+                //Ked volame Start() - Lidgren nabinduje vhodny Network Socket a vytvori na pozadi Thread, ktory spracuje prave Sietovanie...
+            }
+            catch (System.Net.Sockets.SocketException tmpServerAlreadyRunningException)
+            {
+                Debug.WriteLine(tmpServerAlreadyRunningException);
+                tmpServerAlreadyRunning = true;
+            }
+
+            if (tmpServerAlreadyRunning == false)
+            {
+
+                if (aServer.Status == NetPeerStatus.Running)
+                {
+                    //Ak server bezi, nastavime atribut aStared na TRUE
+                    aStarted = true;
+                }
+                else
+                {
+                    aStarted = false;
+                }
+
+                Debug.WriteLine("Server Connection Initiated");
+
+                aDictionaryPlayerData = new Dictionary<long, ServerSide.PlayerServerData>(aMaxPlayers);
+
+                aLevelManager.InitLevelByNumber(1);
+
+                aStopWatch = new Stopwatch();
+
+                Debug.WriteLine(aDictionaryPlayerData.Count);
+
+                aMovementThread = new Thread(new ThreadStart(this.MovementHandler));
+                aMovementThread.Start();
+
+                aStandableBlocksList = new List<BlockServer>();
+
+                aStandableBlocksHandlerThread = new Thread(new ThreadStart(this.StandableBlocksHandler));
+                aStandableBlocksHandlerThread.Start();
+
+                aLevelManagerThread = new Thread(new ThreadStart(this.LevelUpdateHandler));
+                aLevelManagerThread.Start();
+
             }
             else
             {
-                aStarted = false;
+                Shutdown();
             }
-
-            Debug.WriteLine("Server Connection Initiated");
-
-            aDictionaryPlayerData = new Dictionary<long, ServerSide.PlayerServerData>(aMaxPlayers);
-
-            aLevelManager.InitLevelByNumber(1);
-
-            aStopWatch = new Stopwatch();
-
-            Debug.WriteLine(aDictionaryPlayerData.Count);
-
-            aMovementThread = new Thread(new ThreadStart(this.MovementHandler));
-            aMovementThread.Start();
-
-            aStandableBlocksList = new List<BlockServer>();
-
-            aStandableBlocksHandlerThread = new Thread(new ThreadStart(this.StandableBlocksHandler));
-            aStandableBlocksHandlerThread.Start();
-
-            aLevelManagerThread = new Thread(new ThreadStart(this.LevelUpdateHandler));
-            aLevelManagerThread.Start();
-
         }
 
 
@@ -268,7 +285,7 @@ namespace _2DLogicGame
                         aServer.SendToAll(tmpNetOutgoingMessage, NetDeliveryMethod.ReliableOrdered);
                         aLevelManager.ChangeToNextLevel();
 
-                        if (aDictionaryPlayerData.Count > 0 ) //Ak sa nachadza v Dictionary nejaky hrac, prepiseme jeho aktualnu poziciu na prednastavenu
+                        if (aDictionaryPlayerData.Count > 0) //Ak sa nachadza v Dictionary nejaky hrac, prepiseme jeho aktualnu poziciu na prednastavenu
                         {
                             foreach (KeyValuePair<long, ServerSide.PlayerServerData> dictItem in aDictionaryPlayerData.ToList())  //ToList -> Nakopiruje cely Dictionary do Listu... , Prejdeme vsetky data v Dictionary
                             {
@@ -518,7 +535,7 @@ namespace _2DLogicGame
 
         public void ReadMessages()
         {
-            if (aStopWatch.IsRunning != true)
+            if (aStopWatch != null && aStopWatch.IsRunning != true)
             {
                 aStopWatch.Start(); //Zapneme casovat
             }
@@ -886,22 +903,15 @@ namespace _2DLogicGame
         {
 
             long tmpRemoteUniqueIdentifier = parMessage.SenderConnection.RemoteUniqueIdentifier;
-            aDictionaryPlayerData.Remove(tmpRemoteUniqueIdentifier);
 
             if (aDictionaryPlayerData.Count > 0) //Ak je niekto pripojeny na server
             {
-                foreach (KeyValuePair<long, ServerSide.PlayerServerData> dictItem in aDictionaryPlayerData.ToList() //ToList -> Nakopiruje cely Dictionary do Listu... 
-                ) //Prejdeme vsetky data v Dictionary
-                {
-                    if (dictItem.Key == tmpRemoteUniqueIdentifier)
-                    {
-                        aLevelManager.DictionaryPlayerDataWithKeyId.Remove(dictItem.Value.PlayerID);
-                    }
-                }
+
+                aLevelManager.DictionaryPlayerDataWithKeyId.Remove(aDictionaryPlayerData[tmpRemoteUniqueIdentifier].PlayerID);
 
             }
 
-
+            aDictionaryPlayerData.Remove(tmpRemoteUniqueIdentifier);
 
             // parMessage.SenderConnection.Disconnect("Disconnect Requested");
 
@@ -935,9 +945,16 @@ namespace _2DLogicGame
 
             aServer = null;
 
-            aMovementThread.Join();
+            if (aMovementThread != null)
+            {
+                aMovementThread.Join();
+            }
 
-            aStandableBlocksHandlerThread.Join();
+            if (aStandableBlocksHandlerThread != null)
+            {
+                aStandableBlocksHandlerThread.Join();
+            }
+
 
             Debug.WriteLine("Shutting Down Server");
         }

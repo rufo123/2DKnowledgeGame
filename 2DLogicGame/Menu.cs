@@ -51,6 +51,8 @@ namespace _2DLogicGame
 
         private MenuStatsIndicator aStatusIndicator;
 
+        private MenuErrors aMenuErrors;
+
         private int aSelectedInputID;
 
         private MenuTasksToBeExecuted aTaskToExecute;
@@ -70,13 +72,14 @@ namespace _2DLogicGame
         /// <param name="aScoreboardController"></param>
         /// <param name="parNickNameInput"></param>
         /// <param name="parIpInput"></param>
-        public Menu(LogicGame parGame, MenuBox parMenuBox, ScoreboardController aScoreboardController, MenuInput parNickNameInput, MenuInput parIpInput, ConnectingUI parConnectingUI, OptionsController parOptionsController, MenuStatsIndicator parStatusIndicator) : base(parGame)
+        public Menu(LogicGame parGame, MenuBox parMenuBox, ScoreboardController aScoreboardController, MenuInput parNickNameInput, MenuInput parIpInput, ConnectingUI parConnectingUI, OptionsController parOptionsController, MenuStatsIndicator parStatusIndicator, MenuErrors parMenuErrors) : base(parGame)
         {
             this.aLogicGame = parGame;
             this.aMenuBox = parMenuBox;
             this.aScoreboardController = aScoreboardController;
             this.aConnectingUI = parConnectingUI;
             this.aStatusIndicator = parStatusIndicator;
+            this.aMenuErrors = parMenuErrors;
 
             aNickNameInput = parNickNameInput; //Rozdelil som tieto input, preto takto a nedal som ich do listu, lebo sa budu zobrazovat az po prejdeni na urcity menu item
             aIPInput = parIpInput;
@@ -253,75 +256,90 @@ namespace _2DLogicGame
                 }
             }
 
-
-            switch (TaskToExecute)
+            if (aMenuBox != null && aScoreboardController != null && aConnectingUI != null && aOptionsController != null && aStatusIndicator != null && aMenuErrors != null)
             {
-                case MenuTasksToBeExecuted.None:
-                    if (aScoreboardController != null)
-                    { 
-                        aMenuBox.BoxEnabled = true;
-                        aScoreboardController.ShowStats(false);
-                        aConnectingUI.StartTimer = false;
-                        aOptionsController.EnabledOptions = false;
-                        aStatusIndicator.IndicatorEnabled = true;
-                    }
-                    MenuHandle(); //Pokial nie je nic zvolene zobrazi sa hlavna cast menu
-                    break;
-                case MenuTasksToBeExecuted.Enroll_Credits:
-                    break;
-                case MenuTasksToBeExecuted.Change_Options:
-                    if (aOptionsController != null)
-                    {
-                        aMenuBox.BoxEnabled = false;
-                        aOptionsController.EnabledOptions = true;
-                        aStatusIndicator.IndicatorEnabled = false;
-                    }
-
-                    break;
-                case MenuTasksToBeExecuted.Show_Stats:
-                    if (aScoreboardController != null && aScoreboardController != null && aScoreboardController.IsConnected())
-                    {
-                        aMenuBox.BoxEnabled = false;
-                        aScoreboardController.InitScoreboard();
-                        aScoreboardController.ShowStats(true);
-                        aStatusIndicator.IndicatorEnabled = false;
-                    }
-                    break;
-                case MenuTasksToBeExecuted.Exit:
-                    break;
-                case MenuTasksToBeExecuted.TryToConnect:
-                    if (aConnectingUI != null)
-                    {
-                        aMenuBox.BoxEnabled = false;
-                        aConnectingUI.StartTimer = true;
-                        aStatusIndicator.IndicatorEnabled = false;
-                        if (aListOfInputs != null)
+                switch (TaskToExecute)
+                {
+                    case MenuTasksToBeExecuted.None:
+                        if (aScoreboardController != null)
                         {
-                            for (int i = 0; i < aListOfInputs.Count; i++)
+                            aScoreboardController.ShowStats(false);
+                            aConnectingUI.StartTimer = false;
+                            aOptionsController.EnabledOptions = false;
+                            aStatusIndicator.IndicatorEnabled = true;
+                            aMenuErrors.ShowError = true;
+                            aMenuBox.BoxEnabled = true;
+                        }
+
+                        MenuHandle(); //Pokial nie je nic zvolene zobrazi sa hlavna cast menu
+                        break;
+                    case MenuTasksToBeExecuted.Enroll_Credits:
+                        break;
+                    case MenuTasksToBeExecuted.Change_Options:
+                        if (aOptionsController != null)
+                        {
+                            aMenuBox.BoxEnabled = false;
+                            aOptionsController.EnabledOptions = true;
+                            aStatusIndicator.IndicatorEnabled = false;
+                            aMenuErrors.ShowError = false;
+                            aMenuErrors.DeleteErrorMessage();
+                        }
+
+                        break;
+                    case MenuTasksToBeExecuted.Show_Stats:
+                        if (aScoreboardController != null && aScoreboardController != null &&
+                            aScoreboardController.IsConnected())
+                        {
+                            aMenuBox.BoxEnabled = false;
+                            aScoreboardController.InitScoreboard();
+                            aScoreboardController.ShowStats(true);
+                            aStatusIndicator.IndicatorEnabled = false;
+                            aMenuErrors.ShowError = false;
+                            aMenuErrors.DeleteErrorMessage();
+                        }
+
+                        break;
+                    case MenuTasksToBeExecuted.Exit:
+                        break;
+                    case MenuTasksToBeExecuted.TryToConnect:
+                        if (aConnectingUI != null)
+                        {
+                            aMenuBox.BoxEnabled = false;
+                            aConnectingUI.StartTimer = true;
+                            aStatusIndicator.IndicatorEnabled = false;
+                            aMenuErrors.ShowError = false;
+                            aMenuErrors.DeleteErrorMessage();
+                            if (aListOfInputs != null)
                             {
-                                aListOfInputs[i].InputEnabled = false;
+                                for (int i = 0; i < aListOfInputs.Count; i++)
+                                {
+                                    aListOfInputs[i].InputEnabled = false;
+                                }
                             }
+
+                            TaskToExecute = MenuTasksToBeExecuted.Connecting;
                         }
 
-                        TaskToExecute = MenuTasksToBeExecuted.Connecting;
-                    }
-                    break;
-                case MenuTasksToBeExecuted.Connecting:
-                    if (aConnectingUI != null && aLogicGame != null)
-                    {
-                        aStatusIndicator.IndicatorEnabled = false;
-                        if (aConnectingUI.ConnectionTimeout <= 0)
+                        break;
+                    case MenuTasksToBeExecuted.Connecting:
+                        if (aConnectingUI != null && aLogicGame != null)
                         {
-                            TaskToExecute = MenuTasksToBeExecuted.None;
-                            aLogicGame.GameState = GameState.MainMenu;
+                            aStatusIndicator.IndicatorEnabled = false;
+                            if (aConnectingUI.ConnectionTimeout <= 0)
+                            {
+                                TaskToExecute = MenuTasksToBeExecuted.None;
+                                aLogicGame.GameState = GameState.MainMenu;
+                            }
 
+                            aMenuErrors.DeleteErrorMessage();
+                            aMenuErrors.ShowError = false;
                         }
-                    }
 
-                    break;
-                default:
-                    //throw new ArgumentOutOfRangeException();
-                    break;
+                        break;
+                    default:
+                        //throw new ArgumentOutOfRangeException();
+                        break;
+                }
             }
 
 
