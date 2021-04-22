@@ -8,6 +8,9 @@ using Microsoft.Xna.Framework;
 
 namespace _2DLogicGame.GraphicObjects
 {
+    /// <summary>
+    /// Enumeracna trieda, reprezentujuca spatnu vazbu manazera matematickeho problemu na strane klienta.
+    /// </summary>
     public enum Feedback
     {
         NotSubmitted = 0,
@@ -16,6 +19,9 @@ namespace _2DLogicGame.GraphicObjects
         AllSolved = 3
     }
 
+    /// <summary>
+    /// Trieda, reprezentujuca manazer matematickeho problemu na strane klienta.
+    /// </summary>
     public class MathProblemManager : GameComponent
     {
         /// <summary>
@@ -114,7 +120,10 @@ namespace _2DLogicGame.GraphicObjects
             set => aUpdateIsReady = value;
         }
 
-
+        /// <summary>
+        /// Konstruktor matematickeho problemu na strane klienta.
+        /// </summary>
+        /// <param name="parLogicGame"></param>
         public MathProblemManager(LogicGame parLogicGame) : base(parLogicGame)
         {
             aCompletelyLoaded = false;
@@ -123,7 +132,7 @@ namespace _2DLogicGame.GraphicObjects
             aRandom = new Random();
             aGame = parLogicGame;
             aDictionaryOfBridgeSubBlocks = new Dictionary<int, List<BridgeBlock>>();
-            aMathProblem = new MathProblem(parLogicGame, new Microsoft.Xna.Framework.Vector2(100, 200), new Microsoft.Xna.Framework.Vector2(855, 300), 5, 64);
+            aMathProblem = new MathProblem(parLogicGame, new Microsoft.Xna.Framework.Vector2(100, 200), new Microsoft.Xna.Framework.Vector2(855, 300), 64);
             aGame.Components.Add(aMathProblem);
             aDictionaryInputBlocks = new Dictionary<int, InputBlock>();
             aMathPoints = 0;
@@ -230,6 +239,11 @@ namespace _2DLogicGame.GraphicObjects
             }
         }
 
+        /// <summary>
+        /// Metoda, ktora nastavi cislo, ktora ma byt zadane v blokoch reprezentujucich input.
+        /// </summary>
+        /// <param name="parNewNumber">Parameter, reprezentujuci cislo, ktora sa nasledne zada do inputu - typ int.</param>
+        /// <returns>Vrati bool hodnotu v zavislosti od uspechu metody.</returns>
         public bool SetNumberToInput(int parNewNumber)
         {
             if (aDictionaryInputBlocks != null)
@@ -289,10 +303,6 @@ namespace _2DLogicGame.GraphicObjects
 
         }
 
-        public override void Initialize()
-        {
-            base.Initialize();
-        }
 
         /// <summary>
         /// Metoda - Update -> Ak je uz level kompletne nacitany, porovnava ci je tlacitko stlacene ak ano, zobrazi k nemu prislusnu Matematicku Rovnicu 

@@ -14,6 +14,9 @@ using Lidgren.Network;
 
 namespace _2DLogicGame
 {
+    /// <summary>
+    /// Trieda, reprezentujuca Server.
+    /// </summary>
     public class Server
     {
         /// <summary>
@@ -95,6 +98,12 @@ namespace _2DLogicGame
             set => aStarted = value;
         }
 
+
+        /// <summary>
+        /// Konstruktor serveru.
+        /// </summary>
+        /// <param name="parAppName">Parameter, reprezentujuci meno aplikacie - typ string. Pozn. meno aplikacie musi byt totozne s klientom.</param>
+        /// <param name="parGame">Parameter, reprezentujuci hru - typ LogicGame.</param>
         public Server(string parAppName, LogicGame parGame)
         {
 
@@ -104,20 +113,23 @@ namespace _2DLogicGame
             NetPeerConfiguration
                 tmpServerConfig = new NetPeerConfiguration(parAppName)
                 {
-                    Port = aPort
+                    Port = aPort,
+                    EnableUPnP = true
 
                 }; //Nastavime si Meno nasej Aplikacie, ktora bude sluzi na validaciu pri pripojeni a Port
 
-            tmpServerConfig.EnableMessageType(NetIncomingMessageType
-                .ConnectionApproval); //Povolime prijmanie spravy typu - ConnectionApproval (Enum)
+            tmpServerConfig.EnableMessageType(NetIncomingMessageType.ConnectionApproval); //Povolime prijmanie spravy typu - ConnectionApproval (Enum)
 
             aServer = new NetServer(tmpServerConfig); //Inicializujeme Server s nami zadanou Konfiguraciou
+
+            
 
             bool tmpServerAlreadyRunning = false;
 
             try
             {
                 aServer.Start(); //Zapneme nas Web Server
+                aServer.UPnP.ForwardPort(aPort, "KnowledgeGame");
                 //Ked volame Start() - Lidgren nabinduje vhodny Network Socket a vytvori na pozadi Thread, ktory spracuje prave Sietovanie...
             }
             catch (System.Net.Sockets.SocketException tmpServerAlreadyRunningException)
@@ -228,6 +240,9 @@ namespace _2DLogicGame
 
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o aktualizaciu dat v urovni.
+        /// </summary>
         public void LevelUpdateHandler()
         {
             if (aStopWatch.IsRunning != true)
@@ -335,6 +350,9 @@ namespace _2DLogicGame
             }
         }
 
+        /// <summary>
+        /// Metoda, ktora spravuje bloky, na ktorych sa da stat.
+        /// </summary>
         public void StandableBlocksHandler()
         {
 
@@ -533,6 +551,9 @@ namespace _2DLogicGame
         }
 
 
+        /// <summary>
+        /// Metoda, ktora sa stara o citanie sprav od klientov.
+        /// </summary>
         public void ReadMessages()
         {
             if (aStopWatch != null && aStopWatch.IsRunning != true)
@@ -938,6 +959,8 @@ namespace _2DLogicGame
             }
 
             aServer.Shutdown("Shutting down Server");
+            aServer.UPnP.DeleteForwardingRule(aPort);
+            aServer.UPnP.DeleteForwardingRule(aServer.Port);
             if (aServer.Status == NetPeerStatus.NotRunning) //Ak server nebezi
             {
                 aStarted = false; //Nastavime atribut aStarted na FALSE

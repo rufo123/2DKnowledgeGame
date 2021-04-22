@@ -8,17 +8,44 @@ using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace _2DLogicGame.GraphicObjects
 {
-
+    /// <summary>
+    /// Enumeracna trieda, reprezentujuca typ vstupu, ci ide o cisla alebo farby. - Klient.
+    /// </summary>
     public enum InputBlockType
     {
         Numbers = 0, //Default
         Colors = 1 //Alternativa
     }
 
+    /// <summary>
+    /// Trieda, reprezentuje blok - vstup. - Klient.
+    /// </summary>
     public class InputBlock : Block
     {
-
+        /// <summary>
+        /// Atribut, reprezentujuci cislo - typ int.
+        /// </summary>
         private int aNumber;
+
+        /// <summary>
+        /// Atribut, reprezentujuci minimalne mozne dosiahnutelne cislo - typ int.
+        /// </summary>
+        private int aMinNumber;
+
+        /// <summary>
+        /// Atribut, reprezentujuci maximalne mozne dosiahnutelne cislo - typ int.
+        /// </summary>
+        private int aMaxNumber;
+
+        /// <summary>
+        /// Atribut, reprezentujuci ci doslo k odoslaniu odpovede, ktora vyzadovala vstup - typ bool.
+        /// </summary>
+        private bool aSubmitted;
+
+        /// <summary>
+        /// Atribut, reprezentujuci typ vstupu - typ InputBlockType - enum.
+        /// </summary>
+        private InputBlockType aInputBlockType;
 
         public int Number
         {
@@ -26,20 +53,24 @@ namespace _2DLogicGame.GraphicObjects
             set => aNumber = value;
         }
 
-        private int aMinNumber;
-
-        private int aMaxNumber;
-
-        private bool aSubmitted;
-
-        private InputBlockType aInputBlockType;
-
         public bool Submitted
         {
             get => aSubmitted;
             set => aSubmitted = value;
         }
-
+        
+        /// <summary>
+        /// Konstruktor input bloku.
+        /// </summary>
+        /// <param name="parGame">Parameter, reprezentujuci hru - typ LogicGame.</param>
+        /// <param name="parPosition">Parameter, reprezentujuci poziciu - typ Vector2.</param>
+        /// <param name="parInputBlockType">Parameter, reprezentujuci typ inputu - typ InputBlockType - enum.</param>
+        /// <param name="parTexture">Parameter, reprezentujuci texturu - typ Texture2D.</param>
+        /// <param name="parIsAnimated">Parameter, reprezentujuci ci je blok animovany - typ bool.</param>
+        /// <param name="parHasStates">Parameter, reprezentujuci ci blok ma viacej stavov - typ bool.</param>
+        /// <param name="parCountOfFrames">Parameter, reprezentujuci pocet framov bloku, ak nejake ma - typ int.</param>
+        /// <param name="parMinNumber">Parameter, reprezentujuci najmensie dosiahnutelne cislo - typ int.</param>
+        /// <param name="parMaxNumber">Parameter, reprezentujuci najvacsie dosiahnutelne cislo - typ int.</param>
         public InputBlock(LogicGame parGame, Vector2 parPosition, InputBlockType parInputBlockType = InputBlockType.Numbers, Texture2D parTexture = null, bool parIsAnimated = false, bool parHasStates = false, int parCountOfFrames = 0, int parMinNumber = 0, int parMaxNumber = 9) : base(parGame, parPosition, parTexture, parIsAnimated, parHasStates, parCountOfFrames, parCollisionType: BlockCollisionType.Wall)
         {
             aInputBlockType = parInputBlockType;
@@ -120,12 +151,21 @@ namespace _2DLogicGame.GraphicObjects
             aNumber = 0;
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o zmenu vstuput.
+        /// </summary>
+        /// <param name="parType"></param>
         public void ChangeInputType(InputBlockType parType)
         {
             aInputBlockType = parType;
         }
 
-        public override void Update(GameTime gameTime)
+        /// <summary>
+        /// Metoda, ktora sa stara o aktualizaciu bloku. Pokial ide o blok, ktory ma vstup farbu.
+        /// Stara sa o zmenu stavu blokov.
+        /// </summary>
+        /// <param name="parGameTime">Parameter, reprezentujuci GameTime.</param>
+        public override void Update(GameTime parGameTime)
         {
 
             if (aInputBlockType == InputBlockType.Colors)
@@ -133,27 +173,31 @@ namespace _2DLogicGame.GraphicObjects
                 switch (aNumber)
                 {
                     case 0:
-                        SwitchState(0, gameTime.ElapsedGameTime.Milliseconds);
+                        SwitchState(0, parGameTime.ElapsedGameTime.Milliseconds);
                         break;
                     case 1:
-                        SwitchState(1, gameTime.ElapsedGameTime.Milliseconds);
+                        SwitchState(1, parGameTime.ElapsedGameTime.Milliseconds);
                         break;
                     case 2:
-                        SwitchState(2, gameTime.ElapsedGameTime.Milliseconds);
+                        SwitchState(2, parGameTime.ElapsedGameTime.Milliseconds);
                         break;
                     case 3:
-                        SwitchState(3, gameTime.ElapsedGameTime.Milliseconds);
+                        SwitchState(3, parGameTime.ElapsedGameTime.Milliseconds);
                         break;
                     case 4:
-                        SwitchState(4, gameTime.ElapsedGameTime.Milliseconds);
+                        SwitchState(4, parGameTime.ElapsedGameTime.Milliseconds);
                         break;
                 }
             }
 
-            base.Update(gameTime);
+            base.Update(parGameTime);
         }
 
-        public override void Draw(GameTime gameTime)
+        /// <summary>
+        /// Metoda, ktora sa stara o vykreslovanie bloku.
+        /// </summary>
+        /// <param name="parGameTime">Parameter, reprezentujuci GameTime.</param>
+        public override void Draw(GameTime parGameTime)
         {
 
             if (aInputBlockType == InputBlockType.Numbers)
@@ -184,8 +228,9 @@ namespace _2DLogicGame.GraphicObjects
                 
             }
 
-            base.Draw(gameTime);
+            base.Draw(parGameTime);
 
         }
+
     }
 }

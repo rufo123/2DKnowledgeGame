@@ -8,31 +8,57 @@ using System.Text;
 
 namespace _2DLogicGame.GraphicObjects
 {
+    /// <summary>
+    /// Trida, ktora sa stara o ovladanie pohybu a interagovania hraca. - Klient.
+    /// </summary>
     public class PlayerController : GameComponent
     {
-
-
+        /// <summary>
+        /// Atribut, ktory reprezentuje data o hracoch. Klient.
+        /// </summary>
         private PlayerClientData aPlayer;
 
+        /// <summary>
+        /// Atibut, reprezentujuci hru - typ LogicGame.
+        /// </summary>
         private LogicGame aGame;
 
+        /// <summary>
+        /// Atribut, reprezentujuci poslednu stlacenu klavesu - typ Keys.
+        /// </summary>
         private Keys aOldKeyPressed = Keys.None;
 
+        /// <summary>
+        /// Atribut, reprezentujuci ci je update potrebny - typ bool.
+        /// </summary>
         private bool aUpdateNeeded = false;
 
-        private bool aUpdateInteractBeingSent = false;
-
-        public bool UpdateNeeded { get => aUpdateNeeded; set => aUpdateNeeded = value; }
-
+        /// <summary>
+        /// Atribut, reprezentujuci ci sa hrac predtym pohyboval - typ bool.
+        /// </summary>
         private bool aOldMoving = false;
 
-        private float aMovementUpdateTime = 0;
-
+        /// <summary>
+        /// Atribut, reprezentujuci GameTime.
+        /// </summary>
         private GameTime aGameTime;
 
+        /// <summary>
+        /// Atribut, reprezentujuci predosly stav klavesnice - typ KeyboardState.
+        /// </summary>
         private KeyboardState aOldKeyboardState;
 
-        public GameTime GameTime { get => aGameTime; set => aGameTime = value; }
+        public bool UpdateNeeded
+        {
+            get => aUpdateNeeded;
+            set => aUpdateNeeded = value;
+        }
+
+        public GameTime GameTime
+        {
+            get => aGameTime;
+            set => aGameTime = value;
+        }
 
         /// <summary>
         /// Konstruktor PlayerControlleru, Hrac mozu byt zadany uz pri konstrukcii, alebo neskor...
@@ -44,13 +70,8 @@ namespace _2DLogicGame.GraphicObjects
             aGame = parGame;
             aPlayer = parPlayer;
             aOldKeyboardState = new KeyboardState(Keys.None);
-            aUpdateInteractBeingSent = false;
         }
 
-        public override void Initialize()
-        {
-            base.Initialize();
-        }
 
         /// <summary>
         /// Metoda, ktora nastavi hraca, ktory bude ovladany - Controllerom
@@ -173,121 +194,6 @@ namespace _2DLogicGame.GraphicObjects
         }
 
 
-
-        /*    public override void Update(GameTime parGameTime)
-            {
-
-                aGameTime = parGameTime;
-
-                KeyboardState tmpNewKeyBoardState = Keyboard.GetState();
-
-                if (aPlayer != null)
-                {
-                    Keys tmpCurrentKeyPresed = Keys.None;
-
-                    double tmpElapsedTime = parGameTime.ElapsedGameTime.TotalSeconds;
-
-                    if (tmpNewKeyBoardState.IsKeyDown(aUp))
-                    {
-                        tmpCurrentKeyPresed = aUp;
-                        aPlayer.IsTryingToMove = true;
-                        aPlayer.SetDirection(Entity.Direction.UP);
-
-                        if (tmpCurrentKeyPresed != aOldKeyPressed)
-                        {
-                            aUpdateNeeded = true;
-                        }
-                        aPlayer.Move(parGameTime);
-                    }
-                    else if (tmpNewKeyBoardState.IsKeyDown(aRight))
-                    {
-                        tmpCurrentKeyPresed = aRight;
-                        aPlayer.IsTryingToMove = true;
-                        aPlayer.SetDirection(Entity.Direction.RIGHT);
-
-                        if (tmpCurrentKeyPresed != aOldKeyPressed)
-                        {
-                            aUpdateNeeded = true;
-                        }
-                        aPlayer.Move(parGameTime);
-                    }
-                    else if (tmpNewKeyBoardState.IsKeyDown(aLeft))
-                    {
-                        tmpCurrentKeyPresed = aLeft;
-                        aPlayer.IsTryingToMove = true;
-                        aPlayer.SetDirection(Entity.Direction.LEFT);
-
-                        if (tmpCurrentKeyPresed != aOldKeyPressed)
-                        {
-                            aUpdateNeeded = true;
-                        }
-
-                        aPlayer.Move(parGameTime);
-                    }
-                    else if (tmpNewKeyBoardState.IsKeyDown(aDown))
-                    {
-                        tmpCurrentKeyPresed = aDown;
-                        aPlayer.IsTryingToMove = true;
-                        aPlayer.SetDirection(Entity.Direction.DOWN);
-
-                        if (tmpCurrentKeyPresed != aOldKeyPressed)
-                        {
-                            aUpdateNeeded = true;
-                        }
-                        aPlayer.Move(parGameTime);
-                    }
-                    else
-                    {
-                        aPlayer.IsTryingToMove = false;
-                        aPlayer.MovementVector = new Vector2(0, 0);
-                        tmpCurrentKeyPresed = Keys.None;
-
-                        if (tmpCurrentKeyPresed != aOldKeyPressed)
-                        {
-                            aUpdateNeeded = true;
-                        }
-
-                    }
-
-
-
-                    //Kedy je update pre server potrebny?
-
-                    /*  if (tmpNewKeyBoardState.IsKeyDown(tmpCurrentKeyPresed) && aOldKeyboardState.IsKeyUp(tmpCurrentKeyPresed)) //Porovname, ci uzivatel stlacil nove tlacitko
-                      {
-                          aUpdateNeeded = true;
-
-                      }
-                      else if (tmpNewKeyBoardState.IsKeyUp(tmpCurrentKeyPresed)) //Ak dojde k tomu, ze pustime tlacitka
-                      {
-                          if (aOldKeyboardState.IsKeyDown(aUp) || aOldKeyboardState.IsKeyDown(aRight) || //Porovname ci pred tym bolo stlacene tlacitko pohybu
-                              aOldKeyboardState.IsKeyDown(aLeft) || aOldKeyboardState.IsKeyDown(aDown))
-                          {
-                              aUpdateNeeded = true;
-
-                          }
-                      }
-                      else if (tmpNewKeyBoardState.GetPressedKeyCount() == 2 && aOldKeyboardState.GetPressedKeyCount() == 1 || tmpNewKeyBoardState.GetPressedKeyCount() == 1 && aOldKeyboardState.GetPressedKeyCount() == 2) //Poistka proti stlacaniu 2 klaves naraz, hlavne viditelne pri starsich PS2 klavesniciach
-                      {
-
-                          if (tmpNewKeyBoardState.IsKeyDown(aUp) || tmpNewKeyBoardState.IsKeyDown(aRight) ||
-                              tmpNewKeyBoardState.IsKeyDown(aDown) || tmpNewKeyBoardState.IsKeyDown(aLeft))
-                          {
-
-                              aUpdateNeeded = true;
-                          }
-
-                      }  */
-
-        /*          aOldKeyPressed = tmpCurrentKeyPresed;
-                  aOldKeyboardState = tmpNewKeyBoardState;
-                  aOldMoving = aPlayer.IsTryingToMove;
-
-              }
-
-              base.Update(parGameTime);
-          } */
-
         /// <summary>
         /// Metoda reprezentujuca, kedy je update potrebny - pre Server, pokial si server zavola tuto metodu, zaroven ohlasi, ze update uz nie je potrebny a caka sa na dalsi...
         /// </summary>
@@ -310,5 +216,6 @@ namespace _2DLogicGame.GraphicObjects
         {
             base.OnUpdateOrderChanged(sender, args);
         }
+
     }
 }

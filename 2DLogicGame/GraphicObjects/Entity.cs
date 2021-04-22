@@ -10,8 +10,14 @@ using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace _2DLogicGame.GraphicObjects
 {
+    /// <summary>
+    /// Trieda, ktora reprezentuje Entitu. - Klient.
+    /// </summary>
     public class Entity : DrawableGameComponent
     {
+        /// <summary>
+        /// Enumeracna trieda, reprezentujuca smer. - Klient.
+        /// </summary>
         public enum Direction
         {
             UP = 0,
@@ -20,13 +26,15 @@ namespace _2DLogicGame.GraphicObjects
             LEFT = 3
         }
 
+        /// <summary>
+        /// Enumeracna trieda, reprezentujuca rotaciu. - Klient.
+        /// </summary>
         public enum Rotation
         {
             NONE = 0,
             TO_RIGHT = 1,
             TO_LEFT = -1
         }
-
 
 
         /// <summary>
@@ -114,7 +122,7 @@ namespace _2DLogicGame.GraphicObjects
         /// <summary>
         /// Atribut, reprezentujuci ci je entita zablokovaná, teda napr narazila do steny - typ bool
         /// </summary>
-        private bool parIsBlocked = false;
+        private bool aIsBlocked = false;
 
         /// <summary>
         /// Atribut, reprezentujuci prednastavenu poziciu Entity, kde sa objavi po znovuzrodeni - typ Vector2
@@ -130,6 +138,36 @@ namespace _2DLogicGame.GraphicObjects
         /// Atribut, ktory reprezentuje, ci entita vyzaduje Respawn - typ bool
         /// </summary>
         private bool aEntityNeedsReSpawn;
+
+        /// <summary>
+        /// Atribut reprezentujuci nasobnu velkost oproti originalu - typ float
+        /// </summary>
+        private float aEntityScale = 1F;
+
+        /// <summary>
+        /// Atribut, reprezentujuci ci entita ocakava spravy o pohybe - typ bool.
+        /// </summary>
+        private bool aAwaitingMovementMessage = false;
+
+        /// <summary>
+        /// Atribut, reprezentujuci ci sa entita snazi pohnut - typ bool.
+        /// </summary>
+        private bool aIsTryingToMove = false;
+
+        /// <summary>
+        /// Atribut, reprezentujuci ci doslo k zisteniu chybnych dat o pohybe - typ bool.
+        /// </summary>
+        private bool aMovingDataErrored = false;
+
+        /// <summary>
+        /// Atribut, reprezentujuci ci entita potrebuje korekciu pozicie - typ bool.
+        /// </summary>
+        private bool aEntityNeedsPosCorrect = false;
+
+        /// <summary>
+        /// Atribut, reprezentujuci ci entita potrebuje jednoduchu interpolaciu - typ bool.
+        /// </summary>
+        private bool aEntityNeedsInterpolation = false;
 
         public bool WantsToInteract
         {
@@ -147,23 +185,6 @@ namespace _2DLogicGame.GraphicObjects
             set => aEntityNeedsReSpawn = value;
         }
 
-
-        /// <summary>
-        /// Atribut reprezentujuci nasobnu velkost oproti originalu - typ float
-        /// </summary>
-        private float aEntityScale = 1F;
-
-        private bool aAwaitingMovementMessage = false;
-
-        private bool aIsTryingToMove = false;
-
-        private bool aMovingDataErrored = false;
-
-        private bool aEntityNeedsPosCorrect = false;
-
-        private bool aEntityNeedsInterpolation = false;
-
-
         // Confirm
         // Atributy
         // Od servera
@@ -176,12 +197,19 @@ namespace _2DLogicGame.GraphicObjects
         public bool AwaitingMovementMessage { get => aAwaitingMovementMessage; set => aAwaitingMovementMessage = value; }
         public bool IsTryingToMove { get => aIsTryingToMove; set => aIsTryingToMove = value; }
         public Vector2 MovementVector { get => aMovementVector; set => aMovementVector = value; }
-        public bool IsBlocked { get => parIsBlocked; set => parIsBlocked = value; }
+        public bool IsBlocked { get => aIsBlocked; set => aIsBlocked = value; }
 
 
 
 
-
+        /// <summary>
+        /// Konstruktor Entity.
+        /// </summary>
+        /// <param name="parGame">Parameter, reprezentujuci hru - typ LogicGame.</param>
+        /// <param name="parPosition">Parameter, reprezentujuci poziciu - typ Vector2.</param>
+        /// <param name="parSize">Parameter, reprezentujuci velkost - typ Vector2.</param>
+        /// <param name="parDirection">Parameter, reprezentujuci smer - typ Direction - enum.</param>
+        /// <param name="parSpeed">Parameter, reprezentujuci rychlost - typ float.</param>
         public Entity(LogicGame parGame, Vector2 parPosition, Vector2 parSize, Direction parDirection = Direction.UP, float parSpeed = 1F) : base(parGame)
         {
             aLogicGame = parGame;
@@ -201,17 +229,6 @@ namespace _2DLogicGame.GraphicObjects
 
             aEntityNeedsReSpawn = false;
 
-            //Ak by bola Entita vyssia ako 64 blokov, nebude sa to ratat do vysky
-            /*if (aSize.Y > 64)
-            {
-                Vector2 tmpNewPosition = parPosition;
-                Vector2 tmpNewSize = parSize;
-                tmpNewPosition.Y -= tmpNewSize.Y - 64;
-                tmpNewSize.Y = 64;
-                aSize = tmpNewSize;
-                aPosition = tmpNewPosition;
-            }
-            */
         }
 
         /// <summary>
@@ -338,7 +355,7 @@ namespace _2DLogicGame.GraphicObjects
                 aMovementVector.Y = 0;
             }
 
-            if (parIsBlocked == false)
+            if (aIsBlocked == false)
             {
                 aVelocity = aSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
                 aPosition += aMovementVector * aVelocity;
@@ -620,7 +637,10 @@ namespace _2DLogicGame.GraphicObjects
         }
 
         
-
+        /// <summary>
+        /// Override Metoda, ktora sa stara o aktualizovanie dat entity. Ci entita nepotrebuje korekciu pozicie alebo znovuzrodenie sa.
+        /// </summary>
+        /// <param name="parGameTime"></param>
         public override void Update(GameTime parGameTime)
         {
             if (aEntityNeedsPosCorrect == true)
@@ -638,10 +658,6 @@ namespace _2DLogicGame.GraphicObjects
             base.Update(parGameTime);
         }
 
-        public override void Initialize()
-        {
-            base.Initialize();
-        }
 
         /// <summary>
         /// Overridnuta Metoda LoadContent, ktora nacitava Texturu Entity

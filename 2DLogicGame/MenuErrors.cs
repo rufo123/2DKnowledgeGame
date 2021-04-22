@@ -6,6 +6,9 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace _2DLogicGame
 {
+    /// <summary>
+    /// Trieda, ktore reprezentuje graficku implementaciu spravy chyb, ktore suvisia s pripojovanim sa do hry.
+    /// </summary>
     public class MenuErrors : DrawableGameComponent
     {
 
@@ -40,6 +43,11 @@ namespace _2DLogicGame
             set => aShowError = value;
         }
 
+        /// <summary>
+        /// Konstruktor triedy spravy chyb v menu.
+        /// </summary>
+        /// <param name="parLogicGame">Parameter, reprezentujuci hru - typ LogicGame.</param>
+        /// <param name="parPosition">Parameter, reprezentujuci poziciu - typ Vector2.</param>
         public MenuErrors(LogicGame parLogicGame, Vector2 parPosition) : base(parLogicGame)
         {
             aLogicGame = parLogicGame;
@@ -66,7 +74,10 @@ namespace _2DLogicGame
             aErrorMessage = "";
         }
 
-
+        /// <summary>
+        /// Metoda, ktora sa stara o aktializaciu dat triedy. A teda, spravy doby, pocas ktorej ma byt zobrazena chybova hlaska.
+        /// </summary>
+        /// <param name="parGameTime">Parameter, reprezentujuci GameTime.</param>
         public override void Update(GameTime parGameTime)
         {
             if (aShowError && aErrorMessage != "") //Ak sprava nie je prazdna a je zobrazena, zacneme odpocitavat a postupne ju schovame resp. vymazeme.
@@ -83,7 +94,11 @@ namespace _2DLogicGame
             base.Update(parGameTime);
         }
 
-        public override void Draw(GameTime gameTime)
+        /// <summary>
+        /// Metoda, ktora sa stara o vykreslovanie chybovej hlasky.
+        /// </summary>
+        /// <param name="parGameTime">Parameter, reprezentujuci GameTime.</param>
+        public override void Draw(GameTime parGameTime)
         {
 
             if (aShowError && aErrorMessage != "") //Vykresli Error Message, pokial sa ma Error Message zobrazit a message nie je prazdna.
@@ -95,7 +110,7 @@ namespace _2DLogicGame
             }
 
             
-            base.Draw(gameTime);
+            base.Draw(parGameTime);
         }
     }
 }

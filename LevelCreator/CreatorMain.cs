@@ -5,6 +5,9 @@ using XMLData;
 
 namespace LevelCreator
 {
+    /// <summary>
+    /// Trieda, ktora je hlavna trieda a vytvara jednotlive instancie vytvaracov.
+    /// </summary>
     class CreatorMain
     {
 

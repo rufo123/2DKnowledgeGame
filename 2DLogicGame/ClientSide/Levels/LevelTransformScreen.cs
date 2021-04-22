@@ -135,11 +135,6 @@ namespace _2DLogicGame.ClientSide.Levels
         }
 
 
-        public override void Update(GameTime gameTime)
-        {
-            base.Update(gameTime);
-        }
-
 
         /// <summary>
         /// Metoda - Draw - Ak je potrebne vyblednutie, pracuje s Timerom a postupne vybledne celu obrazovku, podobne aj s zatmavenim

@@ -8,6 +8,9 @@ using Microsoft.Xna.Framework;
 namespace _2DLogicGame.ClientSide.English
 {
 
+    /// <summary>
+    /// Enumeracna trieda, ktora reprezentuje feedback prekladu.
+    /// </summary>
     public enum VocabularyFeedback
     {
         None = 0,
@@ -15,20 +18,45 @@ namespace _2DLogicGame.ClientSide.English
         CorrectAnswer = 2
     }
 
+    /// <summary>
+    /// Trieda, ktora reprezentuje manazer prekladu.
+    /// </summary>
     public class EnglishManager : GameComponent
     {
+        /// <summary>
+        /// Atribut, reprezentujuci List - typu string, obsahujuci slovenske slova.
+        /// </summary>
         private List<string> aSlovakWords;
 
+        /// <summary>
+        /// Atribut, reprezentujuci List - typu string, obsahujuci anglicke slova.
+        /// </summary>
         private List<string> aEnglishWords;
 
+        /// <summary>
+        /// Atribut, reprezentujuci graficky komponent prekladu. - typ EnglishSlovakUI.
+        /// </summary>
         private EnglishSlovakWords aEnglishSlovakUI;
 
+        /// <summary>
+        /// Atribut, reprezentujuci List - typu ButtonBlock, obsahujuci bloky, resp. tlacidla.
+        /// </summary>
         private List<ButtonBlock> aButtonList;
 
+        /// <summary>
+        /// Atribut, reprezentujuci hru - typ LogicGame.
+        /// </summary>
         private LogicGame aLogicGame;
 
+        /// <summary>
+        /// Atribut, reprezentujuci feedback - typ VocabularyFeedback - enum.
+        /// </summary>
         private VocabularyFeedback aVocabularyFeedback;
 
+        /// <summary>
+        /// Konstruktor, manazera prekladu.
+        /// </summary>
+        /// <param name="parLogicGame">Parameter, reprezentujuci hru - typ LogicGame.</param>
         public EnglishManager(LogicGame parLogicGame) : base(parLogicGame)
         {
             aSlovakWords = new List<string>();
@@ -54,12 +82,18 @@ namespace _2DLogicGame.ClientSide.English
 
         }
 
+        /// <summary>
+        /// Metoda, ktora inicializuje komponenty suvisiace s manazerom.
+        /// </summary>
         public void Init()
         {
             aLogicGame.Components.Add(this);
             aLogicGame.Components.Add(aEnglishSlovakUI);
         }
 
+        /// <summary>
+        /// Metoda, ktora odstrani komponenty suvisiace s manazerom.
+        /// </summary>
         public void Destroy()
         {
             aLogicGame.Components.Remove(this);
@@ -67,6 +101,10 @@ namespace _2DLogicGame.ClientSide.English
 
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o pridanie tlacidiel do Listu.
+        /// </summary>
+        /// <param name="parButton">Parameter, reprezentujuci blok typu ButtonBlock.</param>
         public void AddButton(ButtonBlock parButton)
         {
             if (aButtonList != null)
@@ -75,7 +113,11 @@ namespace _2DLogicGame.ClientSide.English
             }
         }
 
-        public override void Update(GameTime gameTime)
+        /// <summary>
+        /// Override metoda, ktora sa stara o aktualizaciu manazera, rozdeluje vykreslovanie anglickych a slovenskych slov.
+        /// </summary>
+        /// <param name="parGameTime">Parameter, reprezentujuci GameTime.</param>
+        public override void Update(GameTime parGameTime)
         {
             if (aButtonList != null && aButtonList.Count > 0 && aEnglishSlovakUI != null)
             {
@@ -97,7 +139,7 @@ namespace _2DLogicGame.ClientSide.English
                 }
             }
 
-            base.Update(gameTime);
+            base.Update(parGameTime);
         }
 
         /// <summary>

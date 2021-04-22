@@ -9,7 +9,7 @@ using System.Text;
 namespace _2DLogicGame.GraphicObjects
 {
     /// <summary>
-    /// None - Nema koliziu, Wall - Cez takyto blok entita neprejde, Zap - Znici Entitu
+    /// Enumeracna trieda kolizie bloku -> None - Nema koliziu, Wall - Cez takyto blok entita neprejde, Zap - Znici Entitu - Klient.
     /// </summary>
     public enum BlockCollisionType
     {
@@ -21,7 +21,9 @@ namespace _2DLogicGame.GraphicObjects
         Standable = 5
     }
 
-
+    /// <summary>
+    /// Trieda, reprezentujuca blok. - Klient.
+    /// </summary>
     public class Block : DrawableGameComponent
     {
         /// <summary>
@@ -84,16 +86,29 @@ namespace _2DLogicGame.GraphicObjects
         /// Atribut, ktory reprezentuje, ci framy animacie sa maju posuvat doprava
         /// </summary>
         private bool aAnimateForwards = true;
-
-        // Atribut, ktory reprezentuje, casovac, ktory pocita cas od kedy sa zmenil stav - textura bloku
+        /// <summary>
+        /// Atribut, ktory reprezentuje, casovac, ktory pocita cas od kedy sa zmenil stav - textura bloku
+        /// </summary>
         private float aTimerStateChanged = 0F;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje farbu - typ Color.
+        /// </summary>
         private Color aColor = Color.White;
 
+        /// <summary>
+        /// Atribut, reprezentujuci viditelnost/priehladnost bloku.
+        /// </summary>
         private float aVisibility = 1F;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje ci sa da s blokom interagovat alebo nie - typ bool.
+        /// </summary>
         private bool aIsInteractible;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje hodnotu bool, ci sa da s blokom interagovat.
+        /// </summary>
         private bool aWantsToInteract;
 
         /// <summary>
@@ -106,19 +121,29 @@ namespace _2DLogicGame.GraphicObjects
         /// </summary>
         private float aLayerDepth = 1F;
 
-        public float LayerDepth { get => aLayerDepth; set => aLayerDepth = value; }
-
+        /// <summary>
+        /// Atribut, reprezentujuci pravdivostnu hodnotu, toho ci je objekt schovany alebo nie - typ bool.
+        /// </summary>
         private bool aIsHidden = false;
 
+        /// <summary>
+        /// Atribut, reprezentujuci ci sa entita stoji na danom bloku - typ bool.
+        /// </summary>
         public bool aEntityIsStandingOnTop = false;
 
+        /// <summary>
+        /// Atribut, reprezentujuci casovac spojeny s aEntityIsStandingOnTop - typ float.
+        /// </summary>
         private float aStandingOnTimer = 0F;
 
         /// <summary>
-        /// Atribut, ktory reprezentuje informacie o tom, ci sa jedna o kolizny objekt alebo nie
+        /// Atribut, ktory reprezentuje informacie o tom, ci sa jedna o kolizny objekt alebo nie - typ BlockCollisionType.
         /// </summary>
         private BlockCollisionType aBlockCollisionType = BlockCollisionType.None;
 
+        /// <summary>
+        /// Atribut, reprezentujuci prednastavenu koliziu bloku - typ BlockCollisionType.
+        /// </summary>
         private BlockCollisionType aDefaultBlockCollisionType;
 
         public BlockCollisionType BlockCollisionType
@@ -193,6 +218,11 @@ namespace _2DLogicGame.GraphicObjects
             set => aDefaultBlockCollisionType = value;
         }
 
+        public float LayerDepth { 
+            get => aLayerDepth;
+            set => aLayerDepth = value;
+        }
+
 
         /// <summary>
         /// Trieda reprezentujuca Blok, ktory je specifikovany poziciou a pokial pouzivatel potrebuje, moze hned inicializovat aj Texturu
@@ -254,12 +284,9 @@ namespace _2DLogicGame.GraphicObjects
             }
         }
 
-
-        public override void Initialize()
-        {
-            base.Initialize();
-        }
-
+        /// <summary>
+        /// Metoda, ktora sa stara o nacitanie textury, velkosti a rectangla.
+        /// </summary>
         protected override void LoadContent()
         {
 
@@ -303,6 +330,10 @@ namespace _2DLogicGame.GraphicObjects
         }
 
 
+        /// <summary>
+        /// Metoda, ktora sa stara o aktualizaciu bloku. Starajuca sa o animaciu a stavy bloku.
+        /// </summary>
+        /// <param name="gameTime"></param>
         public override void Update(GameTime gameTime)
         {
 
@@ -451,12 +482,13 @@ namespace _2DLogicGame.GraphicObjects
         }
 
         /// <summary>
-        /// Pomocna Debug Metoda - DEBUG ONLY - Zmazat
+        /// Metoda, ktora sa stara o spravu zmeny farieb bloku. Zaroven obsahujuca debug parameter.
         /// </summary>
-        /// <param name="par">DEBUG ONLY</param>
+        /// <param name="parDebug">Debug parameter - typ bool.</param>
+        /// <param name="parColor">Parameter, reprezentujuci farbu - typ Color.</param>
         public void ChangeColor(bool parDebug, Color parColor)
         {
-            if (parDebug == true) //Debug
+            if (parDebug == true) //Debug parameter, ktory sa da vyuzit na vizualnu reprezentaciu kolizie.
             {
                 if (aColor == Color.White)
                 {

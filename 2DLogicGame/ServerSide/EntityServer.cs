@@ -6,10 +6,13 @@ using System.Text;
 
 namespace _2DLogicGame.ServerSide
 {
+    /// <summary>
+    /// Trieda, ktora reprezentuje entitu. - Server.
+    /// </summary>
     public class EntityServer
     {
         /// <summary>
-        /// Enum reprezentujuci Smer
+        /// Enum reprezentujuci Smer. - Server.
         /// </summary>
         public enum Direction
         {
@@ -20,7 +23,7 @@ namespace _2DLogicGame.ServerSide
         }
 
         /// <summary>
-        /// Enum reprezentujuci Rotaciu
+        /// Enum reprezentujuci Rotaciu. - Server.
         /// </summary>
         public enum Rotation
         {
@@ -79,7 +82,7 @@ namespace _2DLogicGame.ServerSide
         /// <summary>
         /// Atribut, ktory reprezentuje ci entita narazila na prekazku, resp. nemoze sa pohnut - typ bool
         /// </summary>
-        public bool aIsBlocked = false;
+        private bool aIsBlocked = false;
 
         /// <summary>
         /// Atribut, ktory sluzi na definovanie Hitboxu - typ Vector2 - ZATIAL NEYUZITE

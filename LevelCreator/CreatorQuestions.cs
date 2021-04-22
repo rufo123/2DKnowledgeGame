@@ -8,9 +8,15 @@ using XMLData;
 
 namespace LevelCreator
 {
+    /// <summary>
+    /// Trieda, ktora reprezentuje vytvarac XML suborov otazok a odpovedi.
+    /// </summary>
     public class CreatorQuestions
     {
 
+        /// <summary>
+        /// Konstruktor vytvaraca XML suborov otazok a odpovedi.
+        /// </summary>
         public CreatorQuestions()
         {
 
@@ -82,7 +88,6 @@ namespace LevelCreator
 
 
         }
-
 
     }
 }

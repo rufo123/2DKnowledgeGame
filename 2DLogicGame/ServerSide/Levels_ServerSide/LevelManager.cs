@@ -17,6 +17,9 @@ using XMLData;
 
 namespace _2DLogicGame.ServerSide.Levels_ServerSide
 {
+    /// <summary>
+    /// Trieda, reprezentujuca manazer urovni. - Server.
+    /// </summary>
     public class LevelManager
     {
         /// <summary>
@@ -64,12 +67,24 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
         /// </summary>
         private bool aWinInfoRequested;
 
+        /// <summary>
+        /// Atribut, reprezentujuci maximalny pocet hracov - typ int.
+        /// </summary>
         private int aMaxPlayers = 2;
 
+        /// <summary>
+        /// Atribut, reprezentujuci cislo aktualnej urovne - typ int.
+        /// </summary>
         private int aCurrentLevelNumber;
 
+        /// <summary>
+        /// Atribut, reprezentujuci dosiahnuty pocet bodov za predosle urovne, nepocitajuc aktualnu uroven - typ int.
+        /// </summary>
         private int aPointsFromPreviousLevels;
 
+        /// <summary>
+        /// Atribut, reprezentujuci dosiahnuty pocet bodov za aktualnu uroven, nepocitajuc predosle urovne - typ int.
+        /// </summary>
         private int aPointsForThisLevel;
 
         /// <summary>
@@ -169,6 +184,18 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
             set => aGameFinishedInfoSent = value;
         }
 
+        public LevelMap LevelMap1
+        {
+            get => default;
+            set
+            {
+            }
+        }
+
+        /// <summary>
+        /// Konstruktor manazera urovni.
+        /// </summary>
+        /// <param name="parLogicGame">Parameter, reprezentujuci hru - typ LogicGame. Musel sa pouzit kvoli pouzitiu Content Loadera z kniznice MonoGame.</param>
         public LevelManager(LogicGame parLogicGame)
         {
             aPointsForThisLevel = 0;
@@ -188,6 +215,11 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
 
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o nacitanie dat o urovni z XML suboru.
+        /// </summary>
+        /// <param name="parLevelXmlPath">Parameter, reprezentujuci cestu k XML suboru obsahujuceho data o urovni - typ string.</param>
+        /// <returns></returns>
         public bool LoadBlockXmlData(string parLevelXmlPath)
         {
 
@@ -235,6 +267,10 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
 
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o incializaciu urovne, podla zadanej cesty k XML suboru obsahujuceho data o urovni.
+        /// </summary>
+        /// <param name="parLevelXmlPath">Paramter, reprezentujuci cestu k XML suboru, obsahujuceho data o urovni - typ string.</param>
         public void InitLevel(string parLevelXmlPath)
         {
             LoadBlockXmlData(parLevelXmlPath: parLevelXmlPath); //Nacitame do Listu data o blokoch
@@ -272,6 +308,9 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
             }
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o zmenu urovne na dalsiu uroven.
+        /// </summary>
         public void ChangeToNextLevel()
         {
             LevelMap.DestroyMap(aLevelName);
@@ -287,6 +326,9 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
             }
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o reset urovne.
+        /// </summary>
         public void ResetLevel()
         {
             LevelMap.DestroyMap(aLevelName);
@@ -294,6 +336,9 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
             InitLevelByNumber(aCurrentLevelNumber);
         }
 
+        /// <summary>
+        /// Metoda, ktora nastavenie hry na dokoncenu.
+        /// </summary>
         public void SetFinish()
         {
             if (aPlayerStatisticsHandler != null && aPlayerStatisticsHandler.IsConnected && aGameFinished == false)
@@ -333,6 +378,11 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
             return aLevelMap.GetBlocksPositionDictionary();
         }
 
+        /// <summary>
+        /// Metoda, ktora vrati poziciu bloku podla zadaneho suradnice bloku.
+        /// </summary>
+        /// <param name="parBlockPositionVector">Parameter, reprezentujuci suradnicu bloku.</param>
+        /// <returns></returns>
         public BlockServer GetBlockByPosition(Vector2 parBlockPositionVector)
         {
             //Pouzijeme TryGet aby sme zistili, ci tam zadany kluc - pozicia je, ak ano vratime ho cez out
@@ -343,6 +393,10 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
         }
 
 
+        /// <summary>
+        /// Metoda, ktora sa stara o vratenie informacie o tom ci je potrebna nejaka aktualizacia.
+        /// </summary>
+        /// <returns>Vrati pravdivostnu hodnotu na zaklade potrebnosti aktualizacie - typ bool.</returns>
         public bool IsUpdateNeeded()
         {
             switch (aLevelName)
@@ -360,6 +414,9 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
             return false;
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o aktualizaciu bodov.
+        /// </summary>
         public void UpdatePoints()
         {
             switch (aLevelName)
@@ -378,6 +435,10 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
             }
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o aktualizaciu informacie o tom, ci server nepotrebuje reset.
+        /// </summary>
+        /// <returns>Vrati pravdivostnu hodnotu, na zaklade toho ci level nepotrebuje reset - typ bool.</returns>
         public bool LevelNeedsReset()
         {
             switch (aLevelName)
@@ -396,6 +457,10 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
 
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o kontrolu, ci nedoslo k dokonceniu urovne.
+        /// </summary>
+        /// <returns></returns>
         public bool WinCheck()
         {
             switch (aLevelName)
@@ -455,6 +520,11 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
             return null;
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o pripravenie dat o urovni na odovzdanie.
+        /// </summary>
+        /// <param name="parOutgoingMessage">Parameter, reprezentujuci odchadzajucu spravu - typ NetOutgoingMessage - buffer.</param>
+        /// <returns></returns>
         public NetOutgoingMessage PrepareLevelDataForUpload(NetOutgoingMessage parOutgoingMessage)
         {
             parOutgoingMessage.WriteVariableInt32(aPointsFromPreviousLevels + aPointsForThisLevel);
@@ -482,6 +552,11 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
             return parOutgoingMessage;
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o pripravenie inicializacnych dat urovne na odovzdanie.
+        /// </summary>
+        /// <param name="parOutgoingMessage">Parameter, reprezentujuci odchadzajucu spravu - typ NetOutgoingMessage - buffer.</param>
+        /// <returns></returns>
         public NetOutgoingMessage PrepareLevelInitDataForUpload(NetOutgoingMessage parOutgoingMessage)
         {
             parOutgoingMessage.WriteVariableInt32(aPointsFromPreviousLevels + aPointsForThisLevel);
@@ -512,6 +587,11 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
             }
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o pripravenie spravy o zmene urovne.
+        /// </summary>
+        /// <param name="parOutgoingMessage">Parameter, reprezentujuci odchadzajucu spravu - typ NetOutgoingMessage - buffer.</param>
+        /// <returns></returns>
         public NetOutgoingMessage PrepareLevelChangeMessage(NetOutgoingMessage parOutgoingMessage)
         {
             int tmpNewLevel = aCurrentLevelNumber + 1;
@@ -519,6 +599,11 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
             return parOutgoingMessage;
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o pripravenie dat pri spojenych s dokoncenim hry (bodoch a casu).
+        /// </summary>
+        /// <param name="parOutgoingMessage">Parameter, reprezentujuci odchadzajucu spravu - typ NetOutgoingMessage - buffer.</param>
+        /// <returns></returns>
         public NetOutgoingMessage PrepareFinishedMessageData(NetOutgoingMessage parOutgoingMessage)
         {
             parOutgoingMessage.WriteVariableInt32(aPointsForThisLevel + aPointsFromPreviousLevels);
@@ -529,7 +614,7 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
         /// <summary>
         /// Metoda, ktora sa stara o pripravenie dat o zmene prednastavenej pozicie
         /// </summary>
-        /// <param name="parOutgoingMessage">Parameter spravy - typ NetOutGoingMessage - Buffer</param>
+        /// <param name="parOutgoingMessage">Parameter odchadzajucej spravy - typ NetOutGoingMessage - Buffer</param>
         /// <returns></returns>
         public NetOutgoingMessage PrepareDefaultPositionUpdate(NetOutgoingMessage parOutgoingMessage)
         {

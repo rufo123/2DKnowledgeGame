@@ -7,6 +7,9 @@ using System.Text;
 namespace _2DLogicGame.ClientSide.Chat
 {
 
+    /// <summary>
+    /// Enumeracna trieda, pomocou ktorej sa odlisuju farby sprav v chate.
+    /// </summary>
     public enum ChatColors { 
     White = 0,
     Red = 1,
@@ -14,34 +17,39 @@ namespace _2DLogicGame.ClientSide.Chat
     Purple = 3
     }
 
+    /// <summary>
+    /// Trieda, ktora spravuje Chat.
+    /// </summary>
     public class Chat : Microsoft.Xna.Framework.DrawableGameComponent
     {
         /// <summary>
-        /// Atribut Hry
+        /// Atribut Hry - typ LogicGame.
         /// </summary>
         private LogicGame aLogicGame;
 
-
         /// <summary>
-        /// Reprezentuje Chat Input Box - Typ ChatInputBox
+        /// Reprezentuje Chat Input Box - Typ ChatInputBox.
         /// </summary>
         private ChatInputBox aChatInputBox;
 
         /// <summary>
-        /// Reprezentuje Chat Receive Box - Typ ChatReceiveBox
+        /// Reprezentuje Chat Receive Box - Typ ChatReceiveBox.
         /// </summary>
         private ChatReceiveBox aChatReceiveBox;
 
         /// <summary>
-        /// Queue, ktora reprezentuje Spravy, ktore cakaju na odoslanie - Kazdy tick sa odosle jedna
+        /// Queue, ktora reprezentuje Spravy, ktore cakaju na odoslanie - Kazdy tick sa odosle jedna.
         /// </summary>
         private Queue<string> aMessagesToBeSent;
 
         /// <summary>
-        /// Reprezentuje ci Chat obsahuje nejake spravy, ktore by mali byt odoslane
+        /// Reprezentuje ci Chat obsahuje nejake spravy, ktore by mali byt odoslane - typ bool.
         /// </summary>
         private bool isMessageWaitingToBeSent;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje hodnotu, ci je sprava pripravena na odoslanie - typ bool.
+        /// </summary>
         public bool IsMessageWaitingToBeSent { get => isMessageWaitingToBeSent;  }
 
         public ChatInputBox ChatInputBox
@@ -56,6 +64,12 @@ namespace _2DLogicGame.ClientSide.Chat
             set => aChatReceiveBox = value;
         }
 
+        /// <summary>
+        /// Konstruktor Chatu.
+        /// </summary>
+        /// <param name="parGame">Parameter reprezentujuci hru - typ LogicGame.</param>
+        /// <param name="parChatInputBox">Parameter, reprezenujuci okno chatu pre pisanie sprav - typ ChatInputBox.</param>
+        /// <param name="parChatReceiveBox">Parameter, reprezentujuci okno chatu pre prijmanie sprav - typ ChatReceiveBox.</param>
         public Chat(LogicGame parGame, ChatInputBox parChatInputBox, ChatReceiveBox parChatReceiveBox) : base(parGame)
         {
             aMessagesToBeSent = new Queue<string>(2);
@@ -64,29 +78,19 @@ namespace _2DLogicGame.ClientSide.Chat
             aChatReceiveBox = parChatReceiveBox;
         }
 
-        public override void Draw(GameTime gameTime)
-        {
-
-
-
-            base.Draw(gameTime);
-        }
-
-        public override void Initialize()
-        {
-            base.Initialize();
-        }
-
+        /// <summary>
+        /// Override metoda, ktora sa stara o aktualizaciu hernych dat.
+        /// Ak je pripravena sprava na odoslanie z Inputu, tuto spravu metoda ulozi.
+        /// A tiez sa stara o vypocet doby, pocas ktorej ma byt Receive okno otvorene.
+        /// </summary>
+        /// <param name="gameTime"></param>
         public override void Update(GameTime gameTime)
         {
-
             if (aLogicGame != null && aChatInputBox != null)
             {
-
                 if (aChatInputBox.IsMessageReadyToBeStored == true)
                 {
                     StoreMessageToSend(aChatInputBox.MessageToSend);
-
                 }
             }
 
@@ -98,16 +102,12 @@ namespace _2DLogicGame.ClientSide.Chat
             base.Update(gameTime);
         }
 
-        protected override void LoadContent()
-        {
-            base.LoadContent();
-        }
-
-        protected override void UnloadContent()
-        {
-            base.UnloadContent();
-        }
-
+        /// <summary>
+        /// Metoda, ktora sa stara o ukladanie vsetkych sprav.
+        /// </summary>
+        /// <param name="parSenderName">Parameter, reprezentujuci meno odosielatela.</param>
+        /// <param name="parMessage">Parameter, reprezentujuci spravu.</param>
+        /// <param name="parMessageColor">Parameter, reprezentujuci farbu spravy.</param>
         public void StoreAllMessages(string parSenderName, string parMessage, ChatColors parMessageColor = 0)
         {
             aChatReceiveBox.StoreMessage(parSenderName + ": " + parMessage , (int)parMessageColor);

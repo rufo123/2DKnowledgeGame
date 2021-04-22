@@ -6,6 +6,9 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace _2DLogicGame.ClientSide.Levels
 {
+    /// <summary>
+    /// Trieda, reprezentujuca pocitadlo bodov.
+    /// </summary>
     class LevelPointsCounter : DrawableGameComponent
     {
 
@@ -60,6 +63,12 @@ namespace _2DLogicGame.ClientSide.Levels
             set => aPoints = value;
         }
 
+        /// <summary>
+        /// Konstruktor triedy, pocitadla bodov.
+        /// </summary>
+        /// <param name="parLogicGame">Parameter, reprezentujuci hru - typ LogicGame.</param>
+        /// <param name="parPosition">Parameter, reprezentujuci poziciu - typ Vector2.</param>
+        /// <param name="parSize">Parameter, reprezentujuci velkost - typ Vector2.</param>
         public LevelPointsCounter(LogicGame parLogicGame, Vector2 parPosition, Vector2 parSize) : base(parLogicGame)
         {
             aLogicGame = parLogicGame;
@@ -69,6 +78,9 @@ namespace _2DLogicGame.ClientSide.Levels
             aFontScale = 0.8F;
         }
 
+        /// <summary>
+        /// Override metoda, ktora sa stara o inicializaciu textur a s nimi suvisiacich rectanglov.
+        /// </summary>
         public override void Initialize()
         {
             aPointsRectangle = new Rectangle(0, 0, (int)aSize.X, (int)aSize.Y);
@@ -79,6 +91,9 @@ namespace _2DLogicGame.ClientSide.Levels
             base.Initialize();
         }
 
+        /// <summary>
+        /// Override, metoda, ktora sa stara o nacitanie textur.
+        /// </summary>
         protected override void LoadContent()
         {
             aBananaTexture2D = aLogicGame.Content.Load<Texture2D>("Sprites\\Items\\banana");
@@ -104,6 +119,10 @@ namespace _2DLogicGame.ClientSide.Levels
             aPoints = parPoints;
         }
 
+        /// <summary>
+        /// Override metoda, ktora sa stara o vykreslovanie.
+        /// </summary>
+        /// <param name="gameTime"></param>
         public override void Draw(GameTime gameTime)
         {
             string tmpNewPointsString = aPoints.ToString("00") + " * ";

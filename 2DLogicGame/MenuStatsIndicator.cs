@@ -7,34 +7,68 @@ using Microsoft.Xna.Framework.Graphics;
 namespace _2DLogicGame
 {
 
+    /// <summary>
+    /// Enumeracna trieda, ktora reprezentuje stav indikatora hodnotiacej tabulky v menu.
+    /// </summary>
     public enum IndicatorState
     {
         Off = 0,
         On = 1
     }
 
-
+    /// <summary>
+    /// Trieda, ktora reprezentuje indikator v menu.
+    /// </summary>
     public class MenuStatsIndicator : DrawableGameComponent
     {
-
+        /// <summary>
+        /// Atribut, reprezentujuci hru - typ LogicGame.
+        /// </summary>
         private LogicGame aLogicGame;
 
+        /// <summary>
+        /// Atribut, reprezentujuci poziciu - typ Vector2.
+        /// </summary>
         private Vector2 aPosition;
 
+        /// <summary>
+        /// Atribut, reprezentujuci texturu statusu - typ Texture2D.
+        /// </summary>
         private Texture2D aStatusTexture;
 
+        /// <summary>
+        /// Atribut, reprezentujuci texturu pozadia statusu - typ Texture2D.
+        /// </summary>
         private Texture2D aStatusBackgroundTexture;
 
+        /// <summary>
+        /// Atribut, reprezentujuci rectangle statusu - typ Rectangle.
+        /// </summary>
         private Rectangle aStatusRectangle;
 
+        /// <summary>
+        /// Atribut, reprezentujuci rectangle pozadia statusu - typ Rectangle.
+        /// </summary>
         private Rectangle aStatusBackgroundRectangle;
 
+        /// <summary>
+        /// Atribut, reprezentujuci text statusu - typ string.
+        /// </summary>
         private string aStatusText;
 
+        /// <summary>
+        /// Atribut, reprezentujuci stav indikatora - typ IndicatorState - enum.
+        /// </summary>
         private IndicatorState aIndicatorState;
 
+        /// <summary>
+        /// Atribut, reprezentujuci ci je objekt povoleny - typ bool.
+        /// </summary>
         private bool aEnabled;
         
+        /// <summary>
+        /// Atribut, reprezentuje maly informacny text pod statusom - typ string.
+        /// </summary>
         private string aStatusMiniText;
 
         public IndicatorState IndicatorState
@@ -49,6 +83,12 @@ namespace _2DLogicGame
             set => aEnabled = value;
         }
 
+        /// <summary>
+        /// Konstruktor, indikatora statusu hodnotiacej tabulky v menu.
+        /// </summary>
+        /// <param name="parGame">Parameter, reprezentujuci hru - typ LogicGame.</param>
+        /// <param name="parPosition">Parameter, reprezentujuci poziciu - typ Vector2.</param>
+        /// <param name="parStatusText">Parameter, reprezentujuci text statusu - typ string.</param>
         public MenuStatsIndicator(LogicGame parGame, Vector2 parPosition, string parStatusText) : base(parGame)
         {
             aPosition = parPosition;
@@ -63,11 +103,9 @@ namespace _2DLogicGame
 
         }
 
-        public override void Initialize()
-        {
-            base.Initialize();
-        }
-
+        /// <summary>
+        /// Metoda, ktora sluzi na nacitanie textur a rectanglov triedy.
+        /// </summary>
         protected override void LoadContent()
         {
 
@@ -117,6 +155,10 @@ namespace _2DLogicGame
             }
         }
 
+        /// <summary>
+        /// Metoda, ktora sluzi na vykreslovanie objektu triedy.
+        /// </summary>
+        /// <param name="parGameTime">Parameter, ktory reprezentuje GameTime.</param>
         public override void Draw(GameTime parGameTime)
         {
             if (aEnabled)

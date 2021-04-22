@@ -8,9 +8,15 @@ using XMLData;
 
 namespace LevelCreator
 {
+    /// <summary>
+    /// Trieda, ktora reprezentuje vytvarac XML suborov prekladu.
+    /// </summary>
     public class CreatorVocabulary
     {
 
+        /// <summary>
+        /// Konstruktor, vytvaraca XML suborov prekladu.
+        /// </summary>
         public CreatorVocabulary()
         {
 
@@ -76,7 +82,6 @@ namespace LevelCreator
 
 
         }
-
 
     }
 }

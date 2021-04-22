@@ -8,6 +8,9 @@ using Microsoft.Xna.Framework;
 namespace _2DLogicGame.ClientSide.QuestionSimonSays
 {
 
+    /// <summary>
+    /// Enumeracna trieda, ktora reprezentuje spatnu vazbu manazera otazok na strane klienta.
+    /// </summary>
     public enum QuestionFeedback
     {
         None = 0,
@@ -17,6 +20,9 @@ namespace _2DLogicGame.ClientSide.QuestionSimonSays
         IncorrectFinalAnswers = 4
     }
 
+    /// <summary>
+    /// Enumeracna trieda, reprezentujuca charakter rovnajuci sa farbe odpovede, na strane klienta.
+    /// </summary>
     public enum AnswerColors
     {
         Red = 'A',
@@ -25,28 +31,55 @@ namespace _2DLogicGame.ClientSide.QuestionSimonSays
         Blue = 'D'
     }
 
-
+    /// <summary>
+    /// Trieda, ktora reprezentuje manazer otazok na strane klienta.
+    /// </summary>
     public class QuestionManager : GameComponent
     {
+        /// <summary>
+        /// Atribut, reprezentujuci graficku cas manazera otazok - typ Questions.
+        /// </summary>
         private Questions aQuestionUI;
 
+        /// <summary>
+        /// Atribut, reprezentujuci graficku cast vykreslovania spatnej vazby manazera otazok - typ QuestionsColorFeedback.
+        /// </summary>
         private QuestionsColorFeedBack aQuestionColorFeedBack;
 
+        /// <summary>
+        /// Atribut, reprezentujuci graficku cast vykreslovania zlej odpovede - typ WrongAnswerIndicator.
+        /// </summary>
         private WrongAnswerIndicator aWrongAnswerIndicator;
 
+        /// <summary>
+        /// Atribut, reprezentujuci hru - typ LogicGame.
+        /// </summary>
         private LogicGame aLogicGame;
 
+        /// <summary>
+        /// Atribut, reprezentujuci List charakterov spravnych odpovedi - typ List obsahujuci char.
+        /// </summary>
         private List<char> aGoodAnswersList;
 
+        /// <summary>
+        /// Atribut, reprezentujuci List, blokov typu DoorBlock. - Dverí.
+        /// </summary>
         private List<DoorBlock> aDoorsList;
 
+        /// <summary>
+        /// Atribut, reprezentujuci List, blokov typu InputBlock. - Vstupu.
+        /// </summary>
         private List<InputBlock> aInputList;
 
+        /// <summary>
+        /// Atribut, reprezentujuci pocet bodov za spravne odpovedane otazky - typ int.
+        /// </summary>
         private int aQuestionPoints;
 
+        /// <summary>
+        /// Atribut, reprezentujuci pravdivostnu hodnotu a to ci je nutny reset urovne - typ bool.
+        /// </summary>
         private bool aNeedsReset;
-
-        private DoorBlock aDoor; //Dvere budu len 1
 
         /// <summary>
         /// Atribut, ktory reprezentuje ci ide o prveho hraca - typ bool
@@ -64,6 +97,7 @@ namespace _2DLogicGame.ClientSide.QuestionSimonSays
             set => aNeedsReset = value;
         }
 
+        
 
         public QuestionManager(LogicGame parGame) : base(parGame)
         {
@@ -129,22 +163,39 @@ namespace _2DLogicGame.ClientSide.QuestionSimonSays
             }
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o pridanie bloku - tlacidla do Listu.
+        /// </summary>
+        /// <param name="parButton"></param>
         public void AddButton(ButtonBlock parButton)
         {
             parButton.SwitchButtonStyle(aButtonCounter);
             aButtonCounter++;
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o pridanie bloku - dveri do Listu.
+        /// </summary>
+        /// <param name="parDoors"></param>
         public void AddDoors(DoorBlock parDoors)
         {
             aDoorsList.Add(parDoors);
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o pridanie bloku - inputu do Listu.
+        /// </summary>
+        /// <param name="parInput"></param>
         public void AddInput(InputBlock parInput)
         {
             aInputList.Add(parInput);
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o spravu prichadzajucich dat od serverovej casti.
+        /// </summary>
+        /// <param name="parIncomingMessage">Parameter, reprezentujuci spravu - typu NetIncommingMessage - buffer.</param>
+        /// <param name="parAmIFirstPlayer">Parameter, reprezentujuci pravdivostnu hodnotu o tom ci ide o prveho hraca alebo nie - typ bool.</param>
         public void HandleIncomingData(NetIncomingMessage parIncomingMessage, bool parAmIFirstPlayer)
         {
             if (aQuestionUI != null)
@@ -231,7 +282,12 @@ namespace _2DLogicGame.ClientSide.QuestionSimonSays
             // return parOutgoingMessage;
         }
 
-        private Color ConvertCharToColor(char parAnswerChar)
+        /// <summary>
+        /// Metoda, ktora sa stara o prevedenie charakteru - odpovede otazok. Do farieb - Color - kniznice MonoGame.
+        /// </summary>
+        /// <param name="parAnswerChar">Parameter, reprezentujuci charakter - odpovede otazok. typ char.</param>
+        /// <returns>Vrati farbu - Color, z kniznice MonoGame.</returns>
+        protected Color ConvertCharToColor(char parAnswerChar)
         {
             switch ((AnswerColors)parAnswerChar)
             {
@@ -248,6 +304,10 @@ namespace _2DLogicGame.ClientSide.QuestionSimonSays
             }
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o update - o schovanie grafickej casti otazok a odpovedi. A zaroven taktiez otvara druhe dvere.
+        /// </summary>
+        /// <param name="gameTime"></param>
         public override void Update(GameTime gameTime)
         {
             if (aGoodAnswersList != null && aGoodAnswersList.Count > 3) //Ak su vsetky 4 odpovede spravne
@@ -270,6 +330,9 @@ namespace _2DLogicGame.ClientSide.QuestionSimonSays
             base.Update(gameTime);
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o reset manazera.
+        /// </summary>
         public void Reset()
         {
             aGoodAnswersList.Clear();

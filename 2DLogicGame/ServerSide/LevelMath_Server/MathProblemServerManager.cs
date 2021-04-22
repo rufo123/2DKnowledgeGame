@@ -9,6 +9,9 @@ using _2DLogicGame.ServerSide.LevelMath_Server;
 
 namespace _2DLogicGame.ServerSide.LevelMath_Server
 {
+    /// <summary>
+    /// Enumeracna trieda reprezentujuca spatnu vazbu manazera matematickeho problemu. - Server.
+    /// </summary>
     public enum Feedback
     {
         NotSubmitted = 0,
@@ -17,6 +20,9 @@ namespace _2DLogicGame.ServerSide.LevelMath_Server
         AllSolved = 3
     }
 
+    /// <summary>
+    /// Trieda, ktora reprezentuje manazer matematickeho problemu. - Server.
+    /// </summary>
     public class MathProblemServerManager
     {
         /// <summary>
@@ -126,6 +132,9 @@ namespace _2DLogicGame.ServerSide.LevelMath_Server
             set => aMathPoints = value;
         }
 
+        /// <summary>
+        /// Konstruktor matematickeho problemu.
+        /// </summary>
         public MathProblemServerManager()
         {
             aCompletelyLoaded = false;

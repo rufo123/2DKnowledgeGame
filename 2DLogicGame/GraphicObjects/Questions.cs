@@ -9,6 +9,9 @@ using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace _2DLogicGame.GraphicObjects
 {
+    /// <summary>
+    /// Trieda, reprezentujuca graficku cast manazera otazok. - Klient.
+    /// </summary>
     public class Questions : DrawableGameComponent
     {
 
@@ -86,6 +89,12 @@ namespace _2DLogicGame.GraphicObjects
             set => aCurrentQuestionText = value;
         }
 
+        /// <summary>
+        /// Konstruktor grafickej casti manazera otazok.
+        /// </summary>
+        /// <param name="parGame">Parameter, reprezentujuci hru - typ LogicGame.</param>
+        /// <param name="parPositionVector2">Parameter, reprezentujuci poziciu - typ Vector2.</param>
+        /// <param name="parSizeVector2">Parameter, reprezentujuci velkost - typ Vector2.</param>
         public Questions(LogicGame parGame, Vector2 parPositionVector2, Vector2 parSizeVector2) : base(parGame)
         {
             aLogicGame = parGame;
@@ -101,6 +110,9 @@ namespace _2DLogicGame.GraphicObjects
 
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o incializaciu objektu. Inicializaciu Textur a Rectanglov otazok a odpovedi.
+        /// </summary>
         public override void Initialize()
         {
             aQuestionBackRectangle = new Rectangle(0, 0, (int)aSize.X, (int)aSize.Y);
@@ -109,14 +121,17 @@ namespace _2DLogicGame.GraphicObjects
             aAnswerBackTexture2D = new Texture2D(aLogicGame.GraphicsDevice, (int)aAnswerSize.X, (int)aAnswerSize.Y);
             aAnswerBackRectangle = new Rectangle(0, 0, (int)aAnswerSize.X, (int)aAnswerSize.Y);
 
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < 4; i++) //Metoda, priradi do listu moznych odpovedi, text "Undefined". Aby sa vedelo kedy doslo k problemu pri prijati dat.
             {
-                aPossibleAnswersList.Add("Pepeprarparparparpr");
+                aPossibleAnswersList.Add("Undefined");
             }
 
             base.Initialize();
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o nacitavanie objektu. Nacita ciernu farbu pre pozadie otazky a nacitava bielu farbu pre pozadie otazok.
+        /// </summary>
         protected override void LoadContent()
         {
 
@@ -141,7 +156,11 @@ namespace _2DLogicGame.GraphicObjects
             base.LoadContent();
         }
 
-        public override void Draw(GameTime gameTime)
+        /// <summary>
+        /// Override metoda, ktora sa stara o vykreslovanie objektu. Stara sa aj o skalovanie textu v zavislosti od velkosti.
+        /// </summary>
+        /// <param name="parGameTime">Parameter, reprezentujuci GameTime.</param>
+        public override void Draw(GameTime parGameTime)
         {
             if (aShowEnabled)
             {
@@ -204,7 +223,7 @@ namespace _2DLogicGame.GraphicObjects
             }
 
 
-            base.Draw(gameTime);
+            base.Draw(parGameTime);
         }
 
         /// <summary>

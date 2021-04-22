@@ -7,8 +7,9 @@ using static _2DLogicGame.GraphicObjects.Entity;
 namespace _2DLogicGame.ClientSide
 {
 
-
-
+    /// <summary>
+    /// Trieda, ktora reprezentuje data o postavach hracov - na strane klienta.
+    /// </summary>
     public class PlayerClientData : GraphicObjects.Entity
     {
 
@@ -43,7 +44,7 @@ namespace _2DLogicGame.ClientSide
         /// <summary>
         /// Konstruktor - Inicializuje zakladne atributy
         /// </summary>
-        /// <param name="parPlayerID">Parameter reprezentujuci ID Hraca - Typ int</param>
+        /// <param name="parPlayerId">Parameter reprezentujuci ID Hraca - Typ int</param>
         /// <param name="parPlayerNickName">Parameter reprezentujuci Prezyvku Hraca - Typ string</param>
         /// <param name="parRemoteUniqueIdentifier">Parameter reprezentujuci Remote Unique Identifier Hraca - Typ long</param>
         /// <param name="parSpeed">Paramter reprezentujuci rychlost - typ float</param>
@@ -52,16 +53,16 @@ namespace _2DLogicGame.ClientSide
         /// <param name="parPosition">Parameter reprezentujuci poziciu - typ Vector2</param>
         /// <param name="parSize">Parametere reprezentujuci velkost - typ Vector2</param>
         /// <param name="parDirection">Parameter reprezentujuci Smer - typ Entity.Direction - enum</param>
-        public PlayerClientData(int parPlayerID, string parPlayerNickName, long parRemoteUniqueIdentifier, LogicGame parGame, Vector2 parPosition, Vector2 parSize, Direction parDirection = Direction.UP, float parSpeed = 200, bool parIsMe = false) : base(parGame, parPosition, parSize, parDirection, parSpeed)
+        public PlayerClientData(int parPlayerId, string parPlayerNickName, long parRemoteUniqueIdentifier, LogicGame parGame, Vector2 parPosition, Vector2 parSize, Direction parDirection = Direction.UP, float parSpeed = 200, bool parIsMe = false) : base(parGame, parPosition, parSize, parDirection, parSpeed)
         {
-            aPlayerID = parPlayerID; //Priradime ID Hraca
+            aPlayerID = parPlayerId; //Priradime ID Hraca
             aPlayerNickName = parPlayerNickName; //Priradime Prezyvku Hraca
             aRemoteUniqueIdentifier = parRemoteUniqueIdentifier; //Priradime Unikatny Identifikator
             aIsControlledByClient = parIsMe; //Atribut ci sa jedna o mna - Klienta
             aConnected = false;
             SetImage("Sprites\\Entities\\postavaFrames");
 
-            switch (parPlayerID)
+            switch (parPlayerId)
             {
                 case 1:
                     Color = Color.White;

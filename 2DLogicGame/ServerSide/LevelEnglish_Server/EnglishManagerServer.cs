@@ -10,7 +10,9 @@ using XMLData;
 
 namespace _2DLogicGame.ServerSide.LevelEnglish_Server
 {
-
+    /// <summary>
+    /// Enumeracna trieda, ktora reprezentuje spatnu vazbu manazera prekladu. - Server.
+    /// </summary>
     public enum VocabularyFeedback
     {
         None = 0,
@@ -19,7 +21,9 @@ namespace _2DLogicGame.ServerSide.LevelEnglish_Server
         AllCorrect = 3
     }
 
-
+    /// <summary>
+    /// Trieda, ktora reprezentuje manazera prekladu. - Server.
+    /// </summary>
     public class EnglishManagerServer
     {
         private LogicGame aLogicGame;
@@ -111,6 +115,7 @@ namespace _2DLogicGame.ServerSide.LevelEnglish_Server
             get => aEnglishPoints;
             set => aEnglishPoints = value;
         }
+
 
         /// <summary>
         /// Konstruktor triedy, ktora sa stara o spravu Anglickeho Levelu na serveri
@@ -366,9 +371,9 @@ namespace _2DLogicGame.ServerSide.LevelEnglish_Server
 
                 if (i != tmpRandInteger) //Viem, ze tu moze nastat situacia, ze prakticky sa nic neprehodia prvky, ale to nevadi, hraci budu mat proste stastie a tym lahsiu uroven
                 { //Takyto pripad by vedel vyriesit Sattolov algoritmus.
-                    T tmpListComponent = parList[i];
-                    parList[i] = parList[tmpRandInteger];
-                    parList[tmpRandInteger] = tmpListComponent;
+                    T tmpListComponent = parList[i]; 
+                    parList[i] = parList[tmpRandInteger]; 
+                    parList[tmpRandInteger] = tmpListComponent; 
                 }
             }
         }

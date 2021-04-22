@@ -5,7 +5,9 @@ using System.Text;
 
 namespace _2DLogicGame
 {
-
+    /// <summary>
+    /// Enumeracna trieda, reprezentujuca akcie spojene s polozkami v menu.
+    /// </summary>
     public enum MenuItemAction { 
     Start_Host,
     Start_Play,
@@ -15,6 +17,9 @@ namespace _2DLogicGame
     Exit,
     }
 
+    /// <summary>
+    /// Trieda reprezentujuca polozku v menu.
+    /// </summary>
     public class MenuItem
     {
         private Vector2 aMenuPosition; //Atribut vyjadrujuci Vector - Pozicia menu
@@ -41,5 +46,6 @@ namespace _2DLogicGame
         public string MenuText { get => aMenuText; set => aMenuText = value; }
         public double MenuSize { get => aMenuSize; set => aMenuSize = value; }
         public MenuItemAction Action { get => aAction; set => aAction = value; }
+
     }
 }

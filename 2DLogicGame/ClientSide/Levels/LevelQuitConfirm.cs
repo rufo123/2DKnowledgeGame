@@ -6,6 +6,9 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace _2DLogicGame.ClientSide.Levels
 {
+    /// <summary>
+    /// Trieda, ktora reprezentuje potvrdzovaciu obrazovku pre vychod z urovne.
+    /// </summary>
     public class LevelQuitConfirm : DrawableGameComponent
     {
         /// <summary>
@@ -44,7 +47,12 @@ namespace _2DLogicGame.ClientSide.Levels
             set => aShowConfirm = value;
         }
 
-
+        /// <summary>
+        /// Konstruktor triedy potvrdzovania vystupu z urovne.
+        /// </summary>
+        /// <param name="parGame">Parameter, reprezentujuci hru - typ LogicGame.</param>
+        /// <param name="parPosition">Parameter, reprezentujuci poziciu - typ Vector2.</param>
+        /// <param name="parSize">Parameter, reprezentujuci velkost - typ Vector2.</param>
         public LevelQuitConfirm(LogicGame parGame, Vector2 parPosition, Vector2 parSize) : base(parGame)
         {
             aGame = parGame;
@@ -53,6 +61,9 @@ namespace _2DLogicGame.ClientSide.Levels
             aSizeOfBackground = parSize;
         }
 
+        /// <summary>
+        /// Override metoda, ktora sa stara o incializaciu textury a rectanglu.
+        /// </summary>
         public override void Initialize()
         {
             aTexture = new Texture2D(aGame.GraphicsDevice, (int)aSizeOfBackground.X, (int)aSizeOfBackground.Y);
@@ -60,6 +71,9 @@ namespace _2DLogicGame.ClientSide.Levels
             base.Initialize();
         }
 
+        /// <summary>
+        /// Override metoda, ktora sa stara o nacitanie farieb textury - konkretne ciernej farby.
+        /// </summary>
         protected override void LoadContent()
         {
             Color[] tmpColor = new Color[aRectangle.Width * aRectangle.Height]; //Namapujeme oblast, ktora bude reprezentovat farbu Textury
@@ -74,6 +88,10 @@ namespace _2DLogicGame.ClientSide.Levels
             base.LoadContent();
         }
 
+        /// <summary>
+        /// Override metoda, ktora sa stara o vykreslovanie.
+        /// </summary>
+        /// <param name="gameTime"></param>
         public override void Draw(GameTime gameTime)
         {
             if (ShowConfirm)
@@ -98,9 +116,5 @@ namespace _2DLogicGame.ClientSide.Levels
             base.Draw(gameTime);
         }
 
-        public override void Update(GameTime gameTime)
-        {
-            base.Update(gameTime);
-        }
     }
 }

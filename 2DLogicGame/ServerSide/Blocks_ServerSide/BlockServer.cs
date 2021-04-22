@@ -6,7 +6,7 @@ using _2DLogicGame.GraphicObjects;
 namespace _2DLogicGame.ServerSide.Blocks_ServerSide
 {
     /// <summary>
-    /// None - Nema koliziu, Wall - Cez takyto blok entita neprejde, Zap - Znici Entitu
+    /// Enumeracna trieda kolizie bloku -> None - Nema koliziu, Wall - Cez takyto blok entita neprejde, Zap - Znici Entitu. - Server.
     /// </summary>
     public enum BlockCollisionType
     {
@@ -18,6 +18,9 @@ namespace _2DLogicGame.ServerSide.Blocks_ServerSide
         Standable = 5
     }
 
+    /// <summary>
+    /// Trieda, ktora reprezentuje blok. - Server.
+    /// </summary>
     public class BlockServer
     {
         /// <summary>
@@ -83,6 +86,7 @@ namespace _2DLogicGame.ServerSide.Blocks_ServerSide
             get => aSomethingIsStandingOnTop;
             set => aSomethingIsStandingOnTop = value;
         }
+
 
 
         /// <summary>

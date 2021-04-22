@@ -13,13 +13,31 @@ using SharpDX.D3DCompiler;
 
 namespace _2DLogicGame
 {
+    /// <summary>
+    /// Trieda reprezentujuca, klienta. Teda triedu ktora priamo komunikuje so serverom.
+    /// </summary>
     public class Client
     {
-
+        /// <summary>
+        /// Atribut reprezentujuci NetClienta - klienta ako takeho - typ NetClient.
+        /// </summary>
         private NetClient aClient;
+
+        /// <summary>
+        /// Atribut, reprezentujuci IP adresu servera - typ string.
+        /// </summary>
         private string aIP = "127.0.0.1";
+
+        /// <summary>
+        /// Atribut, reprezentujuci port servera - typ int.
+        /// </summary>
         private int aPort = 28741;
+
+        /// <summary>
+        /// Atribut, reprezentujuci prezyvku hraca.
+        /// </summary>
         private string aNickName;
+
         /// <summary>
         /// Maximalna Dlzka Chatovej Spravy - Default 20
         /// </summary>
@@ -46,22 +64,49 @@ namespace _2DLogicGame
         /// </summary>
         private long aMyIdentifier;
 
+        /// <summary>
+        /// Atribut, reprezentujuci hry - typ LogicGame.
+        /// </summary>
         private LogicGame aLogicGame;
 
+        /// <summary>
+        /// Atribut, reprezentujuci manazer chatu - typ Chat.
+        /// </summary>
         private ClientSide.Chat.Chat aChatManager;
 
+        /// <summary>
+        /// Atribut, reprezentujuci kolekciu objektov klienta - typ ComponentCollection.
+        /// </summary>
         private ComponentCollection aClientObjects;
 
+        /// <summary>
+        /// Atribut, reprezentujuci ovladac pohybu a akcii postavy hraca - typ PlayerController.
+        /// </summary>
         private PlayerController aPlayerController;
 
+        /// <summary>
+        /// Atribut, reprezentujuci Stopwatch - pouziti pri stopovani casu - typ Stopwatch.
+        /// </summary>
         private Stopwatch aStopWatch;
 
+        /// <summary>
+        /// Atribut, reprezentujuci TickRate servera - typ TickRate.
+        /// </summary>
         private const int aTickRate = 60;
 
+        /// <summary>
+        /// Atribut, reprezentujuci kolko maximalne milisekund moze trvat jeden frame / update klienta - typ long.
+        /// </summary>
         private long aMSPerFrame = 1000 / aTickRate;
 
+        /// <summary>
+        /// Atribut, reprezentujuci manazer urovni - typ LevelManager.
+        /// </summary>
         private LevelManager aLevelManager;
 
+        /// <summary>
+        /// Atribut, reprezentujuci spravu pri odpojeni - typ string.
+        /// </summary>
         private string aDisconnectMessage;
 
         /// <summary>
@@ -73,6 +118,19 @@ namespace _2DLogicGame
         public bool ClientNeedsToShutdown { get => aClientNeedsToShutdown; set => aClientNeedsToShutdown = value; }
         public string DisconnectMessage { get => GetCustomDisconnectMessage(); set => aDisconnectMessage = value; }
 
+
+        /// <summary>
+        /// Konstruktor triedy Klient.
+        /// </summary>
+        /// <param name="parAppName">Parameter, reprezentujuci nazov aplikacie - typ string. Pozn. musi byt rovnaky na strane klienta ako aj na strane servera.</param>
+        /// <param name="parGame">Parameter, reprezentujuci hru - typ LogicGame.</param>
+        /// <param name="parChatManager">Parameter, reprezentujuci manazer chatu - typ Chat.</param>
+        /// <param name="parClientObjects">Parameter, reprezentujuci kolekciu komponentov - typ ComponentCollection.</param>
+        /// <param name="parPlayController">Paramter, reprezentujuci ovladac pohybu a akcii hraca - typ PlayerController.</param>
+        /// <param name="parLevelManager">Parameter, reprezentujuci manazer urovni - typ LevelManager.</param>
+        /// <param name="parTimeoutTime">Parameter, reprezentujuci cas - timeout - typ int.</param>
+        /// <param name="parNickName">Parameter, reprezentujuci prezyvku hraca - typ string.</param>
+        /// <param name="parIP">Parameter, reprezentujuci IP Adresu servera, teda kam sa ma klient napojit - typ string. </param>
         public Client(string parAppName, LogicGame parGame, ClientSide.Chat.Chat parChatManager, ComponentCollection parClientObjects, PlayerController parPlayController, LevelManager parLevelManager, int parTimeoutTime = 20, string parNickName = "Player", string parIP = "127.0.0.1")
         {
 
@@ -90,6 +148,7 @@ namespace _2DLogicGame
 
             NetPeerConfiguration tmpClientConfig = new NetPeerConfiguration(parAppName)//Vytvorime konfiguraciu klienta
             {
+                EnableUPnP = true,
                 ResendHandshakeInterval = tmpResendHandshakeIntervals,
                 MaximumHandshakeAttempts = tmpMaximumHandshakeAttempts //Ak sa takto vypocitany pocet nebude zhodovat s nami zadanym casom, bude to mat rozne nasledky, odpoji sa skor, neskor a pod, aby sme ziskali Disconnect Message, pocet nechame takto a nepridame + 1, tzn. Ak bude cas 20 sekund, vypne sa to pri 18 a pod.
             };
@@ -107,6 +166,7 @@ namespace _2DLogicGame
             aStopWatch = new Stopwatch();
 
             aClient.Start(); //Spustime Klienta
+            aClient.UPnP.ForwardPort(aPort, "KnowledgeGame");
 
             NetOutgoingMessage tmpOutgoingMessage = aClient.CreateMessage(); //Vytvorime NetOutgoingMessage
             tmpOutgoingMessage.Write((byte)PacketMessageType.Connect); //Zapiseme do spravy byte o hodnote Enumu - PacketMessageType.TryToConnect
@@ -748,6 +808,10 @@ namespace _2DLogicGame
 
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o spravu spravy prijatej pri dokonceni hry.
+        /// </summary>
+        /// <param name="parIncomingMessage">Parameter, ktory reprezentuje prichadzajucu spravu - typ NetIncommingMessage - buffer.</param>
         public void HandleGameFinished(NetIncomingMessage parIncomingMessage)
         {
             aLevelManager.HandleGameFinishedData(parIncomingMessage);
@@ -776,6 +840,9 @@ namespace _2DLogicGame
 
             aClient.Disconnect("Connection Dropped");
             aClient.Shutdown("Shutting Down Client");
+
+            aClient.UPnP.DeleteForwardingRule(aPort);
+            aClient.UPnP.DeleteForwardingRule(aClient.Port);
 
             if (aDictionaryPlayerData != null)
             {

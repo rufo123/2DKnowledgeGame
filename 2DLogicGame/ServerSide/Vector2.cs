@@ -5,15 +5,25 @@ using System.Text;
 namespace _2DLogicGame.ServerSide
 {
     /// <summary>
-    /// Trieda reprezentuje 2-rozmerný Vektor
+    /// Trieda reprezentuje 2-rozmerný Vektor. - Server.
     /// </summary>
     public class Vector2 : IEquatable<Vector2>
     {
-
+        /// <summary>
+        /// Atribut, reprezentujuci x-ovu suradnicu vectora - typ float.
+        /// </summary>
         private float aVectorX;
 
+        /// <summary>
+        /// Atribut, reprezentujuci y-ovu suradnicu vectora - typ float.
+        /// </summary>
         private float aVectorY;
 
+        /// <summary>
+        /// Konstruktor 2-rozmerneho vektora.
+        /// </summary>
+        /// <param name="parSurX">Parameter, reprezentujuci x-ovu suradnicu vektora.</param>
+        /// <param name="parSurY">Parameter, reprezentujuci y-ovu suradnicu vektora.</param>
         public Vector2(float parSurX, float parSurY)
         {
             aVectorX = parSurX;

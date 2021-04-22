@@ -8,33 +8,65 @@ using System.Text;
 
 namespace _2DLogicGame
 {
+    /// <summary>
+    /// Trieda, ktora reprezentuje Box v menu.
+    /// </summary>
     public class MenuBox : Microsoft.Xna.Framework.DrawableGameComponent
     {
-
+        /// <summary>
+        /// Atribut, reprezentujuci hru - typ LogicGame.
+        /// </summary>
         private LogicGame aLogicGame;
 
+        /// <summary>
+        /// List, resp. Box - Menu Itemov - List je efektivnejsi v C# ako Array
+        /// </summary>
+        private List<MenuItem> aBoxItems;
 
-        private List<MenuItem> aBoxItems; //List, resp. Box - Menu Itemov - List je efektivnejsi v C# ako Array
-        private Vector2 aBoxPosition; //Vector - Pozicia Menu Boxu
+        /// <summary>
+        /// Vector2 - Pozicia Menu Boxu
+        /// </summary>
+        private Vector2 aBoxPosition; 
+
+        /// <summary>
+        /// Zvolena polozka v menu - typ MenuItem.
+        /// </summary>
         private MenuItem aSelectedItem;
 
+        /// <summary>
+        /// Farba polozky v menu - typ Color.
+        /// </summary>
+        private Color aColorMenuItem; 
 
-        private Color aColorMenuItem; //Farba Menu Itemu - Color
-        private Color aColorSelectedItem; //Farba Celeho Menu Boxu - Color
-        private Color aColorUnFocusedSelectedItem; //Farba Selected Itemu, pokial na neho neukazujeme - Color
+        /// <summary>
+        /// Farba zvolenej polozky v menu - typ Color.
+        /// </summary>
+        private Color aColorSelectedItem; 
 
-        private double aBoxTextSize; //Velkost Menu Boxu - Double
+        /// <summary>
+        /// Farba zvolenej polozky v menu, ak nie je zamerana - typ Color.
+        /// </summary>
+        private Color aColorUnFocusedSelectedItem;
+
+        /// <summary>
+        /// Velkost Menu Boxu - typ double.
+        /// </summary>
+        private double aBoxTextSize; 
 
         /// <summary>
         /// Atribut, ktory reprezentuje ci je MenuBox povoleny, ci sa hrac nachadza v hlavnom menu alebo v podmenu - typ bool.
         /// </summary>
         private bool aBoxEnabled;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje velkost polozky v menu - typ float.
+        /// </summary>
         private float aMenuItemSize;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje predosly stav klavesnice - typ KeyboardState.
+        /// </summary>
         KeyboardState aPreviousKeyPressed;
-
-        private double aTimeSinceLastKeyPress = 0;
 
         /// <summary>
         /// Atribut, ktory reprezentuje ci sa pouzivatel pokusa vybrat si nejaky item z MenuBoxu, alebo je niekde inde - typ bool.
@@ -53,11 +85,15 @@ namespace _2DLogicGame
             set => aBoxEnabled = value;
         }
 
-        public MenuItem Set { get; set; }
-        internal MenuItem SelectedItem { get => aSelectedItem; set => aSelectedItem = value; }
+        internal MenuItem SelectedItem
+        {
+            get => aSelectedItem;
+            set => aSelectedItem = value;
+        }
+
 
         /// <summary>
-        /// Zatial reprezentuje MenuBox, ktory obsahuje Menu Itemy
+        /// Konstruktor triedy reprezentujucej MenuBox, ktory obsahuje Menu Itemy
         /// </summary>
         /// <param name="parGame"> Parameter Hra</param>
         /// <param name="parPosition"> Parameter Pozicia - Vector</param>
@@ -79,6 +115,10 @@ namespace _2DLogicGame
             this.aColorUnFocusedSelectedItem = parNotFocusedSelected;
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o vykreslovanie MenuBoxu a poloziek v nom.
+        /// </summary>
+        /// <param name="gameTime"></param>
         public override void Draw(GameTime gameTime)
         {
 
@@ -113,28 +153,6 @@ namespace _2DLogicGame
             base.Draw(gameTime);
         }
 
-        public override void Initialize()
-        {
-            base.Initialize();
-        }
-
-        public override void Update(GameTime gameTime)
-        {
-       
-
-            //aTimeSinceLastKeyPress = 0;
-
-
-            // aTimeSinceLastKeyPress += gameTime.ElapsedGameTime.TotalSeconds;
-
-
-            base.Update(gameTime);
-        }
-
-        protected override void LoadContent()
-        {
-            base.LoadContent();
-        }
 
         /// <summary>
         /// Metoda, ktora vrati nazov itemu, na ktory uzivatel prave "ukazuje" - typ string

@@ -7,7 +7,9 @@ using XMLData;
 
 namespace _2DLogicGame.ServerSide.Questions_ServeSide
 {
-
+    /// <summary>
+    /// Enumeracna trieda reprezentujuca feedback manazera otazok. - Server.
+    /// </summary>
     public enum QuestionFeedback
     {
         None = 0,
@@ -18,14 +20,9 @@ namespace _2DLogicGame.ServerSide.Questions_ServeSide
         Complete = 5
     }
 
-    public enum AnswerColors
-    {
-        Red = 'A',
-        Purple = 'B',
-        Green = 'C',
-        Blue = 'D'
-    }
-
+    /// <summary>
+    /// Trieda, reprezentujuca manazera otazok. - Server.
+    /// </summary>
     public class QuestionsManagerServer
     {
         /// <summary>
@@ -134,6 +131,7 @@ namespace _2DLogicGame.ServerSide.Questions_ServeSide
             set => aQuestionPoints = value;
         }
 
+
         /// <summary>
         /// Konstruktor triedy, ktora sa stara o spravu Otazok na serveri
         /// </summary>
@@ -197,6 +195,10 @@ namespace _2DLogicGame.ServerSide.Questions_ServeSide
             }
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o pridanie bloku tlacidla do Listu.
+        /// </summary>
+        /// <param name="parButton">Paramter, reprezentujuci tlacidlo - typ ButtonBlockServer.</param>
         public void AddButton(ButtonBlockServer parButton)
         {
             if (aButtonList != null)
@@ -205,6 +207,10 @@ namespace _2DLogicGame.ServerSide.Questions_ServeSide
             }
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o pridanie bloku dveri do Listu.
+        /// </summary>
+        /// <param name="parDoors">Paramter, reprezentujuci dvere - typ DoorBlockServer.</param>
         public void AddDoors(DoorBlockServer parDoors)
         {
             if (aDoorsList != null)
@@ -213,6 +219,10 @@ namespace _2DLogicGame.ServerSide.Questions_ServeSide
             }
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o pridanie bloku inputu do Listu.
+        /// </summary>
+        /// <param name="parInput">Paramter, reprezentujuci input - typ InputBlockServer.</param>
         public void AddInput(InputBlockServer parInput)
         {
             if (aInputList != null)
@@ -395,6 +405,10 @@ namespace _2DLogicGame.ServerSide.Questions_ServeSide
             return Convert.ToChar(65 + parAnswerNumber);
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o skontrolovanie odpovedi.
+        /// </summary>
+        /// <returns>Vrati pravdivostnu hodnotu na zaklade dobrej alebo zlej odpovede.</returns>
         public bool CheckAnswers()
         {
             bool tmpAreAnswersOk = false;

@@ -7,6 +7,9 @@ using SharpFont;
 
 namespace _2DLogicGame.ClientSide.Levels
 {
+    /// <summary>
+    /// Trieda, reprezentujuca obrazovku, ktora sa zobrazi po dokonceni hry.
+    /// </summary>
     public class LevelGameCompletedScreen : DrawableGameComponent
     {
         /// <summary>
@@ -40,6 +43,10 @@ namespace _2DLogicGame.ClientSide.Levels
             set => aShowEndScreen = value;
         }
 
+        /// <summary>
+        /// Konstruktor triedy.
+        /// </summary>
+        /// <param name="parGame">Parameter, reprezentujuci hru - typ LogicGame.</param>
         public LevelGameCompletedScreen(LogicGame parGame) : base(parGame)
         {
             aGame = parGame;
@@ -71,6 +78,10 @@ namespace _2DLogicGame.ClientSide.Levels
             aGameFinishedInSecond = tmpFormattedString;
         }
 
+        /// <summary>
+        /// Override metoda, ktora sa stara o vykreslovanie objektu - zahrnujuc text, body a cas.
+        /// </summary>
+        /// <param name="parGameTime"></param>
         public override void Draw(GameTime parGameTime)
         {
             if (aShowEndScreen && aGamePoints > 0 && aGameFinishedInSecond != "")
@@ -98,9 +109,5 @@ namespace _2DLogicGame.ClientSide.Levels
             base.Draw(parGameTime);
         }
 
-        public override void Update(GameTime parGameTime)
-        {
-            base.Update(parGameTime);
-        }
     }
 }

@@ -7,6 +7,9 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace _2DLogicGame.GraphicObjects
 {
+    /// <summary>
+    /// Trieda reprezentujuca graficku cast - indikator zlej odpovede - manazera otazok. - Klient.
+    /// </summary>
     class WrongAnswerIndicator : DrawableGameComponent
     {
         /// <summary>
@@ -51,6 +54,12 @@ namespace _2DLogicGame.GraphicObjects
         private float aOpacity;
 
 
+        /// <summary>
+        /// Konstruktor grafickej casti - indikatora zlej odpovede - manazera otazok.
+        /// </summary>
+        /// <param name="parGame">Parameter, reprezentujuci hru - typ LogicGame.</param>
+        /// <param name="parPosition">Parameter, reprezentujuci poziciu - typ Vector2.</param>
+        /// <param name="parSize">Parameter, reprezentujuci velkost - typ Vector2.</param>
         public WrongAnswerIndicator(LogicGame parGame, Vector2 parPosition, Vector2 parSize) : base(parGame)
         {
             aGame = parGame;
@@ -67,6 +76,9 @@ namespace _2DLogicGame.GraphicObjects
             set => aShow = value;
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o inicializaciu rectangla a textury objektu.
+        /// </summary>
         public override void Initialize()
         {
 
@@ -76,13 +88,19 @@ namespace _2DLogicGame.GraphicObjects
             base.Initialize();
         }
 
+        /// <summary>
+        /// Metoda, ktora nacitava texturu objektu.
+        /// </summary>
         protected override void LoadContent()
         {
             aIndicatorTexture2D = aGame.Content.Load<Texture2D>("Sprites\\Items\\wrongIndicator");
             base.LoadContent();
         }
 
-
+        /// <summary>
+        /// Metoda, ktora sa stara o vykreslovanie, spravu priehladnosti a casovaca, pomocou ktoreho metoda vie, na aku dlhu dobu sa ma objekt vykreslit.
+        /// </summary>
+        /// <param name="gameTime"></param>
         public override void Draw(GameTime gameTime)
         {
             if (aShow)

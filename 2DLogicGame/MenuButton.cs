@@ -5,12 +5,18 @@ using System.Text;
 
 namespace _2DLogicGame
 {
+    /// <summary>
+    /// Enumeracna trieda, ktora reprezentuje akciu spojenu s tlacidlom v Menu.
+    /// </summary>
     public enum MenuButtonAction
     {
         Save = 0,
         ResetToDefault = 1
     }
 
+    /// <summary>
+    /// Trieda, ktora reprezentuje tlacidlo v menu.
+    /// </summary>
     public class MenuButton
 {
 
@@ -61,5 +67,7 @@ namespace _2DLogicGame
         get => aButtonAction;
         set => aButtonAction = value;
     }
-}
+
+       
+    }
 }

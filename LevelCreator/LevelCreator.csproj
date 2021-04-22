@@ -6,10 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\2DLogicGame\Client.cs" Link="Client.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\2DLogicGame\2DLogicGame.csproj" />
     <ProjectReference Include="..\XMLData\XMLData.csproj" />
   </ItemGroup>

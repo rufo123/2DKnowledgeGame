@@ -4,6 +4,9 @@ using System.Text;
 
 namespace _2DLogicGame.GraphicObjects.Scoreboard
 {
+    /// <summary>
+    /// Trieda, ktora reprezentuje polozky nachadzajuce sa v hodnotiacej tabulke.
+    /// </summary>
     public class ScoreboardItems
     {
 

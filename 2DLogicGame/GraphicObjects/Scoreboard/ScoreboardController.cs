@@ -5,21 +5,38 @@ using _2DLogicGame.ServerSide.Database;
 
 namespace _2DLogicGame.GraphicObjects.Scoreboard
 {
-
+    /// <summary>
+    /// Trieda ktora reprezentuje kontrolér hodnotiacej tabulky.
+    /// </summary>
     public class ScoreboardController
     {
 
+        /// <summary>
+        /// Atribut, reprezentujuci spravcu hodnotiacej tabulky.
+        /// </summary>
         private StatisticsHandler aStatisticsHandler;
 
+        /// <summary>
+        /// Atribut, reprezentujuci graficku cas hodnotiacej tabulky.
+        /// </summary>
         private ScoreboardUI aScoreboardUI;
 
+        /// <summary>
+        /// Atribut, reprezentujuci stav stiahnutych dat z databazy. Stiahnute - true, inak false.
+        /// </summary>
         private bool aDataDownloaded;
 
+        /// <summary>
+        /// Konstruktor kontroléra hodnotiacej tabulky.
+        /// </summary>
+        /// <param name="parStatisticsHandler"></param>
+        /// <param name="parScoreboardUI"></param>
         public ScoreboardController(StatisticsHandler parStatisticsHandler, ScoreboardUI parScoreboardUI)
         {
             aStatisticsHandler = parStatisticsHandler;
             aScoreboardUI = parScoreboardUI;
         }
+
 
         /// <summary>
         /// Metoda, ktora zainicializuje tabulku

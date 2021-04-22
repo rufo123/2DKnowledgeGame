@@ -8,6 +8,9 @@ using Microsoft.Xna.Framework.Input;
 
 namespace _2DLogicGame.GraphicObjects
 {
+    /// <summary>
+    /// Trieda, ktora reprezentuje graficku cast hodnotiacej tabulky.
+    /// </summary>
     public class ScoreboardUI : DrawableGameComponent
     {
 
@@ -55,6 +58,10 @@ namespace _2DLogicGame.GraphicObjects
             set => aShow = value;
         }
 
+        /// <summary>
+        /// Konstruktor grafickej casti hodnotiacej tabulky.
+        /// </summary>
+        /// <param name="parGame">Parameter, reprezentujuci hru - typ LogicGame.</param>
         public ScoreboardUI(LogicGame parGame) : base(parGame)
         {
             aLogicGame = parGame;
@@ -72,17 +79,11 @@ namespace _2DLogicGame.GraphicObjects
             aPosition = new Vector2((1920 - aSize.X) / 2F, (1080 - aSize.Y) / 3.5F);
         }
 
-        public override void Initialize()
-        {
-     
-            base.Initialize();
-        }
-
-        protected override void LoadContent()
-        {
-            base.LoadContent();
-        }
-
+        /// <summary>
+        /// Override metoda, ktora sa stara o vykreslovanie objektu. A zaroven logiku prepocitavania suradnic pre spravne vykreslenie poloziek
+        /// hodnotiacej tabulky na spravnom mieste.
+        /// </summary>
+        /// <param name="gameTime"></param>
         public override void Draw(GameTime gameTime)
         {
 
@@ -167,11 +168,6 @@ namespace _2DLogicGame.GraphicObjects
             base.Draw(gameTime);
         }
 
-        public override void Update(GameTime gameTime)
-        {
-
-            base.Update(gameTime);
-        }
         /// <summary>
         /// Metoda, ktora si vypocita offset itemu aby sa zarovnal do stredu.
         /// </summary>

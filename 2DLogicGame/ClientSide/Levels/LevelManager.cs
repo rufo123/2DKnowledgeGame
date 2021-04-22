@@ -125,6 +125,9 @@ namespace _2DLogicGame.ClientSide.Levels
         /// </summary>
         private int aGamePoints;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje ci je prichystany update hry - typ bool.
+        /// </summary>
         private bool aLevelUpdateIsReady = false;
 
         public bool IsLevelInitalized
@@ -168,6 +171,7 @@ namespace _2DLogicGame.ClientSide.Levels
             get => aGameCompleted;
             set => aGameCompleted = value;
         }
+
 
         /// <summary>
         /// Konstruktor LevelManageru -

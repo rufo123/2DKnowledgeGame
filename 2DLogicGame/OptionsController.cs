@@ -8,13 +8,23 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using SharpFont;
+// ReSharper disable InvalidXmlDocComment
 
 namespace _2DLogicGame.ClientSide
 {
+    /// <summary>
+    /// Trieda, ktora reprezentuje manazera nastaveni klaves.
+    /// </summary>
     public class OptionsController : DrawableGameComponent
     {
+        /// <summary>
+        /// Atribut, reprezentujuci hry - typ LogicGame.
+        /// </summary>
         private LogicGame aGame;
 
+        /// <summary>
+        /// Atribut, reprezentujuci list poloziek nastaveni - typ List<MenuOptionKeyWithToolTip>.
+        /// </summary>
         private List<MenuOptionKeyWithToolTip> aListOptionsItem;
 
         /// <summary>
@@ -23,33 +33,70 @@ namespace _2DLogicGame.ClientSide
         /// </summary>
         private Dictionary<KeyTypes, MenuOptionKeyWithToolTip> aDictionaryOptionItems;
 
+        /// <summary>
+        /// Atribut, reprezentujuci List tlacidiel v menu - typ List<MenuButton>.
+        /// </summary>
         private List<MenuButton> aListConfirmButtons;
 
+        /// <summary>
+        /// Atribut, reprezentujuci poziciu tooltipu v menu - typ Vector2.
+        /// </summary>
         private Vector2 aPositionToolTip;
 
+        /// <summary>
+        /// Atribut, reprezentujuci poziciu klavesy v menu - typ Vector2.
+        /// </summary>
         private Vector2 aPositionKey;
 
+        /// <summary>
+        /// Atribut, reprezentujuci cislo indexu zvolenej polozky - typ int.
+        /// </summary>
         private int aIndexOfSelected;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje ci je objekt triedy povoleny na zobrazenie/aktualizaciu - typ bool.
+        /// </summary>
         private bool aEnabled;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje ci je objekt triedy zamerany - typ bool.
+        /// </summary>
         private bool aFocused;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje pomocny casovac, blinkania poloziek - typ float.
+        /// </summary>
         private float aHelperBlinkTimer;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje pomocny casovac, pri stlaceni polozky - typ float.
+        /// </summary>
         private float aHelperPressedTimer;
 
+        /// <summary>
+        /// Atribut, reprezentujuci farbu blikajucej polozky - typ Color.
+        /// </summary>
         private Color aBlinkingColor;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje ci je tlacidlo stlacene - typ bool.
+        /// </summary>
         private bool aButtonPressed;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje StringBuilder, ktory sa vyuziva pri vytvarani konfiguracnych suborov - typ StringBuilder.
+        /// </summary>
         private StringBuilder aConfigStringBuilder;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje cestu k konfiguracnemu suboru - typ string.
+        /// </summary>
         private string aConfigFilePath;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje cestu k prednastavenemu konfiguracnemu suboru - typ string.
+        /// </summary>
         private string aConfigDefaultFilePath;
-
-
 
         /// <summary>
         /// Atribut, ktory reprezentuje, kolko krat ma tlacidlo zablikat, pokial je stlacene - typ int.
@@ -67,6 +114,10 @@ namespace _2DLogicGame.ClientSide
             set => aEnabled = value;
         }
 
+        /// <summary>
+        /// Konstruktor ovladaca nastaveni.
+        /// </summary>
+        /// <param name="parGame">Parameter, reprezentujuci hru - typ LogicGame.</param>
         public OptionsController(LogicGame parGame) : base(parGame)
         {
             aGame = parGame;
@@ -197,6 +248,10 @@ namespace _2DLogicGame.ClientSide
             return Color.Red;
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o aktualizaciu triedy, pohyb v nastaveniach a potvrdzovanie poloziek.
+        /// </summary>
+        /// <param name="parGameTime"></param>
         public override void Update(GameTime parGameTime)
         {
             if (aEnabled)
@@ -253,6 +308,10 @@ namespace _2DLogicGame.ClientSide
             base.Update(parGameTime);
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o vykreslovanie triedy nastaveni a poloziek v nich. Stara sa aj o zmenu farieb. Ako aj o spravu blikania tlacidiel.
+        /// </summary>
+        /// <param name="parGameTime"></param>
         public override void Draw(GameTime parGameTime)
         {
             if (aFocused)

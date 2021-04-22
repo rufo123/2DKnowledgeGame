@@ -7,9 +7,10 @@ using Microsoft.Xna.Framework.Input;
 
 namespace _2DLogicGame.GraphicObjects
 {
+    /// <summary>
+    /// Trieda reprezentujuca graficku cast vykreslovania prekladu slov.
+    /// </summary>
     class EnglishSlovakWords : DrawableGameComponent
-
-
 
     {
 
@@ -73,6 +74,13 @@ namespace _2DLogicGame.GraphicObjects
         /// </summary>
         private Rectangle aRectangle;
 
+        /// <summary>
+        /// Konstruktor objektu.
+        /// </summary>
+        /// <param name="parLogicGame">Parameter, reprezentujuci hru - LogicGame.</param>
+        /// <param name="parPositionEnglish">Parameter, reprezentujuci poziciu anglickych slov - typ Vector2.</param>
+        /// <param name="parPositionSlovak">Parameter, reprezentujuci poziciu slovenskych slov - typ Vector2.</param>
+        /// <param name="parSize">Parameter, reprezentujuci velkost - typ parSize.</param>
         public EnglishSlovakWords(LogicGame parLogicGame, Vector2 parPositionEnglish, Vector2 parPositionSlovak, Vector2 parSize) : base(parLogicGame)
         {
             aLogicGame = parLogicGame;
@@ -115,7 +123,10 @@ namespace _2DLogicGame.GraphicObjects
                 aShowTimerSlovak = 0;
             }
         }
-
+        
+        /// <summary>
+        /// Override metoda, ktora sa stara o inicializaciu rectanglu a textury.
+        /// </summary>
         public override void Initialize()
         {
             aRectangle = new Rectangle(0, 0, (int)aSize.X, (int)aSize.Y);
@@ -124,6 +135,9 @@ namespace _2DLogicGame.GraphicObjects
             base.Initialize();
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o nacitanie farieb textury. Konkretne ciernej farby.
+        /// </summary>
         protected override void LoadContent()
         {
             Color[] tmpColorFeedBack = new Color[aTexture2D.Width * aTexture2D.Height]; //Farba pre pozadie boxu
@@ -138,6 +152,10 @@ namespace _2DLogicGame.GraphicObjects
             base.LoadContent();
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o aktualizaciu objektu. A na kolko sa maju dane slova zobrazit.
+        /// </summary>
+        /// <param name="parGameTime">Parameter, reprezentujuci GameTime.</param>
         public override void Update(GameTime parGameTime)
         {
             if (aLogicGame.CurrentPressedKey.IsKeyDown(Keys.F))
@@ -177,7 +195,11 @@ namespace _2DLogicGame.GraphicObjects
             base.Update(parGameTime);
         }
 
-        public override void Draw(GameTime gameTime)
+        /// <summary>
+        /// Override metoda, ktora sa stara o vykreslovanie objektu.
+        /// </summary>
+        /// <param name="parGameTime">Parameter, reprezentujuci GameTime.</param>
+        public override void Draw(GameTime parGameTime)
         {
             if (aTexture2D != null && aRectangle != null && aShowingEnabledEnglish)
             {
@@ -199,7 +221,7 @@ namespace _2DLogicGame.GraphicObjects
                 aLogicGame.SpriteBatch.DrawString(aLogicGame.Font28, aSlovakWord, aPositionSlovak + aSize / 2F - tmpNewStringOffSetVector2, Color.White, 0F, Vector2.Zero, 1F, SpriteEffects.None, 0.2F);
             }
 
-            base.Draw(gameTime);
+            base.Draw(parGameTime);
         }
     }
 }

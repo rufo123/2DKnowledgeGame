@@ -11,11 +11,12 @@ using _2DLogicGame.GraphicObjects.Connecting;
 using _2DLogicGame.GraphicObjects.Scoreboard;
 using _2DLogicGame.ServerSide.Database;
 using SharpFont;
+// ReSharper disable InvalidXmlDocComment
 
 namespace _2DLogicGame
 {
     /// <summary>
-    /// Reprezentuje ake ulohy maju byt vykonane
+    /// Enumeracna trieda - Reprezentuje ake ulohy maju byt vykonane.
     /// </summary>
     public enum MenuTasksToBeExecuted
     {
@@ -30,31 +31,79 @@ namespace _2DLogicGame
         Connecting
     }
 
+    /// <summary>
+    /// Trieda, ktora reprezentuje menu.
+    /// </summary>
     public class Menu : Microsoft.Xna.Framework.DrawableGameComponent
     {
+        /// <summary>
+        /// Atribut, ktory reprezentuje MenuBox - typ MenuBox.
+        /// </summary>
         private MenuBox aMenuBox;
+
+        /// <summary>
+        /// Atribut, ktory reprezentuje hru - typ LogicGame.
+        /// </summary>
         private LogicGame aLogicGame;
+
+        /// <summary>
+        /// Atribut, reprezentujuci texuturu pozadia menu - typ Texture2D.
+        /// </summary>
         private Texture2D aMenuBackground;
+
+        /// <summary>
+        /// Atribut, reprezentujuci ovladac hodnotenia hry - typ ScoreboardController.
+        /// </summary>
         private ScoreboardController aScoreboardController;
 
+        /// <summary>
+        /// Atribut, reprezentujuci vstup prezyvky hraca - typ MenuInput.
+        /// </summary>
         private MenuInput aNickNameInput;
 
+        /// <summary>
+        /// Atribut, reprezentujuci vstup IP Adresy - typ MenuInput.
+        /// </summary>
         private MenuInput aIPInput;
 
+        /// <summary>
+        /// Atribut, reprezentujuci List vstupov - typ List<MenuInput>.
+        /// </summary>
         private List<MenuInput> aListOfInputs;
 
+        /// <summary>
+        /// Atribut, reprezentujuci zvoleny vstup, ci uz IP adresy alebo prezyvky - typ MenuInput.
+        /// </summary>
         private MenuInput aSelectedInput;
 
+        /// <summary>
+        /// Atribut, reprezentujuci obrazovku pripajania sa do hry - typ ConnectingUI.
+        /// </summary>
         private ConnectingUI aConnectingUI;
 
+        /// <summary>
+        /// Atribut, reprezentujuci ovladac nastaveni klaves - typ OptionsController.
+        /// </summary>
         private OptionsController aOptionsController;
 
+        /// <summary>
+        /// Atribut, reprezentujuci indikator stavu pripojenia k databaze hodnotenia hracov v menu - typ MenuStatsIndicator.
+        /// </summary>
         private MenuStatsIndicator aStatusIndicator;
 
+        /// <summary>
+        /// Atribut, reprezentujuci graficku cast vykreslovania chyb pri pripojovani sa do hry - typ MenuErrors.
+        /// </summary>
         private MenuErrors aMenuErrors;
 
+        /// <summary>
+        /// Atribut, reprezentujuci zvolene cislene ID vstupu - typ int.
+        /// </summary>
         private int aSelectedInputID;
 
+        /// <summary>
+        /// Atribut, reprezentujuci aka uloha ma byt vykonana po zvoleni si polozky v MenuBoxe - typ MenuTasksToBeExecuted.
+        /// </summary>
         private MenuTasksToBeExecuted aTaskToExecute;
 
         public MenuTasksToBeExecuted TaskToExecute
@@ -104,14 +153,20 @@ namespace _2DLogicGame
         }
 
 
+        /// <summary>
+        /// Metoda, ktora sa stara o nacitanie pozadia menu.
+        /// </summary>
         protected override void LoadContent()
         {
             aMenuBackground = aLogicGame.Content.Load<Texture2D>("Sprites\\Backgrounds\\menuBackground");
             base.LoadContent();
         }
 
-
-        public override void Draw(GameTime gameTime)
+        /// <summary>
+        /// Metoda, ktora sa stara o vykreslenie pozadia menu.
+        /// </summary>
+        /// <param name="parGameTime">Parameter, reprezentujuci GameTime.</param>
+        public override void Draw(GameTime parGameTime)
         {
 
             //  aLogicGame.SpriteBatch.Begin();
@@ -119,16 +174,23 @@ namespace _2DLogicGame
             // aLogicGame.SpriteBatch.End();
 
 
-            base.Draw(gameTime);
+            base.Draw(parGameTime);
         }
 
+        /// <summary>
+        /// Metoda, ktora inicializuje objekt. Nastavi, ze uloha, ktora ma byt na zaciatku vykonana nebude nijaka a teda ziadna.
+        /// </summary>
         public override void Initialize()
         {
             this.TaskToExecute = MenuTasksToBeExecuted.None;
             base.Initialize();
         }
 
-        public override void Update(GameTime gameTime)
+        /// <summary>
+        /// Metoda, ktora sa stara o aktualizaciu dat v menu.
+        /// </summary>
+        /// <param name="parGameTime">Parameter, reprezentujuci GameTime.</param>
+        public override void Update(GameTime parGameTime)
         {
             if (aMenuBox != null && aLogicGame != null && aMenuBox.BoxEnabled && aLogicGame.GameState != GameState.Typing)
             {
@@ -224,7 +286,7 @@ namespace _2DLogicGame
                 }
             }
 
-            if (aLogicGame != null && (aLogicGame.GameState == GameState.MainMenu || aLogicGame.GameState == GameState.Submenu))
+            if (aLogicGame != null &&  aMenuBox != null && (aLogicGame.GameState == GameState.MainMenu || aLogicGame.GameState == GameState.Submenu))
             {
                 switch (aMenuBox.GetNameOfHoverOn()
                 ) //Ak bude uzivatel ukazovat na Play alebo Host, zobrazia sa mu aj Input Boxy
@@ -257,7 +319,7 @@ namespace _2DLogicGame
             }
 
             if (aMenuBox != null && aScoreboardController != null && aConnectingUI != null && aOptionsController != null && aStatusIndicator != null && aMenuErrors != null)
-            {
+            { // Jednotliva sprava uloh, ake maju byt vykonane v menu a logikou spojenou s nimi.
                 switch (TaskToExecute)
                 {
                     case MenuTasksToBeExecuted.None:
@@ -269,6 +331,7 @@ namespace _2DLogicGame
                             aStatusIndicator.IndicatorEnabled = true;
                             aMenuErrors.ShowError = true;
                             aMenuBox.BoxEnabled = true;
+
                         }
 
                         MenuHandle(); //Pokial nie je nic zvolene zobrazi sa hlavna cast menu
@@ -344,9 +407,12 @@ namespace _2DLogicGame
 
 
 
-            base.Update(gameTime);
+            base.Update(parGameTime);
         }
 
+        /// <summary>
+        /// Metoda, ktora sluzi na spravu akcii spojenych s MenuBoxom
+        /// </summary>
         public void MenuHandle()
         {
             if (aLogicGame.CheckKeyPressedOnce(this.aLogicGame.ProceedKey))

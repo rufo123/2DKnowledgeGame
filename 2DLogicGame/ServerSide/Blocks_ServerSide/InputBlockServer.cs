@@ -4,15 +4,29 @@ using System.Text;
 
 namespace _2DLogicGame.ServerSide.Blocks_ServerSide
 {
+    /// <summary>
+    /// Trieda, ktora reprezentuje blok - stupny blok. - Server.
+    /// </summary>
     public class InputBlockServer : BlockServer
     {
-
+        /// <summary>
+        /// Atribut, reprezentujuci cislo vstupu - typ int.
+        /// </summary>
         private int aNumber;
 
+        /// <summary>
+        /// Atribut, reprezentujuci najmensie dosiahnutelne cislo - typ int.
+        /// </summary>
         private int aMinNumber;
 
+        /// <summary>
+        /// Atribut, reprezentujuci najvacsie dosiahnutelne cislo - typ int.
+        /// </summary>
         private int aMaxNumber;
 
+        /// <summary>
+        /// Atribut, reprezentujuci ci bola hodnota vstupu odovzdana - typ bool.
+        /// </summary>
         private bool aSubmitted;
 
         public int Number
@@ -27,7 +41,13 @@ namespace _2DLogicGame.ServerSide.Blocks_ServerSide
             set => aMaxNumber = value;
         }
 
-
+        /// <summary>
+        /// Konstruktor input bloku.
+        /// </summary>
+        /// <param name="parPosition">Parameter, reprezentujuci poziciu - typ Vector2.</param>
+        /// <param name="parCollisionType">Parameter, reprezentujuci koliziu input bloku - typ BlockCollisionType.</param>
+        /// <param name="parMinNumber">Parameter, reprezentujuci najmensie dosiahnutelne cislo - typ int.</param>
+        /// <param name="parMaxNumber">Parameter, reprezentujuci najvacsie dosiahnutelne cislo - typ int.</param>
         public InputBlockServer(Vector2 parPosition, BlockCollisionType parCollisionType = BlockCollisionType.Wall, int parMinNumber = 0, int parMaxNumber = 9) : base(parPosition, parCollisionType)
         {
             aNumber = 0;

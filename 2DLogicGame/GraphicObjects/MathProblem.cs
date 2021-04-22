@@ -7,33 +7,59 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace _2DLogicGame.GraphicObjects
 {
+    /// <summary>
+    /// Trieda reprezentujuci graficku cast manazera matematickeho problemu. - Klient.
+    /// </summary>
     public class MathProblem : DrawableGameComponent
     {
-
+        /// <summary>
+        /// Atribut, reprezentujuci hru - typ LogicGame.
+        /// </summary>
         private LogicGame aLogicGame;
 
+        /// <summary>
+        /// Atribut, reprezentujuci poziciu - typ Vector2.
+        /// </summary>
         private Vector2 aPosition;
 
+        /// <summary>
+        /// Atribut, reprezentujuci velkost - typ Vector2.
+        /// </summary>
         private Vector2 aSize;
 
-        private int aCountOfProblems;
-
+        /// <summary>
+        /// Atribut, reprezentujuci texturu bananov - typ Texture2D.
+        /// </summary>
         private Texture2D aBananaTexture;
 
+        /// <summary>
+        /// Atribut, reprezentujuci rectangle bananov - typ Rectangle.
+        /// </summary>
         private Rectangle aBananaRectangle;
 
-        private int aFirstNumber;
-
-        private int aSecondNumber;
-
+        /// <summary>
+        /// Atribut, reprezentujuci texturu pozadia objektu - typ Texture2D.
+        /// </summary>
         private Texture2D aFrameTexture;
 
+        /// <summary>
+        /// Atribut, reprezentujuci rectangle pozadia objektu - typ Rectangle.
+        /// </summary>
         private Rectangle aFrameRectangle;
 
+        /// <summary>
+        /// Atribut, reprezentujuci velkost bananov - typ int.
+        /// </summary>
         private int aBananaSize;
 
+        /// <summary>
+        /// Parameter, reprezentujuci objekt obsahujuci informacie o rovnici - typ MathEquation.
+        /// </summary>
         private MathEquation aEquation;
 
+        /// <summary>
+        /// Parameter, reprezentujuci ci ma byt objekt zobrazeny alebo nie - typ bool.
+        /// </summary>
         private bool aShown = false;
 
         public bool Shown
@@ -42,20 +68,23 @@ namespace _2DLogicGame.GraphicObjects
             set => aShown = value;
         }
 
-
-        public MathProblem(LogicGame parGame, Vector2 parPositionVector2, Vector2 parSizeVector2, int parCountProblemsGenerate, int parBananaSize) : base(parGame)
+        /// <summary>
+        /// Konstruktor grafickej casti matematickeho problemu.
+        /// </summary>
+        /// <param name="parGame">Parameter, reprezentujuci hru - typ LogicGame.</param>
+        /// <param name="parPositionVector2">Parameter, reprezentujuci poziciu pozadia - typ Vector2.</param>
+        /// <param name="parSizeVector2">Parameter, reprezentujuci velkost pozadia - typ Vector2.</param>
+        /// <param name="parBananaSize">Parameter, reprezentujuci velkost bananov - typ int.</param>
+        public MathProblem(LogicGame parGame, Vector2 parPositionVector2, Vector2 parSizeVector2, int parBananaSize) : base(parGame)
         {
             aLogicGame = parGame;
             aPosition = parPositionVector2;
             aSize = parSizeVector2;
-            aCountOfProblems = parCountProblemsGenerate;
             aBananaSize = parBananaSize;
             aShown = false;
             aEquation = null;
 
             Random tmpRand = new Random();
-            aFirstNumber = 0;
-            aSecondNumber = 0;
 
             aFrameRectangle = new Rectangle(0, 0, (int)parSizeVector2.X, (int)parSizeVector2.Y);
 
@@ -63,11 +92,18 @@ namespace _2DLogicGame.GraphicObjects
 
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o zmenu rovnice.
+        /// </summary>
+        /// <param name="parEquation">Paramete, reprezentujuci rovnicu - typ MathEquation.</param>
         public void ChangeEquation(MathEquation parEquation)
         {
             aEquation = parEquation;
         }
 
+        /// <summary>
+        /// Override metoda, ktora sa stara o inicializaciu. Incializuje Texturu a rectangle bananu a zaroven texturu pozadia.
+        /// </summary>
         public override void Initialize()
         {
             aBananaTexture = new Texture2D(aLogicGame.GraphicsDevice, aBananaSize, aBananaSize);
@@ -78,11 +114,9 @@ namespace _2DLogicGame.GraphicObjects
             base.Initialize();
         }
 
-        public override void Update(GameTime gameTime)
-        {
-            base.Update(gameTime);
-        }
-
+        /// <summary>
+        /// Override metoda, ktora sa stara o nacitanie textur bananov a textury pozadia - kde nacita ako pozadie ciernu farbu.
+        /// </summary>
         protected override void LoadContent()
         {
             aBananaTexture = aLogicGame.Content.Load<Texture2D>("Sprites\\Items\\banana");
@@ -102,7 +136,11 @@ namespace _2DLogicGame.GraphicObjects
 
         }
 
-        public override void Draw(GameTime gameTime)
+        /// <summary>
+        /// Override metoda, ktora sa stara o vykreslovanie objektu.
+        /// </summary>
+        /// <param name="parGameTime">Parameter, reprezentujuci GameTime.</param>
+        public override void Draw(GameTime parGameTime)
         {
 
             if (aShown == true)
@@ -170,7 +208,7 @@ namespace _2DLogicGame.GraphicObjects
             }
 
             //aLogicGame.SpriteBatch.DrawString(aLogicGame.Font72, "Test", aPosition, Color.White, 0F, Vector2.Zero, 1F, SpriteEffects.None, 0F);
-            base.Draw(gameTime);
+            base.Draw(parGameTime);
         }
     }
 }

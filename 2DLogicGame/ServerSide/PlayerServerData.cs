@@ -5,6 +5,9 @@ using System.Text;
 
 namespace _2DLogicGame.ServerSide
 {
+    /// <summary>
+    /// Trieda, reprezentujuca data o postave hraca. - Server.
+    /// </summary>
     public class PlayerServerData : EntityServer
 
     {
@@ -24,26 +27,26 @@ namespace _2DLogicGame.ServerSide
         /// </summary>
         private long aRemoteUniqueIdentifier;
 
+        public long RemoteUniqueIdentifier { get => aRemoteUniqueIdentifier; }
+        public int PlayerID { get => aPlayerID; }
+        public string PlayerNickName { get => aPlayerNickName; }
+
 
         /// <summary>
         /// Konstruktor - Inicializuje zakladne atributy
         /// </summary>
-        /// <param name="parPlayerID">Parameter - ID Hraca - Typ int</param>
+        /// <param name="parPlayerId">Parameter - ID Hraca - Typ int</param>
         /// <param name="parPlayerNickName">Parameter - Prezyvka Hraca - Typ string</param>
         /// <param name="parRemoteUniqueIdentifier">Parameter - Remote Unique Identifier Hraca - Typ long</param>
-        public PlayerServerData(int parPlayerID, string parPlayerNickName, long parRemoteUniqueIdentifier, Vector2 parPosition, Vector2 parSize) : base(parPosition, parSize, parSpeed: 200F)
+        public PlayerServerData(int parPlayerId, string parPlayerNickName, long parRemoteUniqueIdentifier, Vector2 parPosition, Vector2 parSize) : base(parPosition, parSize, parSpeed: 200F)
         {
-            aPlayerID = parPlayerID; //Priradime ID Hraca
+            aPlayerID = parPlayerId; //Priradime ID Hraca
             aPlayerNickName = parPlayerNickName; //Priradime Prezyvku Hraca
             aRemoteUniqueIdentifier = parRemoteUniqueIdentifier; //Priradime Unikatny Identifikator
 
             EntityScale = 1.5F;
 
         }
-
-        public long RemoteUniqueIdentifier { get => aRemoteUniqueIdentifier; }
-        public int PlayerID { get => aPlayerID; }
-        public string PlayerNickName { get => aPlayerNickName; }
 
         /// <summary>
         /// Metoda, ktora pripravi indetifikacne data hracov na odoslanie, ignorujuc data o hracovi, ktore tieto data pozaduje
@@ -65,17 +68,5 @@ namespace _2DLogicGame.ServerSide
             return parMessage;
         }
 
-      /*  public NetOutgoingMessage PrepareDataForUploadWithRUID(NetOutgoingMessage parMessage)
-        {
-           
-            if (!float.IsNaN(aRemoteUniqueIdentifier)) //Skontrulujeme ci sa jedna o cislo...
-            {
-                parMessage.WriteVariableInt64(aRemoteUniqueIdentifier); //Do spravy pridame Remove Unique Identifikator Hraca
-            }
-
-            parMessage = PrepareDataForUpload(parMessage);
-
-            return parMessage;
-        } */
     }
 }

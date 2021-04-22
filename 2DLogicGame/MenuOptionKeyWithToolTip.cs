@@ -6,7 +6,9 @@ using Microsoft.Xna.Framework.Input;
 
 namespace _2DLogicGame.ClientSide
 {
-
+    /// <summary>
+    /// Enumeracna trieda, reprezentujuca typy pouzitych klaves v hre.
+    /// </summary>
     public enum KeyTypes
     {
         UpKey = 0,
@@ -19,7 +21,9 @@ namespace _2DLogicGame.ClientSide
         MusicHigher = 7,
         MusicStartTop = 8
     }
-
+    /// <summary>
+    /// Trieda, ktora reprezentuje polozku nastaveni hry, definovanu ToolTipom a samotnou klavesou.
+    /// </summary>
     public class MenuOptionKeyWithToolTip
     {
 
@@ -94,5 +98,6 @@ namespace _2DLogicGame.ClientSide
             get => aKeyType;
             set => aKeyType = value;
         }
+
     }
 }

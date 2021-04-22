@@ -16,95 +16,234 @@ using Microsoft.Xna.Framework.Media;
 
 namespace _2DLogicGame
 {
+    /// <summary>
+    /// Enumeracna trieda reperzentujuca stavy hry.
+    /// </summary>
     public enum GameState
     {
-        MainMenu,
-        Submenu,
-        Playing,
-        Paused,
-        Exit,
-        Executed,
-        Typing
+        MainMenu, //Hlavne Menu
+        Submenu, //Podmenu
+        Playing, //Hra je hrana
+        Paused, //Hra je pozastavena
+        Exit, //Hra je ukoncena
+        Executed, //Nepouzite
+        Typing //Hrac pise
     }
 
+    /// <summary>
+    /// Trieda, ktora reprezentuje hru.
+    /// </summary>
     public class LogicGame : Game
     {
+        /// <summary>
+        /// Atribut, reprezentujuci manazera grafickeho zariadenia - typ GraphicsDeviceManager.
+        /// </summary>
         private GraphicsDeviceManager _graphics;
+
+        /// <summary>
+        /// Atribut, reprezentujuci SpriteBatch, teda objekt na ktory sa vykresluje graficka cast hry - typ SpriteBatch.
+        /// </summary>
         private SpriteBatch _spriteBatch;
 
+        /// <summary>
+        /// Atribut, reprezentujuci font o velkosti 72 - typ SpriteFont;
+        /// </summary>
         private SpriteFont aFont72;
 
+        /// <summary>
+        /// Atribut, reprezentujuci font o velkosti 48 - typ SpriteFont;
+        /// </summary>
         private SpriteFont aFont48;
 
+        /// <summary>
+        /// Atribut, reprezentujuci font o velkosti 28 - typ SpriteFont;
+        /// </summary>
         private SpriteFont aFont28;
 
+        /// <summary>
+        /// Atribut, reprezentujuci Menu Box - typ MenuBox.
+        /// </summary>
         private MenuBox aMenuBox;
+
+        /// <summary>
+        /// Atribut, reprezentujuci Menu - typ Menu.
+        /// </summary>
         private Menu aMenu;
 
+        /// <summary>
+        /// Atribut, reprezentujuci polozku, ktora podporuje vstup prezyvky hraca - typ MenuInput.
+        /// </summary>
         private MenuInput aNickNameInput;
 
+        /// <summary>
+        /// Atribut, reprezentujuci polozku, ktora podporuje vstup IP adresy - typ MenuInput.
+        /// </summary>
         private MenuInput aIPAddressInput;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje chyby, ktore sa vykresluju v menu - typ MenuErrors;
+        /// </summary>
         private MenuErrors aMenuErrors;
 
-        private Texture2D bck;
+        /// <summary>
+        /// Atribut, ktory reprezentuje texturu pozadia menu - typ Texture2D.
+        /// </summary>
+        private Texture2D aBackgroundTexture;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje manazera chatu - typ Chat.
+        /// </summary>
         private ClientSide.Chat.Chat aChat;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje predosly stav klavesnice - typ KeyboardState.
+        /// </summary>
         private KeyboardState aPreviousPressedKey;
+
+        /// <summary>
+        /// Atribut, ktory reprezentuje momentalny stav klavenice - typ KeyboradState.
+        /// </summary>
         private KeyboardState aCurrentPressedKey;
 
+        /// <summary>
+        /// Atribut, ktora reprezentuje kolekciu komponentov, reprezentujucich hlavne menu - typ ComponentCollection.
+        /// </summary>
         private ComponentCollection aMainMenu;
+
+        /// <summary>
+        /// Atribut, ktora reprezentuje kolekciu komponentov, reprezentujucich hraciu obrazovku - typ ComponentCollection.
+        /// </summary>
         private ComponentCollection aPlayingScreen;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje stav hry - typ GameState - enum.
+        /// </summary>
         private GameState aGameState = GameState.MainMenu;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje Server - typ Server.
+        /// </summary>
         private Server aServerClass;
+
+        /// <summary>
+        /// Atribut, ktory reprezentuje Klienta - typ Klient.
+        /// </summary>
         private Client aClientClass;
 
+        /// <summary>
+        /// Atribut - Vlakno, ktore sluzi na prijmanie sprav u servera - typ Thread.
+        /// </summary>
         private Thread aServerReadThread;
+
+        /// <summary>
+        /// Atribut - Vlakno, ktore sluzi na prijmanie sprav u klienta - typ Thread.
+        /// </summary>
         private Thread aClientReadThread;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje ciel na aky sa maju vykresli objekty, napr 1920x1080 a nasledne sa takato obrazovka pretransformuje.
+        /// Robi sa to aby sa nemuseli prisposobovat velkosti pre rozne velkosti obrazoviek.
+        /// </summary>
         private RenderTarget2D aRenderTarget;
 
+        /// <summary>
+        /// Atribut, reprezentujuci ovladac postavy hraca - typ PlayerController.
+        /// </summary>
         private PlayerController aPlayerController;
 
+        /// <summary>
+        /// Atribut, reprezentujuci manazera urovni - typ LevelManager.
+        /// </summary>
         private LevelManager aLevelManager;
 
+        /// <summary>
+        /// Atribut, reprezentujuci spravcu hodnotiacej tabulky - typ StatisticsHandler.
+        /// </summary>
         private StatisticsHandler aStatisticsHandler;
 
+        /// <summary>
+        /// Atribut, reprezentujuci graficku cast hodnotiacej tabulky - typ ScoreboardUI.
+        /// </summary>
         private ScoreboardUI aScoreboardUI;
 
+        /// <summary>
+        /// Atribut, reprezentujuci ovladac hodnotiacej tabulky - typ ScoreboardController.
+        /// </summary>
         private ScoreboardController aScoreboardController;
 
+        /// <summary>
+        /// Atribut, reprezentujuci graficku cast obrazovky pri pripajani - typ ConnectingUI.
+        /// </summary>
         private ConnectingUI aConnectUI;
 
+        /// <summary>
+        /// Atribut, reprezentujuci obrazovky pri dokonceni hry - typ LevelGameCompletedScreen.
+        /// </summary>
         private LevelGameCompletedScreen aCompletedScreen;
 
+        /// <summary>
+        /// Atribut, reprezentujuci ovladac nastaveni klaves - typ OptionsController.
+        /// </summary>
         private OptionsController aOptionsController;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje indikator stavu databazy hodnotenia hracov, ci je zapnuta alebo nie - typ MenuStatsIndicator.
+        /// </summary>
         private MenuStatsIndicator aMenuStatIndicator;
 
+        /// <summary>
+        /// Atribut, ktroy reprezentuje potvrdzovaciu obrazovku pri ukoncovani urovne - typ LevelQuitConfirm.
+        /// </summary>
         private LevelQuitConfirm aLevelQuitConfirm;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje pozadie urovne - typ Texture2D.
+        /// </summary>
         private Texture2D aLevelBackgroundTexture;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje casovac, ktory indikuje za kolko sa pokusi znova pripojit znova k databaze, ak pripojenie zlyhalo - typ float.
+        /// </summary>
         private float aReconnectDatabaseTimer;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje sirku RenderTarget-u - typ int.
+        /// </summary>
         private int aRenderTargetWidth = 1920;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje vysku RenderTarget-u - typ int.
+        /// </summary>
         private int aRenderTargetHeight = 1080;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje realnu sirku na aku sa ma vykreslit hra - typ int.
+        /// </summary>
         private int aBackBufferWidth = 1280; //1280
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje realnu vysku na aku sa ma vykreslit hra - typ int.
+        /// </summary>
         private int aBackBufferHeight = 720; //720
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje offset x-ovej suradnice kamery - typ float.
+        /// </summary>
         private float aCameraX;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje skalu vykreslovanie - typ float.
+        /// </summary>
         private float aScale = 1F;
 
+        /// <summary>
+        /// Atribut, ktory sa vyuziva pri debugovani, kolko volani metody prebehlo - typ int.
+        /// </summary>
         private int aDebugCalls = 0;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje timeout pripojenie - typ int.
+        /// </summary>
         private int aConnectionTimeout;
 
 
@@ -136,6 +275,7 @@ namespace _2DLogicGame
         // public int RenderTargetHeight { get => aRenderTargetHeight; }
         //Keys
 
+        // Atributy jednotlive klavesy, ktore sa vyuzivaju pri hrani hry.
         private Keys aUpKey = Keys.W;
         private Keys aDownKey = Keys.S;
         private Keys aLeftKey = Keys.A;
@@ -146,16 +286,25 @@ namespace _2DLogicGame
         private Keys aMusicHigher = Keys.Add; //Hudba hlasnejsie
         private Keys aMusicStartStop = Keys.M; //Zapnutie hudby
 
-        //ODSTRANIT
-
+        /// <summary>
+        /// Atribut, reprezentujuci hudbu, ktora je prehravana pri hrani urovni - typ Song.
+        /// </summary>
         private Song aSong;
+
+        /// <summary>
+        /// Atribut, reprezentujuci predoslu uroven hlasitosti hudby - typ float.
+        /// </summary>
         private float aOldVolumeLevel;
 
-        //ODSTRANIT
+  
 
-
+        /// <summary>
+        /// Konstruktor triedy hry.
+        /// </summary>
         public LogicGame()
         {
+
+
             Graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
@@ -170,10 +319,14 @@ namespace _2DLogicGame
             //ODSTRANIT
         }
 
-
+        /// <summary>
+        /// Metoda, ktora sa stara o inicializaciu hry.
+        /// </summary>
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+
+            this.Window.Title = "2D Vedomostna hra | Vytvoril: Rudolf Šimo, 2021 | Bakalarska praca";
 
             aOptionsController = new OptionsController(this);
 
@@ -187,7 +340,7 @@ namespace _2DLogicGame
             aOptionsController.AddOption("Hudba - Hlasnejsie", aMusicHigher, KeyTypes.MusicHigher);
             aOptionsController.AddOption("Hudba - Stisit/Zapnut", aMusicStartStop, KeyTypes.MusicStartTop);
 
-            aOptionsController.AddButton("Save", MenuButtonAction.Save);
+            aOptionsController.AddButton("Ulozit", MenuButtonAction.Save);
             aOptionsController.AddButton("Reset", MenuButtonAction.ResetToDefault);
 
             aConnectionTimeout = 20; //Nastavime cas pre connection timeout
@@ -210,11 +363,11 @@ namespace _2DLogicGame
             aMenuBox.AddItem("Stats", MenuItemAction.Stats);
             aMenuBox.AddItem("Exit", MenuItemAction.Exit);
 
-            aNickNameInput = new MenuInput(this, new Vector2(300, 500), new Vector2(500, 100), 25F, "Nickname", 10);
+            aNickNameInput = new MenuInput(this, new Vector2(300, 500), new Vector2(500, 100), 25F, "Prezyvka", 10);
 
-            aIPAddressInput = new MenuInput(this, new Vector2(300, 700), new Vector2(500, 100), 15F, "IP Address", 15, true);
+            aIPAddressInput = new MenuInput(this, new Vector2(300, 700), new Vector2(500, 100), 15F, "IP Adresa", 15, true);
 
-            aConnectUI = new ConnectingUI(this, "Connecting", aConnectionTimeout, '.');
+            aConnectUI = new ConnectingUI(this, "Pripajanie", aConnectionTimeout, '.');
 
             aMenuErrors = new MenuErrors(this, new Vector2(aRenderTargetWidth / 2F, 50));
 
@@ -254,6 +407,9 @@ namespace _2DLogicGame
             aScale = 1F / (1080F / _graphics.GraphicsDevice.Viewport.Height);
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o nacitanie obsahu hry.
+        /// </summary>
         protected override void LoadContent()
         {
             //ODSTRANIT
@@ -273,7 +429,7 @@ namespace _2DLogicGame
 
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
-            bck = Content.Load<Texture2D>("Sprites\\Backgrounds\\menuBackground");
+            aBackgroundTexture = Content.Load<Texture2D>("Sprites\\Backgrounds\\menuBackground");
 
             aMainMenu.SetVisibility(true);
 
@@ -286,7 +442,11 @@ namespace _2DLogicGame
             // TODO: use this.Content to load your game content here
         }
 
-        protected override void Update(GameTime gameTime)
+        /// <summary>
+        /// Metoda, ktora sa stara o aktualizaciu obsahu hry.
+        /// </summary>
+        /// <param name="parGameTime">Parameter, reprezentujuci GameTime.</param>
+        protected override void Update(GameTime parGameTime)
         {
 
             if (aClientClass != null && aClientClass.ClientNeedsToShutdown)
@@ -302,13 +462,18 @@ namespace _2DLogicGame
                     this.GameState = GameState.Exit;
                     Exit();
                 }
-                else if (GameState == GameState.Playing && aChat != null && aChat.ChatInputBox.IsInputOpen && !aClientClass.ClientNeedsToShutdown) //Ak hrac nie je menu a ma otvorene okno na pisanie, zavrieme ho.
+                else if (GameState == GameState.Typing && aChat != null && aChat.ChatInputBox.IsInputOpen && aClientClass != null && !aClientClass.ClientNeedsToShutdown) //Ak hrac nie je menu a ma otvorene okno na pisanie, zavrieme ho.
                 {
+                    //Pri zatvarani chat input okna, zmazame aj rozpisanu spravu.
+                    aChat.ChatInputBox.DeleteMessage();
                     aChat.ChatInputBox.IsInputOpen = false;
                 }
-                else if (GameState == GameState.Playing && aLevelQuitConfirm != null && !aLevelQuitConfirm.ShowConfirm && !aClientClass.ClientNeedsToShutdown) //Ak hrac nie je v menu a stlaci ESC, zobrazime potvrdzovacie okno, pre vypnutie hry.
+                else if (GameState == GameState.Playing && aLevelQuitConfirm != null && !aLevelQuitConfirm.ShowConfirm && aClientClass != null && !aClientClass.ClientNeedsToShutdown && (aLevelManager != null && !aLevelManager.GameCompleted)) //Ak hrac nie je v menu a stlaci ESC, zobrazime potvrdzovacie okno, pre vypnutie hry, zaroven nastavime, ze potvrdzovacie okno sa zobrazi, len ak este nie je dokoncena hra.
                 {
-                    aLevelQuitConfirm.ShowConfirm = true;
+                    if (aLevelQuitConfirm != null)
+                    {
+                        aLevelQuitConfirm.ShowConfirm = true;
+                    }
                 }
                 else if ((GameState != GameState.MainMenu && aLevelQuitConfirm != null && aLevelQuitConfirm.ShowConfirm) || GameState == GameState.Submenu || (aClientClass != null && aClientClass.ClientNeedsToShutdown) || (aLevelManager != null && aLevelManager.GameCompleted)) //Ak nie sme v hlavnom menu, alebo klient poziadal o vypnutie.
                 {//Do menu sa dostaneme hned pokia - Je uz zobrazeny Confirm Box a stlacime Escape | sme v submenu | Client poziadal o vypnutie | Hra bola dokoncena.
@@ -398,6 +563,7 @@ namespace _2DLogicGame
                                 if (aMenuErrors != null)
                                 {
                                     aMenuErrors.SetErrorMessage("IP Adresa/Port je uz obsadena/y.");
+                                    aGameState = GameState.MainMenu;
                                 }
                             }
 
@@ -464,7 +630,7 @@ namespace _2DLogicGame
 
                 if (!aStatisticsHandler.IsConnected) //Ak sa pripojenie k databaze nezdarilo
                 {
-                    aReconnectDatabaseTimer += gameTime.ElapsedGameTime.Seconds; //Zacneme pripocitavat sekundy do casovaca
+                    aReconnectDatabaseTimer += parGameTime.ElapsedGameTime.Seconds; //Zacneme pripocitavat sekundy do casovaca
 
                     if (aReconnectDatabaseTimer > 60) //Ak casovac dosiahne hodnotu 60 sekund - 1 minuty
                     {
@@ -519,9 +685,9 @@ namespace _2DLogicGame
             //Riadenie kolizie s podmienkou existencie Klienta, LevelManazera a vytvoreneho levelu
             if (aClientClass != null && aLevelManager != null && aLevelManager.IsLevelInitalized && aPlayerController != null)
             {
-                aPlayerController.ControlRequest(gameTime);
-                aClientClass.CollisionHandler(gameTime, aLevelManager);
-                aPlayerController.ControlPlayerMovement(gameTime);
+                aPlayerController.ControlRequest(parGameTime);
+                aClientClass.CollisionHandler(parGameTime, aLevelManager);
+                aPlayerController.ControlPlayerMovement(parGameTime);
 
             }
 
@@ -561,18 +727,18 @@ namespace _2DLogicGame
                 }
 
                 //Skontrolujem ci aj LevelManager nepotrebuje nieco aktualizovat
-                aLevelManager.Update(parGameTime: gameTime);
+                aLevelManager.Update(parGameTime: parGameTime);
 
                 if (aLevelManager.LevelChanged)
                 {
                     aClientClass.RequestLevelData();
-                    aClientClass.HandleRespawnPlayers(gameTime);
+                    aClientClass.HandleRespawnPlayers(parGameTime);
                     aLevelManager.LevelChanged = false;
 
                 }
                 else if (aLevelManager.LevelReset)
                 {
-                    aClientClass.HandleRespawnPlayers(gameTime);
+                    aClientClass.HandleRespawnPlayers(parGameTime);
                     aLevelManager.LevelReset = false;
                 }
 
@@ -591,7 +757,7 @@ namespace _2DLogicGame
             //Riadenie pohybu spoluhracov
             if (aClientClass != null && aLevelManager != null)
             {
-                aClientClass.TeammateMovementHandler(gameTime, aLevelManager);
+                aClientClass.TeammateMovementHandler(parGameTime, aLevelManager);
 
             }
 
@@ -608,13 +774,17 @@ namespace _2DLogicGame
             // TODO: Add your update logic here
             //  Thread.Sleep(1);
 
-            base.Update(gameTime);
+            base.Update(parGameTime);
 
             //ControlRequest
 
         }
 
-        protected override void Draw(GameTime gameTime)
+        /// <summary>
+        /// Metoda, ktora sa stara o vykreslovanie hry.
+        /// </summary>
+        /// <param name="parGameTime">Parameter, reprezentujuci GameTime.</param>
+        protected override void Draw(GameTime parGameTime)
         {
             this.GraphicsDevice.SetRenderTarget(aRenderTarget);
 
@@ -661,7 +831,7 @@ namespace _2DLogicGame
                 SpriteBatch.Draw(aLevelBackgroundTexture, Vector2.Zero, new Rectangle(0, 0, aLevelBackgroundTexture.Width, aLevelBackgroundTexture.Height), Color.White, 0F, Vector2.Zero, 1F, SpriteEffects.None, 1F);
             }
 
-            base.Draw(gameTime);
+            base.Draw(parGameTime);
 
             SpriteBatch.End();
 
@@ -730,5 +900,6 @@ namespace _2DLogicGame
 
 
         }
+
     }
 }

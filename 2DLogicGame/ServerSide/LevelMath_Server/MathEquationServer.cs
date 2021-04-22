@@ -6,7 +6,7 @@ using System.Text;
 namespace _2DLogicGame.ClientSide.MathProblem
 {
     /// <summary>
-    /// Enum reprezentujuci 4 zakladne matematicke operacie: +, -, *, /
+    /// Enumeracna trieda reprezentujuca 4 zakladne matematicke operacie: +, -, *, / . - Server.
     /// </summary>
     public enum MathOperationServer
     {
@@ -17,7 +17,7 @@ namespace _2DLogicGame.ClientSide.MathProblem
     }
 
     /// <summary>
-    /// Trieda, reprezentujuca jeden matematicky problem, specifikovany prvym cislom, druhym cislom a operatorom
+    /// Trieda, reprezentujuca jeden matematicky problem, specifikovany prvym cislom, druhym cislom a operatorom. - Server.
     /// </summary>
     public class MathEquationServer
     {
@@ -53,6 +53,7 @@ namespace _2DLogicGame.ClientSide.MathProblem
             get => aSecondNumber;
             set => aSecondNumber = value;
         }
+
 
         /// <summary>
         /// Konstruktor, reprezentujuci Matematicky Problem

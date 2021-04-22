@@ -61,6 +61,7 @@ namespace _2DLogicGame.ClientSide.Levels
         }
 
 
+
         /// <summary>
         /// Konstruktor, reprezentujuci mapu levelu
         /// Inicializuje Hru, Defaultnu Velkost bloku, Dictionary pozicii blokov a List Blokov
@@ -278,7 +279,7 @@ namespace _2DLogicGame.ClientSide.Levels
         }
 
         /// <summary>
-        /// Metoda, ktora vrati Manager Matematickeho Problemu
+        /// Metoda, ktora vrati managera Matematickeho Problemu.
         /// </summary>
         /// <returns></returns>
         public MathProblemManager GetMathProblemManager()
@@ -291,6 +292,10 @@ namespace _2DLogicGame.ClientSide.Levels
             return null;
         }
 
+        /// <summary>
+        /// Metoda, ktora vrati managera Otazok.
+        /// </summary>
+        /// <returns></returns>
         public QuestionManager GetQuestionManager()
         {
             if (aQuestionsManager != null)
@@ -301,6 +306,10 @@ namespace _2DLogicGame.ClientSide.Levels
             return null;
         }
 
+        /// <summary>
+        /// Metoda, ktora vrati manazera Prekladu.
+        /// </summary>
+        /// <returns></returns>
         public EnglishManager GetEnglishManager()
         {
             if (aEnglishManager != null)

@@ -8,6 +8,9 @@ using System.Text;
 
 namespace _2DLogicGame.ClientSide.Chat
 {
+    /// <summary>
+    /// Trieda reprezentujuca cast Chatu - vstup.
+    /// </summary>
     public class ChatInputBox : Microsoft.Xna.Framework.DrawableGameComponent
     {
         /// <summary>
@@ -45,6 +48,9 @@ namespace _2DLogicGame.ClientSide.Chat
         /// </summary>
         private char aPreviousCharacterPressed;
 
+        /// <summary>
+        /// Atribut, ktory si uklada informaciu o predosle stlacenej klavese - typ Keys.
+        /// </summary>
         private Keys aPreviousKeyPressed;
 
         /// <summary>
@@ -82,15 +88,21 @@ namespace _2DLogicGame.ClientSide.Chat
         /// </summary>
         private float aFontScale = 0.5F;
 
-        private const float aFontEnlargingConstant = 0.025F;
+        /// <summary>
+        /// Atribut - konstanta, reprezentujuca o aku velkost sa ma pismo zvacsovat/znizovat ak je prilis velke/male.
+        /// </summary>
+        private const float FontEnlargingConstant = 0.025F;
 
+        /// <summary>
+        /// Atribut, reprezentujuci prednastavenu velkost pisma.
+        /// </summary>
         private float aDefaultFontScale;
-
 
         /// <summary>
         /// Getter a Setter - Boolean - Je Sprava Uz Uskladnena? 
         /// </summary>
         public bool IsMessageReadyToBeStored { get => isMessageReadyToBeStored; set => isMessageReadyToBeStored = value; }
+
         public bool IsInputOpen
         {
             get => isInputOpen;
@@ -130,17 +142,17 @@ namespace _2DLogicGame.ClientSide.Chat
                 aLogicGame.SpriteBatch.Draw(aChatInputTexture2D, aPositionVector ,aChatInputRectangle, Color.White, 0F, Vector2.Zero, 1F,  SpriteEffects.None, 0.15F); //Vykrasli ChatInputBox pomocou Textury, Rectangle a farby - Color.White zachovava povodne farby
 
                 float tmpNextStringSize = (aLogicGame.Font72.MeasureString(aMessageToSend).X * aFontScale) + aLogicGame.Font72.LineSpacing; //Reprezentuje buducu moznu velkost Stringu s ohladom na Skalovanie
-                float tmpPreviousStringSize = ((aLogicGame.Font72.MeasureString(aMessageToSend).X * (aFontScale + aFontEnlargingConstant)) + aLogicGame.Font72.LineSpacing); //Reprezentuje predoslu velkost Stringu s ohladom na Skalovanie
+                float tmpPreviousStringSize = ((aLogicGame.Font72.MeasureString(aMessageToSend).X * (aFontScale + FontEnlargingConstant)) + aLogicGame.Font72.LineSpacing); //Reprezentuje predoslu velkost Stringu s ohladom na Skalovanie
 
                 if (tmpNextStringSize > aWindowWidth) //Ak je buduca Velkost Stringu väcsia ako momentalna sirka Input Boxu
                 {
-                    aFontScale = aFontScale - aFontEnlargingConstant;
+                    aFontScale = aFontScale - FontEnlargingConstant;
                 }
                 else if (aFontScale != aDefaultFontScale && tmpPreviousStringSize < aWindowWidth)
                 {
                     if (aFontScale < aDefaultFontScale)
                     {
-                        aFontScale = aFontScale + aFontEnlargingConstant;
+                        aFontScale = aFontScale + FontEnlargingConstant;
                     }
                 }
 
@@ -155,10 +167,6 @@ namespace _2DLogicGame.ClientSide.Chat
             base.Draw(gameTime);
         }
 
-        public override void Initialize()
-        {
-            base.Initialize();
-        }
 
         /// <summary>
         /// Update - Najprv kontroluje ci bolo tlacitko pre pisanie sprav stalcene prave jeden krat a uz nebol otvoreny Input Box

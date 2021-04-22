@@ -7,6 +7,9 @@ using System.Text;
 
 namespace _2DLogicGame.ClientSide.Chat
 {
+    /// <summary>
+    /// Trieda reprezentujuca cast Chatu - vystup.
+    /// </summary>
     public class ChatReceiveBox : Microsoft.Xna.Framework.DrawableGameComponent
     {
         /// <summary>
@@ -114,18 +117,22 @@ namespace _2DLogicGame.ClientSide.Chat
             aPositionVectorDefault = new Vector2(aPositionVector.X, aPositionVector.Y);
         }
 
-        public override void Draw(GameTime gameTime)
+        /// <summary>
+        /// Overrida metoda, ktora sa stara o vykreslovanie logiky Receive Boxu.
+        /// Zaroven sa stara aj o rozdelovanie dlheho textu do samostatnych riadkov.
+        /// </summary>
+        /// <param name="parGameTime">Parameter, reprezentujuci GameTime.</param>
+        public override void Draw(GameTime parGameTime)
         {
             if (aMessageStorageList.Count > aOldStorageSize || aTimeCounter > 0) // Ak pribudla nejaka nova sprava, alebo zacalo odpocitavanie casu, pre zobrazenie Receive Boxu
             {
-                aTimeCounter += gameTime.ElapsedGameTime.TotalSeconds; //Pripocitame kolko "sekund" ubehlo za vykreslenie jedneho framu k pocitadlu casu
+                aTimeCounter += parGameTime.ElapsedGameTime.TotalSeconds; //Pripocitame kolko "sekund" ubehlo za vykreslenie jedneho framu k pocitadlu casu
 
-             //   aLogicGame.SpriteBatch.Begin(); //Zacneme vykreslovanie SpriteBatchu - s ohladom na priehladnost
                 aLogicGame.SpriteBatch.Draw(aChatInputDummyTexture, aPositionVector, aChatOutputRectagle, Color.Black * 0.3F, 0F, Vector2.Zero, 1F, SpriteEffects.None, 0.15F ); //Vykresli ChatInputBox pomocou Textury, Rectangle a farby - Color.White zachovava povodne farby
 
                 if (aMessageStorageList.Count > aOldStorageSize) //Zabezpecime, ze po prijati novej spravy sa zresetuje pocitadlo na aku dlhu dobu ma byt zobraeny Receive Box
                 {
-                    aTimeCounter = gameTime.ElapsedGameTime.TotalSeconds; //Reset na prvy TICK
+                    aTimeCounter = parGameTime.ElapsedGameTime.TotalSeconds; //Reset na prvy TICK
 
                     aOldStorageSize = aMessageStorageList.Count; //Ked pribudne nova sprava, treba samozrejme aktualizovat aj startu velkost ukladacieho priestoru
                 }
@@ -155,12 +162,7 @@ namespace _2DLogicGame.ClientSide.Chat
                     aTimeCounter = 0; //Vynulujeme pocitadlo
                 }
             }
-            base.Draw(gameTime);
-        }
-        public override void Initialize()
-        {
-            base.Initialize();
-
+            base.Draw(parGameTime);
         }
 
         /// <summary>
@@ -259,7 +261,10 @@ namespace _2DLogicGame.ClientSide.Chat
 
             base.Update(gameTime);
         }
-
+        
+        /// <summary>
+        /// Override metoda, ktora sa stara o nacitavanie textur a rectanglu.
+        /// </summary>
         protected override void LoadContent()
         {
             aChatInputDummyTexture = new Texture2D(aLogicGame.GraphicsDevice, aWindowWidth, aWindowHeight); //Dummy Texture - Pretoze texturu nenacitavam ale "dopocitam ju"
@@ -298,6 +303,11 @@ namespace _2DLogicGame.ClientSide.Chat
             }
         }
 
+        /// <summary>
+        /// Metoda, ktora pretransformuje ChatColor - farbu na farbu - Color, ktoru podporuje kniznica MonoGame.
+        /// </summary>
+        /// <param name="parColor">Parameter, reprezentujuci farbu - typ ChatColors - enum</param>
+        /// <returns>Vrati farbu - Color. - Z kniznice MonoGame.</returns>
         public Color ConvertEnumColor(ChatColors parColor) {
 
             switch (parColor)

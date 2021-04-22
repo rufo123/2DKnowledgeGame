@@ -8,6 +8,9 @@ using MySql.Data.MySqlClient;
 
 namespace _2DLogicGame.ServerSide.Database
 {
+    /// <summary>
+    /// Trieda ktora reprezentuje spravcu hodnotiacej tabulky.
+    /// </summary>
     public class StatisticsHandler
     {
         /// <summary>
@@ -57,6 +60,13 @@ namespace _2DLogicGame.ServerSide.Database
             return aIsConnected;
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o odovzdanie hodnotenia do databazy.
+        /// </summary>
+        /// <param name="parPlayer1Name">Paramaeter, reprezentujuci prezyvku prveho hraca - typ string.</param>
+        /// <param name="parPlayer2Name">Paramaeter, reprezentujuci prezyvku druheho hraca - typ string.</param>
+        /// <param name="parPoints">Paramaeter, reprezentujuci dosiahnute body hracov - typ int.</param>
+        /// <param name="parTime">Paramaeter, reprezentujuci dosiahnuty cas hracov - typ int.</param>
         public void UploadNewScore(string parPlayer1Name, string parPlayer2Name, int parPoints, int parTime)
         {
             if (!aIsConnected) //Najprv sa skusime znovu pripojit k databaze, ak sa prvotne spojenie nepodarilo
@@ -96,6 +106,10 @@ namespace _2DLogicGame.ServerSide.Database
             }
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o prevzatie hodnotenia z databazy.
+        /// </summary>
+        /// <returns>Vrati List - poloziek hodnotenia hracov. Prevzatych z databazy.</returns>
         public List<ScoreboardItems> DownloadScoreboard()
         {
             if (!aIsConnected) //Najprv sa skusime znovu pripojit k databaze, ak sa prvotne spojenie nepodarilo

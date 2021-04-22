@@ -7,6 +7,9 @@ using Microsoft.Xna.Framework.Input;
 
 namespace _2DLogicGame.GraphicObjects
 {
+    /// <summary>
+    /// Trieda, ktora reprezentuje graficky feedback manazera otazok. - Klient.
+    /// </summary>
     class QuestionsColorFeedBack : DrawableGameComponent
     {
 
@@ -82,6 +85,12 @@ namespace _2DLogicGame.GraphicObjects
             set => aShowEnabled = value;
         }
 
+        /// <summary>
+        /// Konstruktor grafickeho feedbacku manazera otazok.
+        /// </summary>
+        /// <param name="parLogicGame">Parameter, reprezentujuci hru - typ LogicGame.</param>
+        /// <param name="parPosition">Parameter, reprezentujuci poziciu - typ Vector2.</param>
+        /// <param name="parSize">Parameter, reprezentujuci velkost - typ Vectore2.</param>
         public QuestionsColorFeedBack(LogicGame parLogicGame, Vector2 parPosition, Vector2 parSize) : base(parLogicGame)
         {
             aPositionVector2 = parPosition;
@@ -93,6 +102,9 @@ namespace _2DLogicGame.GraphicObjects
 
         }
 
+        /// <summary>
+        /// Override metoda, ktora sa stara o incializaciu textury a rectangla.
+        /// </summary>
         public override void Initialize()
         {
             aFeedBackRectangle = new Rectangle(0, 0, (int)aSizeVector2.X, (int)aSizeVector2.Y);
@@ -101,6 +113,9 @@ namespace _2DLogicGame.GraphicObjects
             base.Initialize();
         }
 
+        /// <summary>
+        /// Override metoda, ktora sa stara o nacitanie ciernej farby feedbacku textury.
+        /// </summary>
         protected override void LoadContent()
         {
 
@@ -116,13 +131,12 @@ namespace _2DLogicGame.GraphicObjects
             base.LoadContent();
         }
 
+        /// <summary>
+        /// Override metoda, ktora sa stara o vykreslovanie objektu ak je jeho zobrazovanie povolene.
+        /// </summary>
+        /// <param name="gameTime"></param>
         public override void Draw(GameTime gameTime)
         {
-            if (aLogicGame.CheckKeyPressedOnce(Keys.Z))
-            {
-                aShow = true;
-                aColor = Color.Red;
-            }
 
             if (aShow)
             {
@@ -132,6 +146,10 @@ namespace _2DLogicGame.GraphicObjects
             base.Draw(gameTime);
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o aktualizaciu objektu. O spravu casovaca, na kolko sa ma objekt zobrazit a spravu vidielnosti/priehladnosti.
+        /// </summary>
+        /// <param name="gameTime"></param>
         public override void Update(GameTime gameTime)
         {
             if (aShowEnabled && aShow)

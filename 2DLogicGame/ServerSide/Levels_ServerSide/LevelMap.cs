@@ -7,9 +7,13 @@ using _2DLogicGame.ServerSide.LevelEnglish_Server;
 using _2DLogicGame.ServerSide.LevelMath_Server;
 using _2DLogicGame.ServerSide.Questions_ServeSide;
 using XMLData;
+// ReSharper disable InvalidXmlDocComment
 
 namespace _2DLogicGame.ServerSide.Levels_ServerSide
 {
+    /// <summary>
+    /// Trieda, ktora reprezentuje mapu urovne. - Server.
+    /// </summary>
     public class LevelMap
     {
         /// <summary>
@@ -26,10 +30,19 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
         /// </summary>
         private List<BlockServer> aBlockList;
 
+        /// <summary>
+        /// Atribut, reprezentujuci server manazer matematickeho problemu - typ MathProblemServerManager.
+        /// </summary>
         private MathProblemServerManager aMathProblemServerManager;
 
+        /// <summary>
+        /// Atribut, reprezentujuci server manazer otazok - typ QuestionsManagerServer.
+        /// </summary>
         private QuestionsManagerServer aQuestionsServerManager;
 
+        /// <summary>
+        /// Atribut, reprezentujuci server manazer prekladu - typ EnglishManagerServer.
+        /// </summary>
         private EnglishManagerServer aEnglishServerManager;
 
         /// <summary>
@@ -37,6 +50,9 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
         /// </summary>
         private int aDefaultBlockDimension;
 
+        /// <summary>
+        /// Atribut, reprezentujuci hru - typ LogicGame.
+        /// </summary>
         private LogicGame aLogicGame;
 
         public int DefaultBlockDimension
@@ -46,7 +62,11 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
         }
 
 
-
+        /// <summary>
+        /// Konstruktor mapy urovne.
+        /// </summary>
+        /// <param name="parLogicGame">Parameter, reprezentujuci hru - typ LogicGame.</param>
+        /// <param name="parDefaultBlockDimension">Parameter, reprezentujuci prednastavenu velkost blokov - typ int.</param>
         public LevelMap(LogicGame parLogicGame, int parDefaultBlockDimension = 64) //GamePoints budu referencia,
         {
             aDefaultBlockDimension = parDefaultBlockDimension;
@@ -55,6 +75,10 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
             aLogicGame = parLogicGame;
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o znicenie dat urovne.
+        /// </summary>
+        /// <param name="parOldLevelName"></param>
         public void DestroyMap(string parOldLevelName)
         {
 
@@ -79,6 +103,11 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
 
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o inicializaciu urovne.
+        /// </summary>
+        /// <param name="parBlockPositions">Parameter, reprezentujuci List pozicii blokov - typ List<BlockData></param>
+        /// <param name="parLevelName"></param>
         public void InitMap(List<BlockData> parBlockPositions, string parLevelName)
         {
 
@@ -232,6 +261,10 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
             }
         }
 
+        /// <summary>
+        /// Metoda, getter manazera matematickeho problemu.
+        /// </summary>
+        /// <returns>Vrati manazer matematickeho problemu - typ MathProblemServerManager.</returns>
         public MathProblemServerManager GetMathProblemManager()
         {
             if (aMathProblemServerManager != null)
@@ -241,6 +274,10 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
             return null;
         }
 
+        /// <summary>
+        /// Metoda, getter manazera otazok.
+        /// </summary>
+        /// <returns>Vrati manazer otazok - typ QuestionsManagerServer.</returns>
         public QuestionsManagerServer GetQuestionManager()
         {
             if (aQuestionsServerManager != null)
@@ -250,6 +287,10 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
             return null;
         }
 
+        /// <summary>
+        /// Metoda, getter manazera prekladu.
+        /// </summary>
+        /// <returns>Vrati manazer prekladu - typ EnglishManagerServer.</returns>
         public EnglishManagerServer GetEnglishManager()
         {
             if (aEnglishServerManager != null)

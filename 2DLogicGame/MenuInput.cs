@@ -9,24 +9,55 @@ using SharpFont;
 
 namespace _2DLogicGame
 {
+    /// <summary>
+    /// Trieda, ktora reprezentuje vstupnu polozku v Menu.
+    /// </summary>
     public class MenuInput : DrawableGameComponent
     {
+
+        /// <summary>
+        /// Atribut, reprezentujuci hru - typ LogicGame.
+        /// </summary>
         private LogicGame aGame;
 
+        /// <summary>
+        /// Atribut, reprezentujuci textutu - typ Texture2D.
+        /// </summary>
         private Texture2D aTexture;
 
+        /// <summary>
+        /// Atribut, reprezentujuci rectangle - typ Rectangle.
+        /// </summary>
         private Rectangle aRectangle;
 
+        /// <summary>
+        /// Atribut, reprezentujuci poziciu - typ Vector2.
+        /// </summary>
         private Vector2 aPosition;
 
+        /// <summary>
+        /// Atribut, reprezentujuci velkost - typ Vector2.
+        /// </summary>
         private Vector2 aSize;
 
+        /// <summary>
+        /// Atribut, reprezentujuci informacny ToolTip, ktory poskytuje informacie coho sa tyka vstup - typ string.
+        /// </summary>
         private string aToolTip;
 
+        /// <summary>
+        /// Atribut, reprezentujuci aky charakter bol predosle stlaceny.
+        /// </summary>
         private char aPreviousCharacterPressed;
 
+        /// <summary>
+        /// Atribut, reprezentujuci StringBuilder pouzity v inpute - typ StringBuilder.
+        /// </summary>
         private StringBuilder aInputStringBuilder;
 
+        /// <summary>
+        /// Atribut, reprezentujuci predosle stlacenu klavesu - typ Keys.
+        /// </summary>
         private Keys aPreviousKeyPressed;
 
         /// <summary>
@@ -104,6 +135,16 @@ namespace _2DLogicGame
             set => SetStringBuilder(value);
         }
 
+        /// <summary>
+        /// Konstruktor polozky vstupu v menu.
+        /// </summary>
+        /// <param name="parGame">Parameter, reprezentujuci hru - typ LogicGame.</param>
+        /// <param name="parPosition">Parameter, reprezentujuci poziciu - typ LogicGame.</param>
+        /// <param name="parSize">Parameter, reprezentujuci velkost - typ LogicGame.</param>
+        /// <param name="parBorderSizeRatio">Parameter, reprezentujuci hodnotu, ktorou sa vydeli vyska a sirka a vznikne sirka ramu - typ float. Cim vacsie cislo, tym mensi ram. - typ float.</param>
+        /// <param name="parToolTip">Parameter, reprezentujuci ToolTip - typ string.</param>
+        /// <param name="parCharLimit">Parameter, reprezentujuci limit charakterov pri zadavani vstupuu - typ int.</param>
+        /// <param name="parNumbersOnly">Parameter, reprezentujuci ci mozu byt do vstupu zadane len cisla (alebo bodky), napr. v pripade zadavania IP adresy - typ bool.</param>
         public MenuInput(LogicGame parGame, Vector2 parPosition, Vector2 parSize, float parBorderSizeRatio, string parToolTip, int parCharLimit, bool parNumbersOnly = false) : base(parGame)
         {
             aGame = parGame;
@@ -123,6 +164,9 @@ namespace _2DLogicGame
             aNumbersOnly = parNumbersOnly;
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o incializaciu textury a rectanglu.
+        /// </summary>
         public override void Initialize()
         {
             aTexture = new Texture2D(aGame.GraphicsDevice, (int)aSize.X, (int)aSize.Y);
@@ -130,6 +174,9 @@ namespace _2DLogicGame
             base.Initialize();
         }
 
+        /// <summary>
+        /// Metoda, ktora sa stara o textury, kde celej texture priradi bielu farbu.
+        /// </summary>
         protected override void LoadContent()
         {
             Color[] tmpColor = new Color[aTexture.Width * aTexture.Height]; //Namapujeme oblast, ktora bude reprezentovat farbu
@@ -163,14 +210,11 @@ namespace _2DLogicGame
         }
 
 
-
-
-        protected override void UnloadContent()
-        {
-            base.UnloadContent();
-        }
-
-        public override void Draw(GameTime gameTime)
+        /// <summary>
+        /// Metoda, ktora sa stara o vykreslenie objektu.
+        /// </summary>
+        /// <param name="parGameTime">Parameter, reprezentujuci GameTime.</param>
+        public override void Draw(GameTime parGameTime)
         {
             if (aRectangle != null && aTexture != null && aEnabled)
             {
@@ -203,19 +247,20 @@ namespace _2DLogicGame
                 aGame.SpriteBatch.DrawString(aGame.Font48, tmpInputText, aPosition + tmpWrittenTextOffset, Color.Gray, 0F, Vector2.Zero, tmpFontScale, SpriteEffects.None, 0F);
             }
 
-            base.Draw(gameTime);
+            base.Draw(parGameTime);
         }
 
-
-        public override void Update(GameTime gameTime)
+        /// <summary>
+        /// Metoda, ktora sa stara o aktualizaciu objektu.
+        /// </summary>
+        /// <param name="parGameTime">Paramter, reprezentujuci GameTime.</param>
+        public override void Update(GameTime parGameTime)
         {
-
             if (aEnabled)
             {
-
                 if (aFocus)
                 {
-                    aHoverTime += gameTime.ElapsedGameTime.Milliseconds;
+                    aHoverTime += parGameTime.ElapsedGameTime.Milliseconds;
 
                     if (aHoverTime > 240F)
                     {
@@ -223,7 +268,6 @@ namespace _2DLogicGame
                         aHoverTime = 0F;
                     }
                 }
-
                 if (aHover && aFocus != true)
                 {
                     aInputColor = Color.Black;
@@ -244,7 +288,7 @@ namespace _2DLogicGame
                 }
             }
 
-            base.Update(gameTime);
+            base.Update(parGameTime);
         }
 
         /// <summary>
@@ -296,6 +340,10 @@ namespace _2DLogicGame
             aPreviousKeyPressed = tmpKeyPressed; //Ulozime si charakter, ktory bol stlaceny
         }
 
+        /// <summary>
+        /// Metoda, ktora prida charakter do vstupu.
+        /// </summary>
+        /// <param name="parChar">Parameter, reprezentujuci charakter, ktory sa ma pridat - typ char.</param>
         public void AddCharacterToMessage(char parChar)
         {
             if (aInputStringBuilder.Length < aCharLimit)
@@ -305,6 +353,9 @@ namespace _2DLogicGame
             }
         }
 
+        /// <summary>
+        /// Metoda, ktora vymaze jeden charakter zo vstupu.
+        /// </summary>
         public void RemoveCharacterFromMessage()
         {
             if (aInputStringBuilder.Length > 0)

@@ -9,6 +9,7 @@ using System.Xml.Serialization;
 using Microsoft.Xna.Framework.Content.Pipeline.Serialization;
 using Microsoft.Xna.Framework.Content.Pipeline.Serialization.Intermediate;
 using XMLData;
+// ReSharper disable InvalidXmlDocComment
 
 // using Microsoft.Xna.Framework.Content.Pipeline.Serialization.Intermediate;
 
@@ -18,21 +19,29 @@ using XMLData;
 
 namespace LevelCreator
 {
+    /// <summary>
+    /// Trieda reprezentujuca vytvarac XML suborov urovni.
+    /// </summary>
     public class CreatorLevel
     {
         /// <summary>
-        /// Atribut Dictionary - Bude nam sluzit na uchovananie dat o blokoch...
+        /// Atribut Dictionary - Bude nam sluzit na uchovananie dat o blokoch - typ Dictionary<char, BlockData>
         /// </summary>
         private Dictionary<char, BlockData> aBlockDictionary;
 
         /// <summary>
-        /// Atribut Dictionary - Ako kluc je pozicia bloku a hodnota je nazov bloku
+        /// Atribut, reprezentujuci poziciu bloku - X - typ int.
         /// </summary>
-       // private Dictionary<Vector2, string> aBlockPositionDictionary; 
-
         private int aPositionX = 0;
+
+        /// <summary>
+        /// Atribut, reprezentujuci poziciu bloku - Y - typ int.
+        /// </summary>
         private int aPositionY;
 
+        /// <summary>
+        /// Konstruktor triedy reprezentujucej vytvarac XML suborov urovni.
+        /// </summary>
         public CreatorLevel()
         {
 
