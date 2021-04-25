@@ -323,7 +323,7 @@ namespace _2DLogicGame.GraphicObjects
         {
             if (aTexture != null && aIsHidden == false)
             {
-                aGame.SpriteBatch.Draw(aTexture, aPosition, aRectangle, aColor * Visibility, 0F, Vector2.Zero, 1F, SpriteEffects.None, aLayerDepth);
+                aGame.SpriteBatch.Draw(aTexture, aPosition, aRectangle, aColor * Visibility, 0F, Vector2.Zero, aBlockScale, SpriteEffects.None, aLayerDepth);
             }
 
             base.Draw(gameTime);

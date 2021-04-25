@@ -49,11 +49,6 @@ namespace _2DLogicGame.ClientSide.English
         private LogicGame aLogicGame;
 
         /// <summary>
-        /// Atribut, reprezentujuci feedback - typ VocabularyFeedback - enum.
-        /// </summary>
-        private VocabularyFeedback aVocabularyFeedback;
-
-        /// <summary>
         /// Konstruktor, manazera prekladu.
         /// </summary>
         /// <param name="parLogicGame">Parameter, reprezentujuci hru - typ LogicGame.</param>
@@ -75,8 +70,6 @@ namespace _2DLogicGame.ClientSide.English
             aButtonList = new List<ButtonBlock>();
 
             aEnglishSlovakUI = new EnglishSlovakWords(parLogicGame, new Vector2(tmpXPositionsEnglish, tmpYPosition), new Vector2(tmpXPositionsSlovak, tmpYPosition), new Vector2(tmpSizeOfWordsX, 100));
-
-            aVocabularyFeedback = VocabularyFeedback.None;
 
             Init();
 

@@ -65,25 +65,9 @@ namespace _2DLogicGame.ClientSide.Levels
         private int aLevelNumberRequested;
 
         /// <summary>
-        /// Atribut, ktory reprezentuje pomocny casovac, napr. vyuzivany pri vypocte casu
-        /// </summary>
-        private float aHelperTimer;
-
-        /// <summary>
         /// Atribut, Dictionary, reprezentuje Suradnice hracov podla ich ID
         /// </summary>
         private Dictionary<int, Vector2> aPlayerDefaultPositionsDictionary;
-
-        /// <summary>
-        /// Dictionary obsahujúca Hráčov, ku ktorým sa bude pristupovať pomocou Remote Unique Identifikator - Typ PlayerServer
-        /// Aktualizuje podla Triedy Client
-        /// </summary>
-        private Dictionary<long, ClientSide.PlayerClientData> aDictionaryPlayerData; //Zatial ani nevyuzite, mozno aj zmazat
-
-        /// <summary>
-        /// Atribut, reprezentujuci ID hraca, mna - typ int
-        /// </summary>
-        private int aPlayerID;
 
         /// <summary>
         /// Atribut, ktory reprezentuje cislo momentalne spusteneho levelu
@@ -189,7 +173,6 @@ namespace _2DLogicGame.ClientSide.Levels
             aPlayerDefaultPositionsDictionary = new Dictionary<int, Vector2>(2);
             aLevelChangeRequested = false;
             aLevelNumberRequested = 0;
-            aHelperTimer = 0F;
             aLevelTransformScreen = new LevelTransformScreen(parLogicGame);
             aPlayScreenComponentCollection.AddComponent(aLevelTransformScreen);
             aCurrentLevelNumber = 0;

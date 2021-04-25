@@ -776,7 +776,7 @@ namespace _2DLogicGame
                         if (dictItem.Value.PlayerID == tmpPlayerID)
                         {
                             dictItem.Value.DefaultPosition = tmpNewVector2;
-                            dictItem.Value.EntityNeedsRespawn = true; //Oznamime tiez, ze Entita potrebuje Respawn
+                            //dictItem.Value.EntityNeedsRespawn = true; //Oznamime tiez, ze Entita potrebuje Respawn - Nemusime, uz zabezpecuje LevelChange
                         }
                     }
                 }

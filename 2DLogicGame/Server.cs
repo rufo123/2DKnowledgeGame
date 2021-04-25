@@ -446,7 +446,6 @@ namespace _2DLogicGame
                     // float tmpNumberOfOccupiedBlocks = tmpWidth * tmpHeight;}}
                     bool tmpIsBlocked = false;
                     bool tmpIsSlowed = false;
-                    bool tmpButtonActivation = false;
                     bool tmpEntityIsStandingOn = false;
                     bool tmpIsZapped = false;
                     bool tmpEntityInteracted = false;
@@ -503,7 +502,6 @@ namespace _2DLogicGame
 
                                         break;
                                     case BlockCollisionType.Button:
-                                        tmpButtonActivation = true;
                                         aStandableBlocksList.Add(parLevelManager.GetBlockByPosition(tmpTilePositVector2));
                                         parLevelManager.GetBlockByPosition(tmpTilePositVector2).SomethingIsStandingOnTop = true;
 

@@ -87,7 +87,7 @@ namespace _2DLogicGame.GraphicObjects
         /// <summary>
         /// Atribut, reprezentujuci hlbku aktualneho Layera, v tomto pripade Entity - typ float
         /// </summary>
-        private float aLayerDepth = 0F;
+        private float aLayerDepth = 0.2F;
 
         /// <summary>
         /// Atribut, reprezentujuci Sprite Effecty - Defaultne ziadne - typ SpriteEffects
@@ -675,7 +675,7 @@ namespace _2DLogicGame.GraphicObjects
         {
 
             // aLogicGame.SpriteBatch.Draw(aTexture, aRectangle, Color.White);
-            aLogicGame.SpriteBatch.Draw(aTexture, aPosition, aRectangle, aColor, aRotation, Vector2.Zero, aEntityScale, aEffects, 0.2F);
+            aLogicGame.SpriteBatch.Draw(aTexture, aPosition, aRectangle, aColor, aRotation, Vector2.Zero, aEntityScale, aEffects, aLayerDepth);
 
 
             //   aLogicGame.SpriteBatch.Draw(aTexture, aPosition, aRectangle, aColor, aRotation, Vector2.Zero, aLogicGame.Scale, aEffects, aLayerDepth);

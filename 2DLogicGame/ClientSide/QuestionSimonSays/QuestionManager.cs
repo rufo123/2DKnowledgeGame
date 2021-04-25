@@ -72,11 +72,6 @@ namespace _2DLogicGame.ClientSide.QuestionSimonSays
         private List<InputBlock> aInputList;
 
         /// <summary>
-        /// Atribut, reprezentujuci pocet bodov za spravne odpovedane otazky - typ int.
-        /// </summary>
-        private int aQuestionPoints;
-
-        /// <summary>
         /// Atribut, reprezentujuci pravdivostnu hodnotu a to ci je nutny reset urovne - typ bool.
         /// </summary>
         private bool aNeedsReset;

@@ -248,7 +248,6 @@ namespace _2DLogicGame.GraphicObjects
         {
             if (aDictionaryInputBlocks != null)
             {
-                int tmpReturnNumber = 0;
                 int tmpCounterOfOrders = (int)Math.Pow(10, aDictionaryInputBlocks.Count - 1);
 
                 while (tmpCounterOfOrders > aNumberOrders

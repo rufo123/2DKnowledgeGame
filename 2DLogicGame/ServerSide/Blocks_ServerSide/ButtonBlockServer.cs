@@ -15,10 +15,6 @@ namespace _2DLogicGame.ServerSide.Blocks_ServerSide
         /// </summary>
         private bool aSucceded = false;
 
-        /// <summary>
-        /// Atribut, ktory reprezentuje ci je tlacidlo zapnute - typ bool.
-        /// </summary>
-        private bool aIsTurnedOn = false;
 
         public bool Succeded
         {
@@ -34,7 +30,6 @@ namespace _2DLogicGame.ServerSide.Blocks_ServerSide
         public ButtonBlockServer(Vector2 parPosition, BlockCollisionType parCollisionType = BlockCollisionType.Button) : base(parPosition, parCollisionType)
         {
             aSucceded = false;
-            aIsTurnedOn = false;
             IsInteractible = true;
         }
 
@@ -44,7 +39,6 @@ namespace _2DLogicGame.ServerSide.Blocks_ServerSide
         public void ChangeToSuccessState()
         {
             aSucceded = true;
-            aIsTurnedOn = false;
             IsInteractible = false;
             this.BlockCollisionType = BlockCollisionType.None;
         }

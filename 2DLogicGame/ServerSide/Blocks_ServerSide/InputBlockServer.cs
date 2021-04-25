@@ -24,11 +24,6 @@ namespace _2DLogicGame.ServerSide.Blocks_ServerSide
         /// </summary>
         private int aMaxNumber;
 
-        /// <summary>
-        /// Atribut, reprezentujuci ci bola hodnota vstupu odovzdana - typ bool.
-        /// </summary>
-        private bool aSubmitted;
-
         public int Number
         {
             get => aNumber;
@@ -54,7 +49,6 @@ namespace _2DLogicGame.ServerSide.Blocks_ServerSide
             aMinNumber = parMinNumber;
             aMaxNumber = parMaxNumber;
             IsInteractible = true;
-            aSubmitted = false;
 
         }
 
@@ -96,7 +90,6 @@ namespace _2DLogicGame.ServerSide.Blocks_ServerSide
         /// </summary>
         public void ResetSubmission()
         {
-            aSubmitted = false;
             aNumber = 0;
         }
 

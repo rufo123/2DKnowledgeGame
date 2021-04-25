@@ -59,16 +59,6 @@ namespace _2DLogicGame
         private bool aBoxEnabled;
 
         /// <summary>
-        /// Atribut, ktory reprezentuje velkost polozky v menu - typ float.
-        /// </summary>
-        private float aMenuItemSize;
-
-        /// <summary>
-        /// Atribut, ktory reprezentuje predosly stav klavesnice - typ KeyboardState.
-        /// </summary>
-        KeyboardState aPreviousKeyPressed;
-
-        /// <summary>
         /// Atribut, ktory reprezentuje ci sa pouzivatel pokusa vybrat si nejaky item z MenuBoxu, alebo je niekde inde - typ bool.
         /// </summary>
         private bool aSelectingFromMenuBox;

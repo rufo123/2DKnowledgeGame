@@ -33,10 +33,6 @@ namespace _2DLogicGame.ServerSide.Blocks_ServerSide
         /// </summary>
         private Vector2 aSize;
 
-        /// <summary>
-        /// Atribut reprezentujuci nasobnu velkost bloku oproti originalnej velkosti - typ float
-        /// </summary>
-        private float aBlockScale = 1F;
 
         private bool aIsInteractible;
 
@@ -45,8 +41,6 @@ namespace _2DLogicGame.ServerSide.Blocks_ServerSide
         private bool aIsHidden = false;
 
         private bool aSomethingIsStandingOnTop = false;
-
-        private float aTimerLastStanding = 0F;
 
         /// <summary>
         /// Atribut, ktory reprezentuje informacie o tom, ci sa jedna o kolizny objekt alebo nie
