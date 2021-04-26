@@ -248,6 +248,7 @@ namespace _2DLogicGame
 
 
 
+
         // Gettery a Settery
 
         public SpriteBatch SpriteBatch { get => _spriteBatch; set => _spriteBatch = value; } //Getter Setter SpriteBatch
@@ -296,7 +297,7 @@ namespace _2DLogicGame
         /// </summary>
         private float aOldVolumeLevel;
 
-  
+
 
         /// <summary>
         /// Konstruktor triedy hry.
@@ -394,15 +395,15 @@ namespace _2DLogicGame
 
             aLevelBackgroundTexture = new Texture2D(this.GraphicsDevice, aRenderTargetWidth, aRenderTargetHeight);
 
+            Window.AllowUserResizing = true; //Povolime resize okna
+            Window.ClientSizeChanged += OnSizeOfWindowChanged; //Priradime zmenu okna metode, ktora bude po tejto zmene volana
+
             base.Initialize();
 
             Graphics.PreferredBackBufferWidth = aBackBufferWidth;
             Graphics.PreferredBackBufferHeight = aBackBufferHeight;
 
-
             Graphics.ApplyChanges();
-
-
 
             aScale = 1F / (1080F / _graphics.GraphicsDevice.Viewport.Height);
         }
@@ -448,6 +449,7 @@ namespace _2DLogicGame
         /// <param name="parGameTime">Parameter, reprezentujuci GameTime.</param>
         protected override void Update(GameTime parGameTime)
         {
+
 
             if (aClientClass != null && aClientClass.ClientNeedsToShutdown)
             {
@@ -824,7 +826,7 @@ namespace _2DLogicGame
 
 
 
-            SpriteBatch.Begin(samplerState: SamplerState.PointClamp, depthStencilState: DepthStencilState.None, rasterizerState: RasterizerState.CullNone, sortMode: SpriteSortMode.BackToFront, blendState: BlendState.AlphaBlend, transformMatrix: Matrix.CreateTranslation(aCameraX, 0, 0));
+            SpriteBatch.Begin(samplerState: SamplerState.PointClamp, depthStencilState: DepthStencilState.None, rasterizerState: RasterizerState.CullNone, sortMode: SpriteSortMode.BackToFront, blendState: BlendState.AlphaBlend, transformMatrix: Matrix.CreateTranslation((float)CameraX * (Scale / aScale) , 0, 0));
 
             if (aClientClass != null && aClientClass.Connected)
             {
@@ -898,6 +900,49 @@ namespace _2DLogicGame
 
             base.OnExiting(sender, args);
 
+
+        }
+
+        /// <summary>
+        /// Metoda, ktora "pocuva", na zmenu velkosti okna
+        /// </summary>
+        /// <param name="parSender">Parameter - Sender.</param>
+        /// <param name="parArgs">Parameter - Argumenty.</param>
+        public void OnSizeOfWindowChanged(Object parSender, EventArgs parArgs)
+        {
+            float tmpAspectRatio = aRenderTargetHeight / (float)aRenderTargetWidth;
+
+            Window.ClientSizeChanged -= OnSizeOfWindowChanged;
+
+            //Najprv nastavime novu velkost okna do atributov
+            if (aBackBufferWidth != Window.ClientBounds.Width && Graphics.IsFullScreen == false) //Ak sa zmenila sirka
+            {
+                aBackBufferWidth = Window.ClientBounds.Width;
+                aBackBufferHeight = (int)(Window.ClientBounds.Width * tmpAspectRatio);
+            }
+            if (aBackBufferHeight != Window.ClientBounds.Height && Graphics.IsFullScreen == false) //Ak sa zmenila vyska
+            {
+                aBackBufferHeight = Window.ClientBounds.Height;
+                aBackBufferWidth = (int) (Window.ClientBounds.Height / tmpAspectRatio);
+            }
+
+            if (Window.ClientBounds.Width == this.GraphicsDevice.Adapter.CurrentDisplayMode.Width) //Ak je sirka okna rovna maximalnej velkosti okna, predpokladame ze doslo k maximalizacii okna, zarovname okno
+            {
+                Graphics.IsFullScreen = true;
+                aBackBufferHeight = Window.ClientBounds.Height;
+                aBackBufferWidth = Window.ClientBounds.Width;
+            }
+            
+            //A tuto velkost realne nastavime oknu
+            Graphics.PreferredBackBufferWidth = aBackBufferWidth;
+            Graphics.PreferredBackBufferHeight = aBackBufferHeight;
+
+            aScale = 1F / (1080F / aBackBufferHeight);
+
+            Graphics.ApplyChanges();
+
+
+            Window.ClientSizeChanged += OnSizeOfWindowChanged;
 
         }
 

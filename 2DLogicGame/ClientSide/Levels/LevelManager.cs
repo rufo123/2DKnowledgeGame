@@ -239,7 +239,7 @@ namespace _2DLogicGame.ClientSide.Levels
 
             aIsLevelInitalized = true;
 
-            aLogicGame.CameraX = -48 * aLogicGame.Scale;
+            aLogicGame.CameraX = -32;
 
             aLevelTransformScreen.CameraOffset = aLogicGame.CameraX;
 
