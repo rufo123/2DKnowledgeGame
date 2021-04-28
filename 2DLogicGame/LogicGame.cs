@@ -473,7 +473,7 @@ namespace _2DLogicGame
 
                     Graphics.PreferredBackBufferWidth = aBackBufferWidth;
                     Graphics.PreferredBackBufferHeight = aBackBufferHeight;
-                   
+
 
                     //Vycentrujeme okno s ohladom na to, ze pouzivatel moze mat viac monitorov a okno moze mat otvorene na sekundarnom monitory
                     Window.Position = new Point(
@@ -652,9 +652,9 @@ namespace _2DLogicGame
 
             if (aClientClass != null) //Inicializacia Levelu
             {
-                if (aClientClass.Connected && aLevelManager.IsLevelInitalized == false)
+                if (aClientClass.Connected && aLevelManager.IsLevelInitalized == false && aClientClass.InitialLevelNumber != 0)
                 {
-                    aLevelManager.InitLevelByNumber(1);
+                    aLevelManager.InitLevelByNumber(aClientClass.InitialLevelNumber);
                     SwitchScene(aMainMenu, aPlayingScreen);
                     MediaPlayer.Play(aSong);
                     MediaPlayer.IsRepeating = true;
@@ -776,6 +776,7 @@ namespace _2DLogicGame
                 }
                 else if (aLevelManager.LevelReset)
                 {
+
                     aClientClass.HandleRespawnPlayers(parGameTime);
                     aLevelManager.LevelReset = false;
                 }
@@ -862,7 +863,7 @@ namespace _2DLogicGame
 
 
 
-            SpriteBatch.Begin(samplerState: SamplerState.PointClamp, depthStencilState: DepthStencilState.None, rasterizerState: RasterizerState.CullNone, sortMode: SpriteSortMode.BackToFront, blendState: BlendState.AlphaBlend, transformMatrix: Matrix.CreateTranslation((float)CameraX * (Scale / aScale) , 0, 0));
+            SpriteBatch.Begin(samplerState: SamplerState.PointClamp, depthStencilState: DepthStencilState.None, rasterizerState: RasterizerState.CullNone, sortMode: SpriteSortMode.BackToFront, blendState: BlendState.AlphaBlend, transformMatrix: Matrix.CreateTranslation((float)CameraX * (Scale / aScale), 0, 0));
 
             if (aClientClass != null && aClientClass.Connected)
             {
@@ -959,7 +960,7 @@ namespace _2DLogicGame
             if (aBackBufferHeight != Window.ClientBounds.Height && Graphics.IsFullScreen == false) //Ak sa zmenila vyska
             {
                 aBackBufferHeight = Window.ClientBounds.Height;
-                aBackBufferWidth = (int) (Window.ClientBounds.Height / tmpAspectRatio);
+                aBackBufferWidth = (int)(Window.ClientBounds.Height / tmpAspectRatio);
             }
 
             if (Window.ClientBounds.Width == this.GraphicsDevice.Adapter.CurrentDisplayMode.Width) //Ak je sirka okna rovna maximalnej velkosti okna, predpokladame ze doslo k maximalizacii okna, zarovname okno
@@ -968,7 +969,7 @@ namespace _2DLogicGame
                 aBackBufferHeight = Window.ClientBounds.Height;
                 aBackBufferWidth = Window.ClientBounds.Width;
             }
-            
+
             //A tuto velkost realne nastavime oknu
             Graphics.PreferredBackBufferWidth = aBackBufferWidth;
             Graphics.PreferredBackBufferHeight = aBackBufferHeight;

@@ -114,10 +114,16 @@ namespace _2DLogicGame
         /// </summary>
         private bool aClientNeedsToShutdown;
 
+        /// <summary>
+        /// Atribut, ktory reprezentuje cislo levelu, ktore dostane klient od servera, pri incializacii - typ int.
+        /// </summary>
+        private int aInitialLevelNumber;
+
         public bool Connected { get => aConnected; set => aConnected = value; }
         public bool ClientNeedsToShutdown { get => aClientNeedsToShutdown; set => aClientNeedsToShutdown = value; }
         public string DisconnectMessage { get => GetCustomDisconnectMessage(); set => aDisconnectMessage = value; }
 
+        public int InitialLevelNumber { get => aInitialLevelNumber; set => aInitialLevelNumber = value; }
 
         /// <summary>
         /// Konstruktor triedy Klient.
@@ -299,6 +305,8 @@ namespace _2DLogicGame
 
                         if (tmpReceivedByte == (byte)PacketMessageType.Connect)
                         {
+                            
+                            InitialLevelNumber = tmpIncommingMessage.ReadVariableInt32();
 
                             this.AddPlayer(tmpIncommingMessage, PacketInfoRequestType.Init_Connect);
                         }

@@ -206,7 +206,7 @@ namespace _2DLogicGame
                     foreach (KeyValuePair<long, ServerSide.PlayerServerData> dictItem in aDictionaryPlayerData.ToList() //ToList -> Nakopiruje cely Dictionary do Listu... 
                     ) //Prejdeme vsetky data v Dictionary
                     {
-
+                        
                         CollisionHandler(aLevelManager, dictItem.Value, dictItem.Key);
 
                         dictItem.Value.Move((float)(aTickRate));
@@ -293,13 +293,14 @@ namespace _2DLogicGame
 
                     if (aLevelManager.WinCheck() && aLevelManager.WinInfoRequested == false) //Ak doslo k vyhre a este sme sme neprebrali informacie o vyhre
                     {
+                        Debug.WriteLine("Server - WON LEVEL");
                         aLevelManager.WinInfoRequested = true;
                         NetOutgoingMessage tmpNetOutgoingMessage = aServer.CreateMessage();
                         tmpNetOutgoingMessage.Write((byte)PacketMessageType.LevelWonChanged);
                         tmpNetOutgoingMessage = aLevelManager.PrepareLevelChangeMessage(tmpNetOutgoingMessage);
                         aServer.SendToAll(tmpNetOutgoingMessage, NetDeliveryMethod.ReliableOrdered);
                         aLevelManager.ChangeToNextLevel();
-
+                        
                         if (aDictionaryPlayerData.Count > 0) //Ak sa nachadza v Dictionary nejaky hrac, prepiseme jeho aktualnu poziciu na prednastavenu
                         {
                             foreach (KeyValuePair<long, ServerSide.PlayerServerData> dictItem in aDictionaryPlayerData.ToList())  //ToList -> Nakopiruje cely Dictionary do Listu... , Prejdeme vsetky data v Dictionary
@@ -717,7 +718,7 @@ namespace _2DLogicGame
 
                             //Odosle spat
                             SendMovementInfo(tmpIncommingMessage.SenderConnection.RemoteUniqueIdentifier);
-
+                            
 
 
                         }
@@ -855,6 +856,8 @@ namespace _2DLogicGame
 
             NetOutgoingMessage tmpOutgoingMessage = aServer.CreateMessage();
             tmpOutgoingMessage.Write((byte)PacketMessageType.Connect); //Identifikator o tom, ze ide o Spravu ohladom Pripojenia
+            
+            tmpOutgoingMessage.WriteVariableInt32(aLevelManager.CurrentLevelNumber);
 
             tmpOutgoingMessage.WriteVariableInt32(aDictionaryPlayerData[parRemoteUniqueIdentifier].PlayerID); //Player ID
             tmpOutgoingMessage.Write(aDictionaryPlayerData[parRemoteUniqueIdentifier].PlayerNickName); //Player Nickname

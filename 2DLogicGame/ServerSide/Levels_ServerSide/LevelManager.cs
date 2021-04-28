@@ -184,13 +184,12 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
             set => aGameFinishedInfoSent = value;
         }
 
-        public LevelMap LevelMap1
+        public int CurrentLevelNumber
         {
-            get => default;
-            set
-            {
-            }
+            get => aCurrentLevelNumber;
+            set => aCurrentLevelNumber = value;
         }
+
 
         /// <summary>
         /// Konstruktor manazera urovni.
@@ -243,14 +242,20 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
 
                 if (tmpLevel.DefaultPlayerPositionList != null)
                 {
+                    aPlayerDefaultPositionsDictionary.Clear();
+
                     for (int i = 0; i < tmpLevel.DefaultPlayerPositionList.Count; i++)
                     {
-                        Vector2 tmpNewVector2 = new Vector2(tmpLevel.DefaultPlayerPositionList[i].PositionX * GetMapBlocksDimensionSize(), tmpLevel.DefaultPlayerPositionList[i].PositionY * GetMapBlocksDimensionSize());
+                        Vector2 tmpNewVector2 = new Vector2(
+                            tmpLevel.DefaultPlayerPositionList[i].PositionX * GetMapBlocksDimensionSize(), 
+                            tmpLevel.DefaultPlayerPositionList[i].PositionY * GetMapBlocksDimensionSize()
+                            );
                         aPlayerDefaultPositionsDictionary.Add(i + 1, tmpNewVector2);
 
                         PlayerServerData tmpOutData = null;
                         if (aDictionaryPlayerDataWithKeyID.TryGetValue(i + 1, out tmpOutData))
                         {
+                            tmpOutData.DefaultPosition = tmpNewVector2;
                             tmpOutData.ReSpawn(true);
                         }
 
@@ -559,6 +564,7 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
         /// <returns></returns>
         public NetOutgoingMessage PrepareLevelInitDataForUpload(NetOutgoingMessage parOutgoingMessage)
         {
+
             parOutgoingMessage.WriteVariableInt32(aPointsFromPreviousLevels + aPointsForThisLevel);
 
             switch (aLevelName)
