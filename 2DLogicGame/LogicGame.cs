@@ -227,6 +227,16 @@ namespace _2DLogicGame
         private int aBackBufferHeight = 720; //720
 
         /// <summary>
+        /// Atribut, ktory reprezentuje prednastavenu sirku na aku sa ma vykreslit hra - typ int.
+        /// </summary>
+        private int aDefaultBackBufferWidth;
+
+        /// <summary>
+        /// Atribut, ktory reprezentuje prednastavenu vysku na aku sa ma vykreslit hra - typ int.
+        /// </summary>
+        private int aDefaultBackBufferHeight;
+
+        /// <summary>
         /// Atribut, ktory reprezentuje offset x-ovej suradnice kamery - typ float.
         /// </summary>
         private float aCameraX;
@@ -304,14 +314,15 @@ namespace _2DLogicGame
         /// </summary>
         public LogicGame()
         {
-
-
             Graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
             this.IsFixedTimeStep = false;
             this.TargetElapsedTime = TimeSpan.FromSeconds(1D / 30D);
             aCameraX = 0;
+
+            aDefaultBackBufferWidth = aBackBufferWidth;
+            aDefaultBackBufferHeight = aBackBufferHeight;
 
             //ODSTRANIT
 
@@ -449,6 +460,29 @@ namespace _2DLogicGame
         /// <param name="parGameTime">Parameter, reprezentujuci GameTime.</param>
         protected override void Update(GameTime parGameTime)
         {
+
+            if (CheckKeyPressedOnce(Keys.F1)) //Klavesa ktora vypne FullScreen
+            {
+                if (Graphics.IsFullScreen) //Ak je nastaveny "FullScreen", vypneme ho
+                {
+                    Graphics.IsFullScreen = false;
+
+                    //Prepiseme velkost Back Buffera
+                    aBackBufferHeight = aDefaultBackBufferHeight;
+                    aBackBufferWidth = aDefaultBackBufferWidth;
+
+                    Graphics.PreferredBackBufferWidth = aBackBufferWidth;
+                    Graphics.PreferredBackBufferHeight = aBackBufferHeight;
+
+                    //Vycentrujeme okno s ohladom na to, ze pouzivatel moze mat viac monitorov a okno moze mat otvorene na sekundarnom monitory
+                    Window.Position = new Point(
+                        (Window.ClientBounds.Left + (Graphics.GraphicsDevice.Adapter.CurrentDisplayMode.Width - aBackBufferWidth) / 2),
+                        (Window.ClientBounds.Top + (Graphics.GraphicsDevice.Adapter.CurrentDisplayMode.Height - aBackBufferHeight) / 2)
+                        );
+
+                    Graphics.ApplyChanges();
+                }
+            }
 
 
             if (aClientClass != null && aClientClass.ClientNeedsToShutdown)
