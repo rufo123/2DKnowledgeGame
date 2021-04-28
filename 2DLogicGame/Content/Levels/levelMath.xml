@@ -880,35 +880,35 @@
           <X>2</X>
           <Y>8</Y>
         </Position>
-        <BlockName>mathGenerateBlock</BlockName>
+        <BlockName>buttonBlock</BlockName>
       </BlockPosition>
       <BlockPosition>
         <Position>
           <X>5</X>
           <Y>8</Y>
         </Position>
-        <BlockName>mathGenerateBlock</BlockName>
+        <BlockName>buttonBlock</BlockName>
       </BlockPosition>
       <BlockPosition>
         <Position>
           <X>8</X>
           <Y>8</Y>
         </Position>
-        <BlockName>mathGenerateBlock</BlockName>
+        <BlockName>buttonBlock</BlockName>
       </BlockPosition>
       <BlockPosition>
         <Position>
           <X>11</X>
           <Y>8</Y>
         </Position>
-        <BlockName>mathGenerateBlock</BlockName>
+        <BlockName>buttonBlock</BlockName>
       </BlockPosition>
       <BlockPosition>
         <Position>
           <X>14</X>
           <Y>8</Y>
         </Position>
-        <BlockName>mathGenerateBlock</BlockName>
+        <BlockName>buttonBlock</BlockName>
       </BlockPosition>
       <BlockPosition>
         <Position>
@@ -1467,21 +1467,21 @@
           <X>22</X>
           <Y>15</Y>
         </Position>
-        <BlockName>mathInputBlock</BlockName>
+        <BlockName>inputBlock</BlockName>
       </BlockPosition>
       <BlockPosition>
         <Position>
           <X>23</X>
           <Y>15</Y>
         </Position>
-        <BlockName>mathInputBlock</BlockName>
+        <BlockName>inputBlock</BlockName>
       </BlockPosition>
       <BlockPosition>
         <Position>
           <X>24</X>
           <Y>15</Y>
         </Position>
-        <BlockName>mathInputBlock</BlockName>
+        <BlockName>inputBlock</BlockName>
       </BlockPosition>
       <BlockPosition>
         <Position>

@@ -28,13 +28,9 @@ namespace LevelCreator
 
             string tmpNewVocabularyFileName = Console.ReadLine();
 
-            tmpNewVocabularyFileName = "Vocabulary\\vocabulary.xml";
-
             Console.WriteLine("Zadaj cestu a nazov suboru pre level. Pozn - Musi sa nachadzat v zlozke s Projektom...");
 
             string tmpVocabularyTxtFilePath = AppContext.BaseDirectory + Console.ReadLine(); //Nezabudnut nastavit - Tuknut na TXT - Copy to OutPut Directory na Always...
-
-            tmpVocabularyTxtFilePath = "Vocabulary\\vocabulary.txt";
 
             while (!File.Exists(tmpVocabularyTxtFilePath)) //Ak takyto subor neexistuje
             {

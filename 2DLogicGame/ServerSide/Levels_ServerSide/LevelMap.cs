@@ -178,7 +178,7 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
                         aEnglishServerManager.AddEndBlock(tmpEndBlock);
                     }
                 }
-                else if (parBlockPositions[i].BlockName == "mathGenerateBlock")
+                else if (parBlockPositions[i].BlockName == "buttonBlock")
                 {
                     ButtonBlockServer tmpButtonBlock = new ButtonBlockServer(tmpBlockPosition);
                     aBlockPositionDictionary.Add(tmpBlockPosition, tmpButtonBlock);
@@ -197,7 +197,7 @@ namespace _2DLogicGame.ServerSide.Levels_ServerSide
                         aEnglishServerManager.AddButton(tmpButtonBlock);
                     }
                 }
-                else if (parBlockPositions[i].BlockName == "mathInputBlock")
+                else if (parBlockPositions[i].BlockName == "inputBlock")
                 {
                     InputBlockServer tmpInputBlock = new InputBlockServer(tmpBlockPosition);
                     aBlockPositionDictionary.Add(tmpBlockPosition, tmpInputBlock);

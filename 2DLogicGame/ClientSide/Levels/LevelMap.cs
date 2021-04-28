@@ -189,7 +189,7 @@ namespace _2DLogicGame.ClientSide.Levels
                     aBlockPositionDictionary.Add(tmpBlockPosition, tmpEndBlock);
                     aBlockList.Add(tmpEndBlock);
                 }
-                else if (parBlockPositions[i].BlockName == "mathGenerateBlock")
+                else if (parBlockPositions[i].BlockName == "buttonBlock")
                 {
 
                     ButtonBlock tmpButtonBlock = new ButtonBlock(aLogicGame, tmpBlockPosition);
@@ -210,7 +210,7 @@ namespace _2DLogicGame.ClientSide.Levels
                         aEnglishManager.AddButton(tmpButtonBlock);
                     }
                 }
-                else if (parBlockPositions[i].BlockName == "mathInputBlock")
+                else if (parBlockPositions[i].BlockName == "inputBlock")
                 {
                     InputBlock tmpInputBlock = new InputBlock(aLogicGame, tmpBlockPosition, parHasStates: true, parCountOfFrames: 5);
                     aBlockPositionDictionary.Add(tmpBlockPosition, tmpInputBlock);

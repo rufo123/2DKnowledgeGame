@@ -65,7 +65,10 @@ namespace _2DLogicGame.ClientSide.MathProblem
             aFirstNumber = parFirstNumber;
             aSecondNumber = parSecondNumber;
             GenerateOperator();
-            Debug.WriteLine("Swapped: " + SwapWithCheck());
+            if (SwapWithCheck()) //Vymenime cisla medzi sebou, ak je to potrebne a v pripade vymeny vypiseme Debug Hlasku
+            {
+                Debug.WriteLine("Swapped!");
+            }
         }
 
         /// <summary>

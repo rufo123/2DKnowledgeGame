@@ -35,11 +35,6 @@
 /processorParam:TextureFormat=Compressed
 /build:Fonts/StickRegular72.spritefont
 
-#begin Levels/level1.xml
-/importer:XmlImporter
-/processor:PassThroughProcessor
-/build:Levels/level1.xml
-
 #begin Levels/levelEnglish.xml
 /importer:XmlImporter
 /processor:PassThroughProcessor
@@ -54,11 +49,6 @@
 /importer:XmlImporter
 /processor:PassThroughProcessor
 /build:Levels/levelQuestions.xml
-
-#begin Levels/levelSwap.xml
-/importer:XmlImporter
-/processor:PassThroughProcessor
-/build:Levels/levelSwap.xml
 
 #begin Music/playing.mp3
 /importer:Mp3Importer

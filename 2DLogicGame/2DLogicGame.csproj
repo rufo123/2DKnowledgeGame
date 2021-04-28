@@ -67,4 +67,7 @@
   <ItemGroup>
     <ProjectReference Include="..\XMLData\XMLData.csproj" />
   </ItemGroup>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="if not exist $(TargetDir)\Content\Configuration mkdir $(TargetDir)\Content\Configuration&#xD;&#xA;" />
+  </Target>
 </Project>

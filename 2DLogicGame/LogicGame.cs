@@ -473,6 +473,7 @@ namespace _2DLogicGame
 
                     Graphics.PreferredBackBufferWidth = aBackBufferWidth;
                     Graphics.PreferredBackBufferHeight = aBackBufferHeight;
+                   
 
                     //Vycentrujeme okno s ohladom na to, ze pouzivatel moze mat viac monitorov a okno moze mat otvorene na sekundarnom monitory
                     Window.Position = new Point(
@@ -480,6 +481,7 @@ namespace _2DLogicGame
                         (Window.ClientBounds.Top + (Graphics.GraphicsDevice.Adapter.CurrentDisplayMode.Height - aBackBufferHeight) / 2)
                         );
 
+                    //Bohuzial ale nedojde k aktualizacii tlacidla na maximalizaciu/minimalizaciu okna, toto sa stane az po manualnom posunuti obrazovky
                     Graphics.ApplyChanges();
                 }
             }

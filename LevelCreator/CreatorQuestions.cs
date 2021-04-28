@@ -28,13 +28,9 @@ namespace LevelCreator
 
             string tmpNewQuestionsFileName = Console.ReadLine();
 
-            tmpNewQuestionsFileName = "Questions\\questions.xml";
-
             Console.WriteLine("Zadaj cestu a nazov suboru pre level. Pozn - Musi sa nachadzat v zlozke s Projektom...");
 
             string tmpQuestionsTxtFilePath = AppContext.BaseDirectory + Console.ReadLine(); //Nezabudnut nastavit - Tuknut na TXT - Copy to OutPut Directory na Always...
-
-            tmpQuestionsTxtFilePath = "Questions\\Questions.txt";
 
             while (!File.Exists(tmpQuestionsTxtFilePath)) //Ak takyto subor neexistuje
             {
