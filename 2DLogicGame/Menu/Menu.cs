@@ -171,6 +171,14 @@ namespace _2DLogicGame
 
             //  aLogicGame.SpriteBatch.Begin();
             aLogicGame.SpriteBatch.Draw(aMenuBackground, new Vector2(0, 0), null, Color.White, 0F, Vector2.Zero, 1F, SpriteEffects.None, 0.1F);
+
+            //Vykreslenie nazvu autora hudby, prepocitanie suradnic do praveho dolneho rohu
+            Vector2 tmpVectorOfMusicCredits = new Vector2(aLogicGame.RenderTarget.Width - aLogicGame.Font28.MeasureString("Music by: Rolemusic").X, aLogicGame.RenderTarget.Height - aLogicGame.Font28.MeasureString("Music by: Rolemusic").Y );
+            aLogicGame.SpriteBatch.DrawString(aLogicGame.Font28, "Music by: Rolemusic", tmpVectorOfMusicCredits, Color.White, 0F, Vector2.Zero, 1F, SpriteEffects.None, 0F);
+
+            //Vykreslenie autora hry, prepocitanie suradnic do laveho dolneho rohu
+            Vector2 tmpVectorOfAuthorCredits = new Vector2(0, aLogicGame.RenderTarget.Height - aLogicGame.Font28.MeasureString("Created by: Rudolf Simo").Y);
+            aLogicGame.SpriteBatch.DrawString(aLogicGame.Font28, "Created by: Rudolf Simo", tmpVectorOfAuthorCredits, Color.White, 0F, Vector2.Zero, 1F, SpriteEffects.None, 0F);
             // aLogicGame.SpriteBatch.End();
 
 
